@@ -1,0 +1,316 @@
+<header id="anaj-header" class="anaj-header" role="banner" aria-label="Nagłówek ANAJ" style="--bg:#f6efe3;--bg2:#ead9c0;--ink:#2f271f;--gold:#edc68d;--gold2:#d1b078;">
+  <div class="anaj-header__bar">
+    <!-- Burger -->
+    <button class="anaj-btn anaj-btn--icon" id="anaj-menu-toggle" aria-label="Otwórz menu" aria-expanded="false" aria-controls="anaj-drawer">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M3 6h18v2H3V6Zm0 5h18v2H3v-2Zm0 5h18v2H3v-2Z"/></svg>
+    </button>
+
+    <!-- Logo -->
+    <a class="anaj-logo" href="{{ routes.root_url }}" aria-label="{{ shop.name }}">
+      <img src="https://cdn.shopify.com/s/files/1/0994/5196/1676/files/anaj_logo.png?v=1762288773"
+           alt="{{ shop.name }}" width="600" height="160"
+           class="anaj-logo__img anaj-only-desktop" style="height:48px">
+      <img src="https://cdn.shopify.com/s/files/1/0994/5196/1676/files/anaj_logo.png?v=1762288773"
+           alt="{{ shop.name }}" width="300" height="80"
+           class="anaj-logo__img anaj-only-mobile" style="height:38px">
+    </a>
+
+    <!-- Ikony: Szukaj + Koszyk -->
+    <div class="anaj-header__icons">
+      <a class="anaj-btn anaj-btn--icon" href="{{ routes.search_url }}" aria-label="Szukaj">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M10 4a6 6 0 1 1-4.24 10.24l-3.27 3.27 1.41 1.41 3.27-3.27A6 6 0 1 1 10 4Z"/></svg>
+      </a>
+
+      <a class="anaj-btn anaj-btn--icon anaj-cart" id="anaj-cart-link" href="{{ routes.cart_url }}" aria-label="Koszyk{% if cart.item_count > 0 %} — {{ cart.item_count }} szt.{% else %} — pusty{% endif %}">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M7 18a2 2 0 1 0 2 2 2 2 0 0 0-2-2Zm10 0a2 2 0 1 0 2 2 2 2 0 0 0-2-2ZM3 4h2l2.68 9.39A2 2 0 0 0 9.6 15h7.9a2 2 0 0 0 1.93-1.52L22 7H6"/></svg>
+        <span class="anaj-cart__count" id="anaj-cart-count" aria-live="polite" aria-atomic="true" {% unless cart.item_count > 0 %}hidden{% endunless %}>{{ cart.item_count }}</span>
+      </a>
+    </div>
+  </div>
+
+  {% assign nav = linklists['main-menu'] %}
+  {% if nav and nav.links.size > 0 %}
+    <nav class="anaj-nav anaj-only-desktop" aria-label="Główne menu">
+      <ul class="anaj-nav__list">
+        {% for link in nav.links %}
+          <li class="anaj-nav__item"><a class="anaj-nav__link" href="{{ link.url }}">{{ link.title }}</a></li>
+        {% endfor %}
+      </ul>
+    </nav>
+  {% endif %}
+
+  <!-- Drawer (mobile) -->
+  <div class="anaj-drawer" id="anaj-drawer" aria-hidden="true">
+    <div class="anaj-drawer__overlay" id="anaj-drawer-overlay"></div>
+    <aside class="anaj-drawer__panel" role="dialog" aria-label="Menu">
+      <div class="anaj-drawer__head">
+        <span>Menu</span>
+        <button class="anaj-btn" id="anaj-menu-close" aria-label="Zamknij menu">✕</button>
+      </div>
+      <nav class="anaj-drawer__nav">
+        <ul>
+          {% if nav and nav.links.size > 0 %}
+            {% for link in nav.links %}
+              <li><a href="{{ link.url }}">{{ link.title }}</a></li>
+            {% endfor %}
+          {% else %}
+            <li><a href="{{ routes.root_url }}">Strona główna</a></li>
+            <li><a href="/collections/rogale">Rogale</a></li>
+            <li><a href="/collections/wszystkie">Sklep</a></li>
+            <li><a href="/pages/kontakt">Kontakt</a></li>
+          {% endif %}
+        </ul>
+      </nav>
+    </aside>
+  </div>
+</header>
+
+<style>
+/* ===== Full-bleed bez białych pasków + reset guzików ===== */
+.shopify-section:has(#anaj-header){ padding-left:0 !important; padding-right:0 !important; }
+
+.anaj-header{
+  position: sticky;
+  top: var(--anaj-ann-h, 0px);
+  z-index: 3900;
+  color: var(--ink);
+  font: 600 14px/1.2 system-ui, Segoe UI, Roboto, Arial, sans-serif;
+  border-bottom: 1px solid rgba(0,0,0,.06);
+  box-shadow: 0 4px 12px rgba(0,0,0,.06);
+  background: transparent;
+}
+
+/* Tło full-bleed nagłówka */
+.anaj-header::before{
+  content:"";
+  position:absolute;
+  inset-block:0;
+  left:50%;
+  transform:translateX(-50%);
+  width:100lvw;
+  background:
+    linear-gradient(90deg,var(--bg),var(--bg2),var(--bg));
+  z-index:-1;
+  pointer-events:none;
+  border-top:2px solid transparent;
+  background-image:
+    linear-gradient(90deg,var(--bg),var(--bg2),var(--bg)),
+    linear-gradient(90deg, transparent, var(--gold), var(--gold2), var(--gold), transparent);
+  background-origin: border-box;
+  background-clip: padding-box,border-box;
+}
+@supports not (width: 100lvw){
+  .anaj-header::before{ width:100vw; }
+}
+
+/* Pasek górny */
+.anaj-header__bar{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:.55rem 1rem;
+}
+
+/* Reset przycisków/ikon */
+.anaj-btn{
+  background:transparent !important;
+  border:0 !important;
+  padding:.25rem .35rem !important;
+  border-radius:0 !important;
+  box-shadow:none !important;
+  color:inherit !important;
+  cursor:pointer;
+}
+.anaj-btn--icon{ display:inline-flex; align-items:center; justify-content:center; }
+
+.anaj-logo{ display:inline-flex; align-items:center; justify-content:center; text-decoration:none; }
+.anaj-logo__img{ display:block; height:auto; max-height:64px; width:auto; }
+.anaj-only-desktop{ display:none; }
+.anaj-only-mobile{ display:block; }
+
+.anaj-header__icons{ display:flex; align-items:center; gap:.25rem; }
+.anaj-cart{ position:relative; }
+.anaj-cart__count{
+  position:absolute; top:-6px; right:-6px; min-width:18px; height:18px; padding:0 5px;
+  background:var(--gold2); color:#2f271f; border-radius:999px; font-size:12px; font-weight:800;
+  display:flex; align-items:center; justify-content:center; box-shadow:0 1px 4px rgba(0,0,0,.12);
+  line-height:1; transform: translateZ(0);
+}
+.anaj-cart__count[hidden]{ display:none !important; }
+
+/* Desktop nav */
+.anaj-nav{ border-top:1px solid rgba(0,0,0,.06); }
+.anaj-nav__list{ margin:0; padding:.45rem 1rem; list-style:none; display:flex; gap:1rem; justify-content:center; }
+.anaj-nav__link{ color:var(--ink); text-decoration:none; padding:.25rem .4rem; border-radius:8px; }
+.anaj-nav__link:hover{ background:rgba(0,0,0,.05); }
+
+/* ===== Drawer (mobile) w stylu ANAJ ===== */
+.anaj-drawer{ position:fixed; inset:0; display:none; }
+.anaj-drawer.is-open{ display:block; }
+
+.anaj-drawer__overlay{
+  position:absolute; inset:0;
+  background:rgba(0,0,0,.28);
+  opacity:0; transition:opacity .25s ease;
+  backdrop-filter:saturate(120%) blur(2px);
+}
+
+.anaj-drawer__panel{
+  position:absolute; top:0; left:0; height:100%; width:min(86vw,360px);
+  /* warstwa tła: pasy kraftowe + delikatny połysk */
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.28), rgba(255,255,255,0)) 0 0 / 100% 120px no-repeat,
+    repeating-linear-gradient(90deg, var(--bg) 0 26px, var(--bg2) 26px 52px);
+  color:var(--ink);
+  transform:translateX(-100%); transition:transform .25s ease;
+  box-shadow: 3px 0 22px rgba(0,0,0,.22);
+  display:flex; flex-direction:column;
+  border-right:2px solid var(--gold2);
+}
+.anaj-drawer.is-open .anaj-drawer__overlay{ opacity:1; }
+.anaj-drawer.is-open .anaj-drawer__panel{ transform:translateX(0); }
+
+.anaj-drawer__head{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:.9rem 1rem;
+  /* belka: gładki beż + złota dolna krawędź */
+  background:linear-gradient(90deg, var(--bg2), var(--bg));
+  border-bottom:2px solid var(--gold2);
+  font-weight:800; letter-spacing:.2px;
+}
+
+.anaj-drawer__nav ul{ list-style:none; margin:0; padding:.4rem 0; }
+.anaj-drawer__nav li{
+  border-bottom:1px dashed rgba(47,39,31,.18);
+}
+.anaj-drawer__nav a{
+  display:block; padding:1rem 1rem;
+  color:var(--ink); text-decoration:none; font-weight:650;
+  text-shadow:0 1px 0 rgba(255,255,255,.4);
+  transition:background .2s ease, transform .06s ease;
+}
+.anaj-drawer__nav a:hover{
+  background:rgba(237,198,141,.25);
+}
+.anaj-drawer__nav a:active{
+  transform:translateY(1px);
+}
+
+/* RWD */
+@media (min-width: 990px){
+  .anaj-only-desktop{ display:block; }
+  .anaj-only-mobile{ display:none; }
+  .anaj-header__bar{ padding:.65rem 1.25rem; }
+}
+</style>
+
+<script>
+/* Drawer toggle */
+(function(){
+  var toggle = document.getElementById('anaj-menu-toggle');
+  var drawer = document.getElementById('anaj-drawer');
+  var overlay = document.getElementById('anaj-drawer-overlay');
+  var close = document.getElementById('anaj-menu-close');
+
+  function openDrawer(){ drawer.classList.add('is-open'); toggle && toggle.setAttribute('aria-expanded','true'); document.body.style.overflow='hidden'; }
+  function closeDrawer(){ drawer.classList.remove('is-open'); toggle && toggle.setAttribute('aria-expanded','false'); document.body.style.overflow=''; }
+
+  toggle && toggle.addEventListener('click', openDrawer);
+  close && close.addEventListener('click', closeDrawer);
+  overlay && overlay.addEventListener('click', closeDrawer);
+  document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeDrawer(); });
+})();
+
+/* ===== Dynamiczny licznik koszyka przy ikonie ===== */
+(function(){
+  var countEl = document.getElementById('anaj-cart-count');
+  var linkEl  = document.getElementById('anaj-cart-link');
+
+  function formatCount(n){ return n > 99 ? '99+' : String(n); }
+
+  function paint(n){
+    if(!countEl) return;
+    if(n > 0){
+      countEl.textContent = formatCount(n);
+      countEl.hidden = false;
+    } else {
+      countEl.textContent = '0';
+      countEl.hidden = true;
+    }
+    if(linkEl){
+      linkEl.setAttribute('aria-label', n > 0 ? ('Koszyk — ' + n + ' szt.') : 'Koszyk — pusty');
+    }
+  }
+
+  async function fetchCount(){
+    try{
+      var res = await fetch('/cart.js', { credentials: 'same-origin' });
+      if(!res.ok) throw new Error('Cart fetch failed');
+      var data = await res.json();
+      paint(data.item_count || 0);
+    }catch(e){
+      /* cicho */
+    }
+  }
+
+  window.ANAJ = window.ANAJ || {};
+  window.ANAJ.updateCartCount = function(){ fetchCount(); };
+
+  document.addEventListener('DOMContentLoaded', fetchCount);
+  window.addEventListener('pageshow', fetchCount);
+  document.addEventListener('visibilitychange', function(){ if(!document.hidden) fetchCount(); });
+
+  ['cart:updated','cart:add','ajaxProduct:added','cart:refresh','lineItem:changed','shopify:section:load'].forEach(function(ev){
+    document.addEventListener(ev, fetchCount);
+  });
+
+  if(window.fetch){
+    var _fetch = window.fetch;
+    window.fetch = function(){
+      var args = arguments;
+      return _fetch.apply(this, args).then(function(res){
+        try{
+          var url = (args[0] && args[0].url) || args[0];
+          if(typeof url === 'string' && /\/cart\/(add|change|update)\.js(\?|$)/.test(url)){
+            res.clone().text().finally(fetchCount);
+          }
+        }catch(e){}
+        return res;
+      });
+    };
+  }
+
+  (function(){
+    var XHR = window.XMLHttpRequest;
+    if(!XHR) return;
+    var open = XHR.prototype.open, send = XHR.prototype.send;
+    XHR.prototype.open = function(method, url){
+      this.__anaj_url = url;
+      return open.apply(this, arguments);
+    };
+    XHR.prototype.send = function(){
+      var self = this;
+      var url = self.__anaj_url || '';
+      function maybeUpdate(){
+        try{
+          if(typeof url === 'string' && /\/cart\/(add|change|update)\.js(\?|$)/.test(url)){ fetchCount(); }
+        }catch(e){}
+      }
+      this.addEventListener('load', maybeUpdate);
+      this.addEventListener('error', maybeUpdate);
+      return send.apply(this, arguments);
+    };
+  })();
+})();
+</script>
+
+{% schema %}
+{
+  "name": "Nagłówek ANAJ (custom)",
+  "settings": [],
+  "blocks": [],
+  "presets": [
+    {
+      "name": "Nagłówek ANAJ"
+    }
+  ]
+}
+{% endschema %}
