@@ -177,19 +177,39 @@
   font-weight:800; letter-spacing:.2px;
 }
 
-.anaj-drawer__nav ul{ list-style:none; margin:0; padding:.4rem 0; }
+.anaj-drawer__nav ul{
+  list-style:none;
+  margin:0;
+  padding:.4rem 0;
+}
+
+/* BEZ szarych linii między pozycjami */
 .anaj-drawer__nav li{
-  border-bottom:1px dashed rgba(47,39,31,.18);
+  border-bottom:none;
 }
+
+/* Linki w menu z animacją */
 .anaj-drawer__nav a{
-  display:block; padding:1rem 1rem;
-  color:var(--ink); text-decoration:none; font-weight:650;
+  display:block;
+  padding:1rem 1.1rem;
+  color:var(--ink);
+  text-decoration:none;
+  font-weight:650;
   text-shadow:0 1px 0 rgba(255,255,255,.4);
-  transition:background .2s ease, transform .06s ease;
+  transition:
+    background .18s ease,
+    padding-left .18s ease,
+    transform .08s ease;
 }
-.anaj-drawer__nav a:hover{
+
+/* Hover/focus – lekki "wjazd" tekstu i tło */
+.anaj-drawer__nav a:hover,
+.anaj-drawer__nav a:focus-visible{
   background:rgba(237,198,141,.25);
+  padding-left:1.45rem;
 }
+
+/* Kliknięcie – drobny "docisk" */
 .anaj-drawer__nav a:active{
   transform:translateY(1px);
 }
@@ -210,12 +230,22 @@
   var overlay = document.getElementById('anaj-drawer-overlay');
   var close = document.getElementById('anaj-menu-close');
 
-  function openDrawer(){ drawer.classList.add('is-open'); toggle && toggle.setAttribute('aria-expanded','true'); document.body.style.overflow='hidden'; }
-  function closeDrawer(){ drawer.classList.remove('is-open'); toggle && toggle.setAttribute('aria-expanded','false'); document.body.style.overflow=''; }
+  function openDrawer(){
+    if(!drawer) return;
+    drawer.classList.add('is-open');
+    if(toggle) toggle.setAttribute('aria-expanded','true');
+    document.body.style.overflow='hidden';
+  }
+  function closeDrawer(){
+    if(!drawer) return;
+    drawer.classList.remove('is-open');
+    if(toggle) toggle.setAttribute('aria-expanded','false');
+    document.body.style.overflow='';
+  }
 
-  toggle && toggle.addEventListener('click', openDrawer);
-  close && close.addEventListener('click', closeDrawer);
-  overlay && overlay.addEventListener('click', closeDrawer);
+  if(toggle) toggle.addEventListener('click', openDrawer);
+  if(close) close.addEventListener('click', closeDrawer);
+  if(overlay) overlay.addEventListener('click', closeDrawer);
   document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeDrawer(); });
 })();
 
