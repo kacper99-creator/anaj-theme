@@ -143,8 +143,17 @@
 .anaj-nav__link:hover{ background:rgba(0,0,0,.05); }
 
 /* ===== Drawer (mobile) w stylu ANAJ ===== */
-.anaj-drawer{ position:fixed; inset:0; display:none; }
-.anaj-drawer.is-open{ display:block; }
+.anaj-drawer{
+  position:fixed;
+  inset:0;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .24s ease-out;
+}
+.anaj-drawer.is-open{
+  opacity:1;
+  pointer-events:auto;
+}
 
 .anaj-drawer__overlay{
   position:absolute; inset:0;
@@ -160,13 +169,20 @@
     linear-gradient(180deg, rgba(255,255,255,.28), rgba(255,255,255,0)) 0 0 / 100% 120px no-repeat,
     repeating-linear-gradient(90deg, var(--bg) 0 26px, var(--bg2) 26px 52px);
   color:var(--ink);
-  transform:translateX(-100%); transition:transform .25s ease;
   box-shadow: 3px 0 22px rgba(0,0,0,.22);
   display:flex; flex-direction:column;
   border-right:2px solid var(--gold2);
+  transform:translateX(-16px);
+  opacity:0;
+  transition:
+    transform .26s cubic-bezier(.22,.61,.36,1),
+    opacity .26s ease-out;
 }
 .anaj-drawer.is-open .anaj-drawer__overlay{ opacity:1; }
-.anaj-drawer.is-open .anaj-drawer__panel{ transform:translateX(0); }
+.anaj-drawer.is-open .anaj-drawer__panel{
+  transform:translateX(0);
+  opacity:1;
+}
 
 .anaj-drawer__head{
   display:flex; align-items:center; justify-content:space-between;
