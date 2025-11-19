@@ -11,10 +11,17 @@
   <div id="{{ GID }}" class="anaj-gal" style="grid-area: gal;">
     {% assign first = gallery.first %}
     <div class="anaj-gal__stage">
-      <img id="{{ GID }}-stage"
-           src="{{ first | image_url: width: 1600 }}"
-           alt="{{ first.alt | escape | default: product.title }}"
-           loading="eager" fetchpriority="high">
+      <div class="anaj-gal__track">
+        {% for img in gallery %}
+          <div class="anaj-gal__slide">
+            <img
+              src="{{ img | image_url: width: 1600 }}"
+              alt="{{ img.alt | escape | default: product.title }}"
+              loading="{% if forloop.first %}eager{% else %}lazy{% endif %}"
+              {% if forloop.first %}fetchpriority="high"{% endif %}>
+          </div>
+        {% endfor %}
+      </div>
       <button class="anaj-gal__nav is-prev" aria-label="Poprzednie zdjęcie">‹</button>
       <button class="anaj-gal__nav is-next" aria-label="Następne zdjęcie">›</button>
     </div>
@@ -200,14 +207,12 @@
 
     {%- comment -%} AKORDEONY – domyślnie zamknięte {%- endcomment -%}
 
-    {% if product.description != blank %}
     <details class="anaj-acc__item anaj-card">
       <summary>O produkcie</summary>
       <div class="anaj-acc__content">
-        {{ product.description }}
+        {{ product.description | default: 'Brak dodatkowego opisu produktu.' }}
       </div>
     </details>
-    {% endif %}
 
     {% if ingredients or allergens %}
     <details class="anaj-acc__item anaj-card">
@@ -228,7 +233,7 @@
     {% endif %}
 
     <details class="anaj-acc__item anaj-card">
-      <summary>Wartości odżywcze (na 100 g)</summary>
+      <summary>Wartości odżywcze</summary>
       <div class="anaj-acc__content">
         {% if nutrition %}
           {{ nutrition }}
@@ -333,6 +338,7 @@ html, body{
   background:transparent;
   box-shadow:0 14px 30px rgba(0,0,0,.12);
   touch-action:pan-y;
+  aspect-ratio:4 / 3;
 }
 #{{ GID }} .anaj-gal__track{
   display:flex;
@@ -700,13 +706,14 @@ html, body{
 }
 
 #{{ ROOT }} .anaj-title{
-  margin:4px 0 0 0;
+  margin:6px 0 0 0;
   text-align:center;
   text-transform:uppercase;
   letter-spacing:.03em;
   font-weight:900 !important;
-  font-size:clamp(30px, 5vw, 52px) !important;
-  line-height:1.03 !important;
+  font-size:clamp(34px, 5.6vw, 60px) !important;
+  line-height:1.04 !important;
+  display:inline-block;
 
   /* mocny, „złoty” efekt, ale elegancki */
   background:linear-gradient(180deg,#fff8e8 0%, #f6c97d 45%, #d79b4c 100%);
@@ -715,13 +722,24 @@ html, body{
   color:transparent;
 
   text-shadow:
-    0 2px 0 rgba(255,255,255,0.9),
-    0 10px 22px rgba(0,0,0,.35);
+    0 2px 0 rgba(255,255,255,0.92),
+    0 12px 26px rgba(0,0,0,.36);
+}
+
+#{{ ROOT }} .anaj-title::after{
+  content:"";
+  display:block;
+  width:clamp(110px, 28vw, 210px);
+  height:6px;
+  margin:12px auto 0;
+  border-radius:999px;
+  background:linear-gradient(90deg,#fef4dd 0%, #f6c97d 48%, #d79b4c 100%);
+  box-shadow:0 10px 22px rgba(0,0,0,.25);
 }
 
 @media (max-width: 750px){
   #{{ ROOT }} .anaj-title{
-    font-size:clamp(24px, 7vw, 34px) !important;
+    font-size:clamp(26px, 8vw, 38px) !important;
     padding-inline:8px;
   }
 }
@@ -795,10 +813,9 @@ html, body{
   font-family: var(--font-body-family);
 }
 
-/* Tytuł korzysta z tego samego fontu (żeby ą, ę, ł nie odstawały),
-   ale jest mocniej dociążony wizualnie */
+/* Tytuł korzysta z dekoracyjnego fontu nagłówków */
 #{{ ROOT }} .anaj-title{
-  font-family: var(--font-body-family);
+  font-family: var(--font-heading-family);
   font-weight:900 !important;
 }
 
@@ -827,37 +844,45 @@ html, body{
       const imgs = JSON.parse(imgsEl.textContent || '[]');
       const gal  = document.getElementById('{{ GID }}');
 
-      if (gal && Array.isArray(imgs) && imgs.length > 0) {
+      if (gal) {
         const stage = gal.querySelector('.anaj-gal__stage');
         const prev  = gal.querySelector('.anaj-gal__nav.is-prev');
         const next  = gal.querySelector('.anaj-gal__nav.is-next');
 
         if (stage && prev && next) {
-          const navs = [prev, next];
+          let track = stage.querySelector('.anaj-gal__track');
+          let slides = [...(track?.querySelectorAll('.anaj-gal__slide') || [])];
 
-          const track = document.createElement('div');
-          track.className = 'anaj-gal__track';
+          if ((!track || slides.length === 0) && Array.isArray(imgs) && imgs.length > 0) {
+            const navs = [prev, next];
+            track = document.createElement('div');
+            track.className = 'anaj-gal__track';
 
-          imgs.forEach((src, idx) => {
-            const slide = document.createElement('div');
-            slide.className = 'anaj-gal__slide';
+            imgs.forEach((src, idx) => {
+              const slide = document.createElement('div');
+              slide.className = 'anaj-gal__slide';
 
-            const img = document.createElement('img');
-            img.src = src;
-            img.alt = stage.querySelector('img')?.alt || '{{ product.title | escape }}';
-            img.loading = idx === 0 ? 'eager' : 'lazy';
-            img.decoding = 'async';
+              const img = document.createElement('img');
+              img.src = src;
+              img.alt = stage.querySelector('img')?.alt || '{{ product.title | escape }}';
+              img.loading = idx === 0 ? 'eager' : 'lazy';
+              img.decoding = 'async';
+              if (idx === 0) img.fetchPriority = 'high';
 
-            slide.appendChild(img);
-            track.appendChild(slide);
-          });
+              slide.appendChild(img);
+              track.appendChild(slide);
+            });
 
-          stage.innerHTML = '';
-          stage.appendChild(track);
-          navs.forEach(btn => stage.appendChild(btn));
+            stage.innerHTML = '';
+            stage.appendChild(track);
+            navs.forEach(btn => stage.appendChild(btn));
+            slides = [...track.querySelectorAll('.anaj-gal__slide')];
+          }
+
+          if (!track || slides.length === 0) return;
 
           let current = 0;
-          const N = imgs.length;
+          const N = slides.length;
 
           const goTo = (n) => {
             if (!N) return;
