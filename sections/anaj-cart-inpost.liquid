@@ -1,0 +1,437 @@
+{% comment %}
+  Sekcja: ANAJ – koszyk z InPost Geowidget
+{% endcomment %}
+
+<section id="anaj-cart-{{ section.id }}" class="anaj-cart-bleed">
+  <!-- InPost Geowidget assets (można też dodać globalnie w theme.liquid w <head>) -->
+  <link rel="stylesheet" href="https://geowidget.inpost.pl/inpost-geowidget.css">
+  <script src="https://geowidget.inpost.pl/inpost-geowidget.js" defer></script>
+
+  <div class="anaj-cart container">
+    {% if cart.item_count == 0 %}
+      <div class="anaj-empty">
+        <h1>Twój koszyk jest pusty</h1>
+        <p>Gdy dodasz produkty, pojawią się tutaj. Zapraszamy do dalszych zakupów!</p>
+        <a class="btn btn--primary" href="/collections/all">Kontynuuj zakupy</a>
+      </div>
+    {% else %}
+      {%- assign ship_threshold = 19900 -%}
+      {%- assign left = ship_threshold | minus: cart.items_subtotal_price -%}
+
+      {%- assign _n = cart.item_count -%}
+      {%- assign _m10 = _n | modulo: 10 -%}
+      {%- assign _m100 = _n | modulo: 100 -%}
+      {%- assign prod_word = 'produktów' -%}
+      {% if _n == 1 %}
+        {%- assign prod_word = 'produkt' -%}
+      {% elsif _m10 >= 2 and _m10 <= 4 %}
+        {% if _m100 >= 12 and _m100 <= 14 %}
+          {%- assign prod_word = 'produktów' -%}
+        {% else %}
+          {%- assign prod_word = 'produkty' -%}
+        {% endif %}
+      {% endif %}
+
+      <div class="anaj-head">
+        <h1>Koszyk</h1>
+        <p>Masz <strong>{{ cart.item_count }}</strong> {{ prod_word }} w koszyku.</p>
+      </div>
+
+      {% if left > 0 %}
+        <div class="ship-progress" role="status" aria-live="polite">
+          <div class="ship-progress__bar" aria-hidden="true">
+            {%- assign pct = cart.items_subtotal_price | times: 100 | divided_by: ship_threshold -%}
+            <span style="width: {{ pct | at_most: 100 }}%"></span>
+          </div>
+          <p>Dodaj za <strong>{{ left | money }}</strong>, aby otrzymać <strong>darmową dostawę</strong>.</p>
+        </div>
+      {% else %}
+        <div class="ship-progress ship-progress--ok" role="status" aria-live="polite">
+          <div class="ship-progress__bar" aria-hidden="true"><span style="width:100%"></span></div>
+          <p>Gratulacje! Kwalifikujesz się do <strong>darmowej dostawy</strong> 🎉</p>
+        </div>
+      {% endif %}
+
+      {% form 'cart', cart %}
+        <div class="grid">
+          <!-- Lista pozycji -->
+          <div class="col items">
+            {% for item in cart.items %}
+              <article class="line" data-key="{{ item.key }}">
+                <a class="thumb" href="{{ item.url }}">
+                  <img
+                    src="{{ item.image | image_url: width: 300 }}"
+                    alt="{{ item.image.alt | default: item.product.title | escape }}"
+                    loading="lazy" width="150" height="150">
+                </a>
+
+                <div class="line__main">
+                  <a class="line__title" href="{{ item.url }}">{{ item.product.title }}</a>
+                  {% if item.variant.title != 'Default Title' %}
+                    <div class="line__variant">{{ item.variant.title }}</div>
+                  {% endif %}
+                  {% if item.selling_plan_allocation %}
+                    <div class="line__plan">{{ item.selling_plan_allocation.selling_plan.name }}</div>
+                  {% endif %}
+
+                  <div class="line__qty">
+                    <button class="qty-btn" data-qty-down type="button" aria-label="Zmniejsz ilość">−</button>
+                    <input class="qty-input"
+                      name="updates[{{ item.key }}]"
+                      value="{{ item.quantity }}"
+                      inputmode="numeric" pattern="[0-9]*" aria-label="Ilość">
+                    <button class="qty-btn" data-qty-up type="button" aria-label="Zwiększ ilość">+</button>
+
+                    <button class="line__remove" data-remove="{{ item.key }}" type="button" aria-label="Usuń pozycję">Usuń</button>
+                  </div>
+                </div>
+
+                <div class="line__price">
+                  <div class="price">{{ item.final_line_price | money }}</div>
+                  {% if item.line_level_discount_allocations.size > 0 %}
+                    <ul class="discounts">
+                      {% for d in item.line_level_discount_allocations %}
+                        <li>{{ d.discount_application.title }} − {{ d.amount | money }}</li>
+                      {% endfor %}
+                    </ul>
+                  {% endif %}
+                </div>
+              </article>
+            {% endfor %}
+
+            <div class="note">
+              <label for="CartNote">Uwagi do zamówienia</label>
+              <textarea id="CartNote" name="note" rows="3" placeholder="Np. prośba o wiadomość dla kuriera...">{{ cart.note }}</textarea>
+            </div>
+
+            <a class="btn btn--ghost" href="/collections/all">← Kontynuuj zakupy</a>
+          </div>
+
+          <!-- Podsumowanie -->
+          <aside class="col summary">
+            <div class="card">
+              <h3>Podsumowanie</h3>
+              <div class="row">
+                <span>Produkty</span><span>{{ cart.items_subtotal_price | money }}</span>
+              </div>
+
+              {% if cart.cart_level_discount_applications.size > 0 %}
+                {% for d in cart.cart_level_discount_applications %}
+                  <div class="row row--disc">
+                    <span>Zniżka: {{ d.title }}</span><span>− {{ d.total_allocated_amount | money }}</span>
+                  </div>
+                {% endfor %}
+              {% endif %}
+
+              <!-- ===== InPost: kafelek z wyborem paczkomatu + przycisk ===== -->
+              <div class="anaj-inpost-tile" id="inpost-selected" hidden>
+                <div class="anaj-inpost-h">
+                  <strong>Wybrany Paczkomat</strong>
+                  <button type="button" id="inpost-change" class="anaj-btn anaj-btn--link">Zmień</button>
+                </div>
+                <div id="inpost-selected-name"></div>
+                <div id="inpost-selected-address" class="muted"></div>
+              </div>
+
+              <button id="inpost-open" type="button" class="btn btn--primary btn--lg" style="margin-top:10px;">
+                Wybierz Paczkomat InPost
+              </button>
+              <!-- =========================================================== -->
+
+              <div class="row muted" style="margin-top:12px;">
+                <span>Dostawa</span><span>Obliczana przy kasie</span>
+              </div>
+
+              <div class="row total">
+                <span>Suma</span><span>{{ cart.total_price | money }}</span>
+              </div>
+
+              <button class="btn btn--primary btn--lg" name="checkout" type="submit">Przejdź do kasy</button>
+              <button class="btn btn--ghost" name="update" type="submit">Aktualizuj koszyk</button>
+
+              <div class="trust">
+                <span>✅ Świeżo wypiekane</span>
+                <span>🛡️ Bezpieczne płatności</span>
+                <span>🚚 Szybka wysyłka 24h</span>
+              </div>
+            </div>
+          </aside>
+        </div>
+      {% endform %}
+    {% endif %}
+  </div>
+
+  <!-- ===== Modal z mapą InPost (renderuje się w nim <inpost-geowidget>) ===== -->
+  <dialog id="inpost-modal" class="anaj-inpost-modal">
+    <div class="anaj-inpost-modal__head">
+      <h3>Wybierz Paczkomat InPost</h3>
+      <button type="button" id="inpost-close" aria-label="Zamknij" class="anaj-btn anaj-btn--icon">×</button>
+    </div>
+    <div class="anaj-inpost-modal__body">
+      <inpost-geowidget
+        id="inpost-widget"
+        language="pl"
+        config="parcelcollect"
+        token="eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJzQlpXVzFNZzVlQnpDYU1XU3JvTlBjRWFveFpXcW9Ua2FuZVB3X291LWxvIn0.eyJleHAiOjIwNzgwNjk2MDQsImlhdCI6MTc2MjcwOTYwNCwianRpIjoiNWUxZTBkNjEtZWMzMi00M2U4LWJkMjktOWI4YWY1ZTlhOThmIiwiaXNzIjoiaHR0cHM6Ly9sb2dpbi5pbnBvc3QucGwvYXV0aC9yZWFsbXMvZXh0ZXJuYWwiLCJzdWIiOiJmOjEyNDc1MDUxLTFjMDMtNGU1OS1iYTBjLTJiNDU2OTVlZjUzNTphNVM0Y0E5RlQ0emcxUUVYM0hjc2FDeGVOSmRPRmFTRmhkSUM5ZG8zTHBJIiwidHlwIjoiQmVhcmVyIiwiYXpwIjoic2hpcHgiLCJzZXNzaW9uX3N0YXRlIjoiNzg3MGE2ZGEtNTJlYy00MGRhLThmYTgtOGUxZmZkYjI3NWE0Iiwic2NvcGUiOiJvcGVuaWQgYXBpOmFwaXBvaW50cyIsInNpZCI6Ijc4NzBhNmRhLTUyZWMtNDBkYS04ZmE4LThlMWZmZGIyNzVhNCIsImFsbG93ZWRfcmVmZXJyZXJzIjoiYW5hai5wbCIsInV1aWQiOiI1YWE1NDZiYi0wODk0LTRlM2QtYjJlNC05Y2VkZTI3MGEyYTIifQ.UDDeZv7GP4pR04BtsWOAJV8Lc54DV4kBjk7vCoNEHjzFy0aSh4tFqXSujIO3ZbhpxdA0iQUH8RbbOlyZrWB2iLcjZvMR15oCniSDLyKJEcG-UIU7DrcPstjJ8NACsyJNpr1Y-8yV1S-f4iAhWvnwgCqJmF2iC0hdex-n2Z7pzQ3Y-PCBFOXpdwEyVyBtf2keG6qcPT0i1Zv2OmA5KPnJBUyVBHKNoXZ7npjdBNnhJwMaI710s5lPPJ3mvztQJDwgg1QkNmj9eceS4fx2lOSOy5htWA5qKvBof-wBZQ1j8dAIGnKFkYAZwxple72frBFiHpH7vwt8azCIRATlXE1HTA">
+      </inpost-geowidget>
+    </div>
+  </dialog>
+  <!-- ===================================================================== -->
+</section>
+
+<style>
+  /* --- TŁO W PASKI NA CAŁYM EKRANIE (overlay) --- */
+  .anaj-cart-bleed::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    background:repeating-linear-gradient(90deg, #f1e5cf 0 18px, #ecdcc3 18px 36px);
+    z-index:0;
+    pointer-events:none;
+  }
+
+  /* Treść ponad overlayem */
+  .anaj-cart-bleed,
+  .anaj-cart.container,
+  .anaj-cart-bleed .grid,
+  .anaj-cart-bleed .card,
+  .anaj-cart-bleed .line{
+    position:relative;
+    z-index:1;
+  }
+
+  .template-cart #MainContent,
+  .template-cart .main-content,
+  .template-cart .content-for-layout,
+  .template-cart .shopify-section,
+  .template-cart .page-width,
+  .template-cart .color-background-1,
+  .template-cart .section{ background:transparent !important; }
+
+  .shopify-section:has(.anaj-cart-bleed){
+    padding-left:0 !important; padding-right:0 !important;
+  }
+
+  html, body{ margin:0; min-height:100%; overflow-x:hidden; }
+  .template-cart .content-for-layout,
+  .template-cart .shopify-section{ overflow-x:hidden; }
+
+  .anaj-cart-bleed{ min-height:100svh; padding:24px 0 40px; }
+  .anaj-cart.container{ max-width:1120px; margin:0 auto; padding:0 16px; box-sizing:border-box; }
+  .anaj-cart-bleed *, .anaj-cart.container *{ box-sizing:border-box; }
+
+  :root{
+    --bg:#fff; --paper:#f7efdf; --ink:#1f1a10; --muted:#6d6b6a;
+    --accent:#f0c96f; --accent-ink:#1f1a10; --ring:rgba(0,0,0,.08);
+  }
+
+  .anaj-head h1{ margin:0 0 6px; font-size:clamp(26px,4vw,36px); line-height:1.1; color:var(--ink); }
+  .anaj-head p{ margin:0 0 14px; color:var(--muted); }
+
+  .ship-progress{ background:var(--paper); border:1px solid #eadfca; padding:12px; border-radius:14px; margin:12px 0 18px; }
+  .ship-progress--ok{ background:#e8f7ea; border-color:#cfead3; }
+  .ship-progress__bar{ height:8px; background:#e6dcc8; border-radius:999px; overflow:hidden; margin-bottom:8px; }
+  .ship-progress__bar span{ display:block; height:100%; background:var(--accent); }
+
+  .grid{ display:grid; grid-template-columns: 1fr; gap:18px; }
+  @media (min-width: 980px){
+    .grid{ grid-template-columns: 1.5fr .9fr; gap:22px; }
+  }
+
+  @media (max-width: 520px){
+    .line{ grid-template-columns: 92px minmax(0,1fr); }
+    .line__price{ grid-column: 2 / -1; justify-self: end; }
+  }
+
+  .line{
+    display:grid; grid-template-columns: 110px 1fr auto; gap:14px;
+    background:var(--bg); border:1px solid #eee; border-radius:18px; padding:12px;
+    box-shadow:0 6px 18px var(--ring);
+    align-items:center; margin-bottom:12px;
+  }
+  .thumb img{ width:100%; height:auto; border-radius:12px; display:block; background:#eadfc9; }
+  .line__title{ font-weight:700; color:var(--ink); text-decoration:none; }
+  .line__variant, .line__plan{ font-size:13px; color:#6d6b6a; margin-top:4px; }
+  .line__qty{ display:flex; align-items:center; gap:8px; margin-top:10px; flex-wrap:wrap; }
+  .qty-btn{ width:34px; height:34px; border-radius:999px; border:1px solid #e2d9c7; background:#f7f1e4; cursor:pointer; font-weight:700; }
+  .qty-input{ width:64px; padding:8px 10px; border:1px solid #e2d9c7; border-radius:10px; text-align:center; font-weight:700; }
+  .line__remove{ background:transparent; border:0; color:#a13b3b; cursor:pointer; margin-left:8px; }
+  .line__price{ text-align:right; }
+  .price{ font-weight:800; }
+  .discounts{ list-style:none; padding:6px 0 0; margin:0; color:#196c3a; font-size:13px; }
+
+  .note{ margin:14px 0 8px; }
+  .note label{ display:block; margin-bottom:6px; color:var(--ink); font-weight:600; }
+  .note textarea{ width:100%; background:#fff; border:1px solid #eadfca; border-radius:14px; padding:10px 12px; resize:vertical; }
+
+  .card{
+    background:#fff; border:1px solid #eee; border-radius:18px; padding:18px;
+    box-shadow:0 6px 18px var(--ring);
+    position: sticky; top:16px; overflow: visible;
+  }
+  .card h3{ margin:0 0 10px; }
+  .row{ display:flex; justify-content:space-between; align-items:center; margin:8px 0; }
+  .row.total{ font-size:18px; font-weight:800; padding-top:6px; border-top:1px dashed #eadfca; }
+
+  .trust{ display:grid; grid-template-columns:1fr; gap:6px; margin-top:12px; color:#4f4c49; font-size:13px; }
+  @media (min-width: 520px){ .trust{ grid-template-columns:1fr 1fr 1fr; } }
+
+  .btn{ display:inline-flex; justify-content:center; align-items:center; gap:8px; border-radius:999px; padding:12px 18px; font-weight:800; cursor:pointer; text-decoration:none; }
+  .btn--primary{ background:var(--accent); color:var(--accent-ink); border:1px solid #e7b94a; box-shadow:0 3px 0 rgba(0,0,0,.08); }
+  .btn--primary:hover{ transform:translateY(-1px); }
+  .btn--ghost{ background:transparent; border:1px solid #eadfca; color:var(--ink); }
+  .btn--lg{ width:100%; margin-top:8px; }
+
+  /* InPost: styl kafelka + modal */
+  .anaj-inpost-tile{
+    margin:12px 0 0;
+    background:#f4ead8; border:1px solid rgba(0,0,0,.06);
+    border-radius:14px; padding:12px;
+  }
+  .anaj-inpost-h{ display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; }
+  .anaj-btn{ cursor:pointer; border:0; padding:.6rem .9rem; border-radius:12px; font-weight:600; }
+  .anaj-btn--link{ background:transparent; text-decoration:underline; padding:.25rem 0; }
+  .anaj-btn--icon{ background:transparent; font-size:1.5rem; line-height:1; padding:.25rem .5rem; }
+  .muted{ color:#6d6b6a; }
+
+  .anaj-inpost-modal{ width:min(980px, 96vw); max-height:90vh; border:0; border-radius:16px; padding:0; }
+  .anaj-inpost-modal::backdrop{ background:rgba(0,0,0,.45); }
+  .anaj-inpost-modal__head{ display:flex; align-items:center; justify-content:space-between; padding:1rem 1.25rem; border-bottom:1px solid rgba(0,0,0,.08); }
+  .anaj-inpost-modal__body{ padding:0 0 1rem 0; }
+  #inpost-widget{ display:block; width:min(960px, 96vw); height:min(72vh, 680px); margin:0 auto; }
+  @media (max-width:768px){
+    .anaj-inpost-modal{ width:100vw; height:100dvh; max-height:none; border-radius:0; }
+    #inpost-widget{ width:100vw; height:calc(100dvh - 64px); }
+  }
+</style>
+
+<script>
+  (function(){
+    const root = document.querySelector('#anaj-cart-{{ section.id }}');
+    if(!root) return;
+
+    // BEZPIECZNIK tła w paski (tylko raz)
+    if(!document.getElementById('anaj-bg-overlay')){
+      var bg = document.createElement('div');
+      bg.id = 'anaj-bg-overlay';
+      bg.setAttribute('aria-hidden','true');
+      Object.assign(bg.style, {
+        position:'fixed', inset:'0', zIndex:'0', pointerEvents:'none',
+        background:'repeating-linear-gradient(90deg, #f1e5cf 0 18px, #ecdcc3 18px 36px)'
+      });
+      document.body.appendChild(bg);
+    }
+
+    // Obsługa +/- i usuń
+    const form = root.querySelector('form');
+    if(!form) return;
+
+    let t;
+    const autoSubmit = () => {
+      clearTimeout(t);
+      t = setTimeout(() => {
+        const updateBtn = form.querySelector('button[name="update"]');
+        if(updateBtn){ form.requestSubmit(updateBtn); }
+      }, 400);
+    };
+
+    form.querySelectorAll('.line').forEach(line => {
+      const input = line.querySelector('.qty-input');
+      const down = line.querySelector('[data-qty-down]');
+      const up   = line.querySelector('[data-qty-up]');
+      if(down){ down.addEventListener('click', () => { input.value = Math.max(0, (parseInt(input.value)||0) - 1); autoSubmit(); }); }
+      if(up){   up.addEventListener('click',   () => { input.value = (parseInt(input.value)||0) + 1; autoSubmit(); }); }
+      if(input){ input.addEventListener('change', autoSubmit); }
+    });
+
+    form.querySelectorAll('[data-remove]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const key = btn.getAttribute('data-remove');
+        const target = form.querySelector('input[name="updates['+key+']"]');
+        if(target){
+          target.value = 0;
+          const updateBtn = form.querySelector('button[name="update"]');
+          if(updateBtn){ form.requestSubmit(updateBtn); }
+        }
+      });
+    });
+
+    // ====== InPost Geowidget: logika ======
+    const ATTR_PREFIX = 'InPost';
+    const btnOpen   = root.querySelector('#inpost-open');
+    const btnClose  = root.querySelector('#inpost-close');
+    const btnChange = root.querySelector('#inpost-change');
+    const modal     = root.querySelector('#inpost-modal');
+    const widget    = root.querySelector('#inpost-widget');
+
+    const box       = root.querySelector('#inpost-selected');
+    const nameEl    = root.querySelector('#inpost-selected-name');
+    const addrEl    = root.querySelector('#inpost-selected-address');
+
+    function openModal(){ if(modal && !modal.open) modal.showModal(); }
+    function closeModal(){ if(modal && modal.open) modal.close(); }
+
+    function formatAddress(p){
+      const a = (p && p.address) ? p.address : {};
+      const parts = [a.line1, a.line2, a.postCode, a.city].filter(Boolean);
+      return parts.join(', ');
+    }
+
+    function saveToCartAttributes(point){
+      const formData = new FormData();
+      formData.append(`attributes[${ATTR_PREFIX} - Punkt]`, point.name || '');
+      formData.append(`attributes[${ATTR_PREFIX} - Adres]`, formatAddress(point));
+      formData.append(`attributes[${ATTR_PREFIX} - ID]`, point.name || '');
+      formData.append(`attributes[Sposób dostawy]`, 'InPost Paczkomat');
+      return fetch('/cart/update.js', { method:'POST', body:formData }).then(r=>r.json()).catch(()=>{});
+    }
+
+    function showSelection(point){
+      if(!box || !nameEl || !addrEl) return;
+      nameEl.textContent = point.name || '';
+      addrEl.textContent = formatAddress(point);
+      box.hidden = false;
+    }
+
+    btnOpen?.addEventListener('click', openModal);
+    btnChange?.addEventListener('click', openModal);
+    btnClose?.addEventListener('click', closeModal);
+    modal?.addEventListener('click', (e)=>{ if(e.target === modal) closeModal(); });
+
+    // Event z geowidgetu: onpointselect → ev.detail zawiera dane punktu
+    document.addEventListener('onpointselect', (ev) => {
+      const point = ev.detail || {};
+      saveToCartAttributes(point).then(()=>{
+        showSelection(point);
+        closeModal();
+      });
+    });
+
+    // Wczytanie zapisanej selekcji (gdy klient wróci do koszyka)
+    fetch('/cart.js')
+      .then(r => r.json())
+      .then(cart => {
+        const attrs = cart.attributes || {};
+        if (attrs[`${ATTR_PREFIX} - Punkt`]) {
+          if(!box || !nameEl || !addrEl) return;
+          nameEl.textContent = attrs[`${ATTR_PREFIX} - Punkt`];
+          addrEl.textContent = attrs[`${ATTR_PREFIX} - Adres`] || '';
+          box.hidden = false;
+        }
+      });
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "ANAJ – koszyk z InPost",
+  "settings": [],
+  "blocks": [],
+  "presets": [
+    {
+      "name": "ANAJ – koszyk z InPost"
+    }
+  ]
+}
+{% endschema %}
+
