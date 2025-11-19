@@ -19,12 +19,14 @@
     <div class="anaj-header__icons">
       <button
         type="button"
-        class="anaj-nav__link anaj-nav__icon anaj-nav__icon--search"
+        class="anaj-btn anaj-btn-icon anaj-nav_link anaj-nav_search"
         data-anaj-search-toggle
         aria-label="Szukaj"
         aria-expanded="false"
       >
-        <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M10 4a6 6 0 1 1-4.24 10.24l-3.27 3.27 1.41 1.41 3.27-3.27A6 6 0 1 1 10 4Z"/></svg>
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true">
+          <path d="M10 4a6 6 0 1 1-4.24 10.24L3.27 16.73a1 1 0 0 1-1.41-1.41l2.49-2.49A6 6 0 0 1 10 4z"></path>
+        </svg>
       </button>
 
       <a class="anaj-btn anaj-btn--icon anaj-cart" id="anaj-cart-link" href="{{ routes.cart_url }}" aria-label="Koszyk{% if cart.item_count > 0 %} — {{ cart.item_count }} szt.{% else %} — pusty{% endif %}">
@@ -157,7 +159,8 @@
   color:inherit !important;
   cursor:pointer;
 }
-.anaj-btn--icon{ display:inline-flex; align-items:center; justify-content:center; }
+.anaj-btn--icon,
+.anaj-btn-icon{ display:inline-flex; align-items:center; justify-content:center; }
 
 .anaj-logo{ display:inline-flex; align-items:center; justify-content:center; text-decoration:none; }
 .anaj-logo__img{ display:block; height:auto; max-height:64px; width:auto; }
@@ -187,8 +190,11 @@
 /* Desktop nav */
 .anaj-nav{ border-top:1px solid rgba(0,0,0,.06); }
 .anaj-nav__list{ margin:0; padding:.45rem 1rem; list-style:none; display:flex; gap:1rem; justify-content:center; }
-.anaj-nav__link{ color:var(--ink); text-decoration:none; padding:.25rem .4rem; border-radius:8px; }
-.anaj-nav__link:hover{ background:rgba(0,0,0,.05); }
+.anaj-nav__link,
+.anaj-nav_link{ color:var(--ink); text-decoration:none; padding:.25rem .4rem; border-radius:8px; }
+.anaj-nav__link:hover,
+.anaj-nav_link:hover{ background:rgba(0,0,0,.05); }
+.anaj-nav_search{ display:inline-flex; align-items:center; justify-content:center; gap:0; }
 
 /* ===== Drawer (mobile) w stylu ANAJ ===== */
 .anaj-drawer{
@@ -293,7 +299,6 @@ html.anaj-search-open{
 }
 
 .anaj-search__title{
-  font-family:inherit;
   font-weight:700;
   font-size:18px;
   color:var(--ink, #3b2b1a);
@@ -557,23 +562,16 @@ html.anaj-search-open{
 
 <script>
 document.addEventListener('DOMContentLoaded', function(){
-  var toggles = document.querySelectorAll('[data-anaj-search-toggle]');
+  var searchToggle = document.querySelector('[data-anaj-search-toggle]');
   var searchLayer  = document.querySelector('[data-anaj-search]');
-  if(!toggles.length || !searchLayer) return;
+  if(!searchToggle || !searchLayer) return;
 
   var closeElems = searchLayer.querySelectorAll('[data-anaj-search-close]');
   var input      = searchLayer.querySelector('.anaj-search__input');
 
-  function setExpanded(state){
-    toggles.forEach(function(btn){
-      btn.setAttribute('aria-expanded', state ? 'true' : 'false');
-    });
-  }
-
   function openSearch(){
     searchLayer.classList.add('is-open');
     document.documentElement.classList.add('anaj-search-open');
-    setExpanded(true);
     if(input){
       setTimeout(function(){ input.focus(); }, 150);
     }
@@ -582,14 +580,11 @@ document.addEventListener('DOMContentLoaded', function(){
   function closeSearch(){
     searchLayer.classList.remove('is-open');
     document.documentElement.classList.remove('anaj-search-open');
-    setExpanded(false);
   }
 
-  toggles.forEach(function(btn){
-    btn.addEventListener('click', function(e){
-      e.preventDefault();
-      openSearch();
-    });
+  searchToggle.addEventListener('click', function(e){
+    e.preventDefault();
+    openSearch();
   });
 
   closeElems.forEach(function(el){
