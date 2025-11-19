@@ -17,9 +17,15 @@
 
     <!-- Ikony: Szukaj + Koszyk -->
     <div class="anaj-header__icons">
-      <a class="anaj-btn anaj-btn--icon" href="{{ routes.search_url }}" aria-label="Szukaj">
+      <button
+        type="button"
+        class="anaj-nav__link anaj-nav__icon anaj-nav__icon--search"
+        data-anaj-search-toggle
+        aria-label="Szukaj"
+        aria-expanded="false"
+      >
         <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M10 4a6 6 0 1 1-4.24 10.24l-3.27 3.27 1.41 1.41 3.27-3.27A6 6 0 1 1 10 4Z"/></svg>
-      </a>
+      </button>
 
       <a class="anaj-btn anaj-btn--icon anaj-cart" id="anaj-cart-link" href="{{ routes.cart_url }}" aria-label="Koszyk{% if cart.item_count > 0 %} — {{ cart.item_count }} szt.{% else %} — pusty{% endif %}">
         <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M7 18a2 2 0 1 0 2 2 2 2 0 0 0-2-2Zm10 0a2 2 0 1 0 2 2 2 2 0 0 0-2-2ZM3 4h2l2.68 9.39A2 2 0 0 0 9.6 15h7.9a2 2 0 0 0 1.93-1.52L22 7H6"/></svg>
@@ -63,7 +69,39 @@
       </nav>
     </aside>
   </div>
+
 </header>
+
+<div class="anaj-search" data-anaj-search>
+  <div class="anaj-search__overlay" data-anaj-search-close></div>
+
+  <div class="anaj-search__panel">
+    <div class="anaj-search__head">
+      <span class="anaj-search__title">Wyszukaj</span>
+      <button
+        type="button"
+        class="anaj-search__close"
+        data-anaj-search-close
+        aria-label="Zamknij wyszukiwanie"
+      >
+        ×
+      </button>
+    </div>
+
+    <form action="/search" method="get" class="anaj-search__form" role="search">
+      <input
+        type="search"
+        name="q"
+        class="anaj-search__input"
+        placeholder="Szukaj produktów..."
+        autocomplete="off"
+      >
+      <button type="submit" class="anaj-search__submit">
+        Szukaj
+      </button>
+    </form>
+  </div>
+</div>
 
 <style>
 /* ===== Full-bleed bez białych pasków + reset guzików ===== */
@@ -127,6 +165,16 @@
 .anaj-only-mobile{ display:block; }
 
 .anaj-header__icons{ display:flex; align-items:center; gap:.25rem; }
+.anaj-nav__icon{
+  background:transparent;
+  border:0;
+  padding:.25rem .35rem;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  color:inherit;
+}
 .anaj-cart{ position:relative; }
 .anaj-cart__count{
   position:absolute; top:-6px; right:-6px; min-width:18px; height:18px; padding:0 5px;
@@ -182,6 +230,156 @@
 .anaj-drawer.is-open .anaj-drawer__panel{
   transform:translateX(0);
   opacity:1;
+}
+
+/* ===== WYSZUKIWANIE ANAJ ===== */
+
+.anaj-search{
+  position:fixed;
+  inset:0;
+  z-index:120;
+  display:flex;
+  align-items:flex-start;
+  justify-content:center;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .24s ease-out;
+}
+
+html.anaj-search-open{
+  overflow:hidden;
+}
+
+.anaj-search.is-open{
+  opacity:1;
+  pointer-events:auto;
+}
+
+.anaj-search__overlay{
+  position:absolute;
+  inset:0;
+  background:rgba(0,0,0,.25);
+  backdrop-filter:blur(2px);
+}
+
+.anaj-search__panel{
+  position:relative;
+  margin-top:18px;
+  width:100%;
+  max-width:960px;
+  background:linear-gradient(180deg, #fdf2de 0%, #f6e0c0 100%);
+  border-radius:18px;
+  box-shadow:0 12px 40px rgba(0,0,0,.22);
+  border:2px solid var(--gold2, #d0a86b);
+  padding:16px 20px 20px;
+  transform:translateY(-24px);
+  opacity:0;
+  transition:
+    transform .26s cubic-bezier(.22,.61,.36,1),
+    opacity .26s ease-out;
+  box-sizing:border-box;
+}
+
+.anaj-search.is-open .anaj-search__panel{
+  transform:translateY(0);
+  opacity:1;
+}
+
+.anaj-search__head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:12px;
+}
+
+.anaj-search__title{
+  font-family:inherit;
+  font-weight:700;
+  font-size:18px;
+  color:var(--ink, #3b2b1a);
+}
+
+.anaj-search__close{
+  border:none;
+  background:transparent;
+  font-size:22px;
+  line-height:1;
+  cursor:pointer;
+  padding:4px 6px;
+  border-radius:999px;
+  transition:background .16s ease-out;
+}
+
+.anaj-search__close:hover{
+  background:rgba(0,0,0,.06);
+}
+
+/* Formularz */
+
+.anaj-search__form{
+  display:flex;
+  gap:10px;
+}
+
+.anaj-search__input{
+  flex:1;
+  padding:12px 16px;
+  border-radius:999px;
+  border:2px solid #e0c8a2;
+  background:#fffaf3;
+  font-size:15px;
+  line-height:1.3;
+  outline:none;
+  box-shadow:inset 0 1px 3px rgba(0,0,0,.06);
+}
+
+.anaj-search__input:focus{
+  border-color:var(--gold2, #d0a86b);
+  box-shadow:0 0 0 1px rgba(0,0,0,.04);
+}
+
+.anaj-search__submit{
+  padding:10px 20px;
+  border-radius:999px;
+  border:none;
+  background:var(--gold2, #d0a86b);
+  color:#fff;
+  font-weight:600;
+  cursor:pointer;
+  white-space:nowrap;
+  box-shadow:0 4px 0 rgba(0,0,0,.18);
+  transition:
+    transform .05s ease-out,
+    box-shadow .05s ease-out,
+    background .16s ease-out;
+}
+
+.anaj-search__submit:hover{
+  background:#c79754;
+}
+
+.anaj-search__submit:active{
+  transform:translateY(1px);
+  box-shadow:0 2px 0 rgba(0,0,0,.2);
+}
+
+/* Mobile – pełna szerokość i mniejsze marginesy */
+
+@media (max-width: 749px){
+  .anaj-search__panel{
+    margin:10px 10px 0;
+    border-radius:14px;
+    padding:14px 14px 16px;
+  }
+
+  .anaj-search__form{
+    flex-direction:column;
+  }
+
+  .anaj-search__submit{
+    width:100%;
+    text-align:center;
+  }
 }
 
 .anaj-drawer__head{
@@ -246,23 +444,32 @@
   var overlay = document.getElementById('anaj-drawer-overlay');
   var close = document.getElementById('anaj-menu-close');
 
+  function syncBodyScroll(){
+    var shouldLock = drawer && drawer.classList.contains('is-open');
+    document.body.style.overflow = shouldLock ? 'hidden' : '';
+  }
+
   function openDrawer(){
     if(!drawer) return;
     drawer.classList.add('is-open');
     if(toggle) toggle.setAttribute('aria-expanded','true');
-    document.body.style.overflow='hidden';
+    syncBodyScroll();
   }
   function closeDrawer(){
     if(!drawer) return;
     drawer.classList.remove('is-open');
     if(toggle) toggle.setAttribute('aria-expanded','false');
-    document.body.style.overflow='';
+    syncBodyScroll();
   }
 
   if(toggle) toggle.addEventListener('click', openDrawer);
   if(close) close.addEventListener('click', closeDrawer);
   if(overlay) overlay.addEventListener('click', closeDrawer);
-  document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeDrawer(); });
+  document.addEventListener('keydown', function(e){
+    if(e.key==='Escape'){
+      closeDrawer();
+    }
+  });
 })();
 
 /* ===== Dynamiczny licznik koszyka przy ikonie ===== */
@@ -346,6 +553,57 @@
     };
   })();
 })();
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  var toggles = document.querySelectorAll('[data-anaj-search-toggle]');
+  var searchLayer  = document.querySelector('[data-anaj-search]');
+  if(!toggles.length || !searchLayer) return;
+
+  var closeElems = searchLayer.querySelectorAll('[data-anaj-search-close]');
+  var input      = searchLayer.querySelector('.anaj-search__input');
+
+  function setExpanded(state){
+    toggles.forEach(function(btn){
+      btn.setAttribute('aria-expanded', state ? 'true' : 'false');
+    });
+  }
+
+  function openSearch(){
+    searchLayer.classList.add('is-open');
+    document.documentElement.classList.add('anaj-search-open');
+    setExpanded(true);
+    if(input){
+      setTimeout(function(){ input.focus(); }, 150);
+    }
+  }
+
+  function closeSearch(){
+    searchLayer.classList.remove('is-open');
+    document.documentElement.classList.remove('anaj-search-open');
+    setExpanded(false);
+  }
+
+  toggles.forEach(function(btn){
+    btn.addEventListener('click', function(e){
+      e.preventDefault();
+      openSearch();
+    });
+  });
+
+  closeElems.forEach(function(el){
+    el.addEventListener('click', function(){
+      closeSearch();
+    });
+  });
+
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape'){
+      closeSearch();
+    }
+  });
+});
 </script>
 
 {% schema %}
