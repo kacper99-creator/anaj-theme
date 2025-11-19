@@ -34,25 +34,37 @@
     min-height: 32px;
     overflow: hidden;
     text-align: center;
+    position: relative;
   }
 
   .anaj-announcement-bar__text {
     color: #ffffff;
     font-weight: 600;
     font-size: 14px;
-    white-space: nowrap;
+    margin: 0;
+    line-height: 1.4;
+    white-space: normal;
+    display: inline-block;
+    padding: 0 12px;
   }
 
   .anaj-announcement-bar__slide {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, 6px);
     opacity: 0;
     transition: opacity 0.35s ease, transform 0.35s ease;
-    transform: translateY(6px);
-    position: relative;
+    width: 100%;
+    max-width: 100%;
+    text-align: center;
+    pointer-events: none;
   }
 
   .anaj-announcement-bar__slide.is-active {
     opacity: 1;
-    transform: translateY(0);
+    transform: translate(-50%, 0);
+    pointer-events: auto;
   }
 
   @media (min-width: 768px) {
@@ -63,6 +75,14 @@
 
     .anaj-announcement-bar__text {
       font-size: 15px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .anaj-announcement-bar__slide,
+    .anaj-announcement-bar__slide.is-active {
+      transition: none;
+      transform: translate(-50%, 0);
     }
   }
 </style>
