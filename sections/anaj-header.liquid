@@ -548,6 +548,18 @@ document.addEventListener('DOMContentLoaded', function(){
     overlay.addEventListener('click', closeDrawer);
   }
 
+  if(drawer && panel){
+    drawer.addEventListener('click', function(event){
+      if(!panel.contains(event.target)){
+        closeDrawer();
+      }
+    });
+
+    panel.addEventListener('click', function(event){
+      event.stopPropagation();
+    });
+  }
+
   if(panel){
     panel.addEventListener('click', function(event){
       event.stopPropagation();
