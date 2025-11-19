@@ -1,0 +1,217 @@
+{% if section.settings.enabled and section.blocks.size > 0 %}
+  <div
+    class="anaj-announcement"
+    data-anaj-announcement
+    style="
+      --anaj-ann-bg: {{ section.settings.background_color | default: '#52b8ff' }};
+      --anaj-ann-ink: {{ section.settings.text_color | default: '#ffffff' }};
+      --anaj-ann-interval: {{ section.settings.rotation_interval | default: 4 }}s;
+    "
+  >
+    <div class="anaj-announcement__inner">
+      <div class="anaj-announcement__viewport">
+        {% for block in section.blocks %}
+          {% if block.type == 'message' and block.settings.text != blank %}
+            <div
+              class="anaj-announcement__slide{% if forloop.first %} is-active{% endif %}"
+              data-anaj-announcement-slide
+              {{ block.shopify_attributes }}
+            >
+              {{ block.settings.text }}
+            </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+{% endif %}
+
+<style>
+.anaj-announcement{
+  position:relative;
+  z-index:130;
+  background:linear-gradient(to bottom, #52b8ff, #1d9ee7);
+  background:var(--anaj-ann-bg, linear-gradient(to bottom, #52b8ff, #1d9ee7));
+  color:var(--anaj-ann-ink, #ffffff);
+  font-size:13px;
+}
+
+.anaj-announcement__inner{
+  max-width:1200px;
+  margin:0 auto;
+  padding:5px 14px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  box-sizing:border-box;
+}
+
+/* Widok z jednym slajdem naraz */
+.anaj-announcement__viewport{
+  position:relative;
+  min-height:20px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+}
+
+/* Każdy slajd to komunikat – animujemy opacity + lekkie przesunięcie */
+.anaj-announcement__slide{
+  position:absolute;
+  left:50%;
+  transform:translate(-50%, 40%);
+  opacity:0;
+  white-space:nowrap;
+  font-weight:500;
+  transition:
+    opacity .45s ease-out,
+    transform .45s ease-out;
+  padding:0 6px;
+}
+
+.anaj-announcement__slide.is-active{
+  opacity:1;
+  transform:translate(-50%, 0);
+}
+
+/* Mobile – pozwalamy na łamanie tekstu w 2 linie */
+@media (max-width: 749px){
+  .anaj-announcement{
+    font-size:12px;
+  }
+
+  .anaj-announcement__inner{
+    padding:6px 10px;
+  }
+
+  .anaj-announcement__slide{
+    white-space:normal;
+    max-width:100%;
+  }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  var bar = document.querySelector('[data-anaj-announcement]');
+  if (!bar) return;
+
+  var slides = bar.querySelectorAll('[data-anaj-announcement-slide]');
+  if (!slides.length) return;
+
+  // Jeśli jest tylko jeden slajd – nie ma czego rotować, po prostu go zostawiamy.
+  if (slides.length === 1) {
+    slides[0].classList.add('is-active');
+    return;
+  }
+
+  var current = 0;
+  var intervalSeconds = 4;
+
+  try {
+    var cssInterval = getComputedStyle(bar).getPropertyValue('--anaj-ann-interval');
+    if (cssInterval) {
+      var parsed = parseFloat(cssInterval);
+      if (!isNaN(parsed) && parsed > 1) {
+        intervalSeconds = parsed;
+      }
+    }
+  } catch (e) {}
+
+  function showSlide(index) {
+    for (var i = 0; i < slides.length; i++) {
+      if (i === index) {
+        slides[i].classList.add('is-active');
+      } else {
+        slides[i].classList.remove('is-active');
+      }
+    }
+  }
+
+  showSlide(current);
+
+  setInterval(function(){
+    current = (current + 1) % slides.length;
+    showSlide(current);
+  }, intervalSeconds * 1000);
+});
+</script>
+
+{% schema %}
+{
+  "name": "Pasek ogłoszeń ANAJ",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "enabled",
+      "label": "Włącz pasek ogłoszeń",
+      "default": true
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Kolor tła",
+      "default": "#52b8ff"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Kolor tekstu",
+      "default": "#ffffff"
+    },
+    {
+      "type": "number",
+      "id": "rotation_interval",
+      "label": "Czas wyświetlania komunikatu (sekundy)",
+      "default": 4,
+      "min": 2,
+      "max": 15,
+      "step": 1
+    }
+  ],
+  "blocks": [
+    {
+      "type": "message",
+      "name": "Komunikat",
+      "settings": [
+        {
+          "type": "text",
+          "id": "text",
+          "label": "Tekst komunikatu"
+        }
+      ]
+    }
+  ],
+  "max_blocks": 8,
+  "default": {
+    "blocks": [
+      {
+        "type": "message",
+        "settings": {
+          "text": "Rzemieślnicza Cukiernia od 1988"
+        }
+      },
+      {
+        "type": "message",
+        "settings": {
+          "text": "Darmowa wysyłka od 149 zł"
+        }
+      },
+      {
+        "type": "message",
+        "settings": {
+          "text": "Świeże produkty"
+        }
+      },
+      {
+        "type": "message",
+        "settings": {
+          "text": "Szybka dostawa"
+        }
+      }
+    ]
+  }
+}
+{% endschema %}
