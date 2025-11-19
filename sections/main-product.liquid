@@ -838,53 +838,53 @@ html, body{
       const prev  = gal.querySelector('.anaj-gal__nav.is-prev');
       const next  = gal.querySelector('.anaj-gal__nav.is-next');
 
-      if (!track || slides.length <= 1) return;
+      if (track && slides.length > 1) {
+        let current = 0;
+        const N = slides.length;
 
-      let current = 0;
-      const N = slides.length;
+        const goTo = (n) => {
+          current = (n + N) % N;
+          track.style.transform = `translateX(-${current * 100}%)`;
+        };
 
-      const goTo = (n) => {
-        current = (n + N) % N;
-        track.style.transform = `translateX(-${current * 100}%)`;
-      };
+        prev?.addEventListener('click', () => goTo(current - 1));
+        next?.addEventListener('click', () => goTo(current + 1));
 
-      prev?.addEventListener('click', () => goTo(current - 1));
-      next?.addEventListener('click', () => goTo(current + 1));
+        let startX = null;
+        let currentX = null;
 
-      let startX = null;
-      let currentX = null;
+        const onTouchStart = (e) => {
+          if (!e.touches?.length) return;
+          startX = e.touches[0].clientX;
+          currentX = startX;
+        };
 
-      const onTouchStart = (e) => {
-        if (!e.touches?.length) return;
-        startX = e.touches[0].clientX;
-        currentX = startX;
-      };
+        const onTouchMove = (e) => {
+          if (startX === null) return;
+          currentX = e.touches[0].clientX;
+        };
 
-      const onTouchMove = (e) => {
-        if (startX === null) return;
-        currentX = e.touches[0].clientX;
-      };
+        const onTouchEnd = () => {
+          if (startX === null || currentX === null) {
+            startX = currentX = null;
+            return;
+          }
+          const deltaX = currentX - startX;
+          const threshold = 40;
 
-      const onTouchEnd = () => {
-        if (startX === null || currentX === null) {
+          if (Math.abs(deltaX) > threshold) {
+            if (deltaX > 0) goTo(current - 1);
+            else goTo(current + 1);
+          }
           startX = currentX = null;
-          return;
-        }
-        const deltaX = currentX - startX;
-        const threshold = 40;
+        };
 
-        if (Math.abs(deltaX) > threshold) {
-          if (deltaX > 0) goTo(current - 1);
-          else goTo(current + 1);
-        }
-        startX = currentX = null;
-      };
+        stage.addEventListener('touchstart', onTouchStart, { passive: true });
+        stage.addEventListener('touchmove',  onTouchMove,  { passive: true });
+        stage.addEventListener('touchend',   onTouchEnd);
 
-      stage.addEventListener('touchstart', onTouchStart, { passive: true });
-      stage.addEventListener('touchmove',  onTouchMove,  { passive: true });
-      stage.addEventListener('touchend',   onTouchEnd);
-
-      goTo(0);
+        goTo(0);
+      }
     }
 
     /* Warianty / cena / synchronizacja formularzy */
