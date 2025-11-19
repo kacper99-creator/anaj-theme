@@ -1,30 +1,41 @@
-<div class="test-anaj-hero-banner">
-  <h2>{{ section.settings.title }}</h2>
-  <p>{{ section.settings.subtitle }}</p>
+{% raw %}
+<div class="anaj-hero">
+  {% for block in section.blocks %}
+    <div class="slide">
+      <p>SLIDE: {{ block.settings.title }}</p>
+    </div>
+  {% endfor %}
 </div>
 
 {% schema %}
 {
-  "name": "TEST – ANAJ hero banner",
-  "settings": [
+  "name": "ANAJ – hero banner (slider)",
+  "settings": [],
+
+  "blocks": [
     {
-      "type": "text",
-      "id": "title",
-      "label": "Tytuł",
-      "default": "Testowy banner ANAJ"
-    },
-    {
-      "type": "text",
-      "id": "subtitle",
-      "label": "Podtytuł",
-      "default": "Jeśli to widzisz, sekcja działa."
+      "type": "slide",
+      "name": "Slajd",
+      "settings": [
+        { "type": "image_picker", "id": "image", "label": "Obraz tła" },
+        { "type": "text", "id": "eyebrow", "label": "Badge", "default": "PREMIUM" },
+        { "type": "text", "id": "title", "label": "Tytuł", "default": "Nagłówek slajdu" },
+        { "type": "text", "id": "subtitle", "label": "Podtytuł", "default": "" },
+        { "type": "url", "id": "cta_link", "label": "CTA link" },
+        { "type": "text", "id": "cta_label", "label": "CTA tekst", "default": "Zamów teraz!" }
+      ]
     }
   ],
-  "blocks": [],
+
+  "max_blocks": 6,
   "presets": [
     {
-      "name": "TEST – ANAJ hero banner"
+      "name": "ANAJ – hero banner (slider)",
+      "blocks": [
+        { "type": "slide" }
+      ]
     }
   ]
 }
 {% endschema %}
+{% endraw %}
