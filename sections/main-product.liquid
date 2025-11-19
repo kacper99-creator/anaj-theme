@@ -233,7 +233,7 @@
     {% endif %}
 
     <details class="anaj-acc__item anaj-card">
-      <summary>Wartości odżywcze</summary>
+      <summary>Wartości odżywcze (na 100 g)</summary>
       <div class="anaj-acc__content">
         {% if nutrition %}
           {{ nutrition }}
@@ -307,6 +307,7 @@ html, body{
   --border:#B98E55; --surface-top:#F3E1C6; --surface-bot:#E2BE8F;
   --chip:#EDE0CC; --chip-border:#D9C2A4;
   --padx: clamp(16px,4vw,40px); --pady: clamp(14px,3vw,28px);
+  font-family: var(--font-body-family);
   color:var(--ink);
   width:100vw;
   margin-left:calc(50% - 50vw);
@@ -706,6 +707,7 @@ html, body{
 }
 
 #{{ ROOT }} .anaj-title{
+  font-family: var(--font-heading-family), var(--font-body-family);
   margin:6px 0 0 0;
   text-align:center;
   text-transform:uppercase;
@@ -808,17 +810,6 @@ html, body{
   transform:translateY(0);
 }
 
-/* Typografia – jeden font, żeby polskie znaki wyglądały spójnie */
-#{{ ROOT }}{
-  font-family: var(--font-body-family);
-}
-
-/* Tytuł korzysta z dekoracyjnego fontu nagłówków */
-#{{ ROOT }} .anaj-title{
-  font-family: var(--font-heading-family);
-  font-weight:900 !important;
-}
-
 /* Przywracamy pogrubienia w treści */
 #{{ ROOT }} strong,
 #{{ ROOT }} b {
@@ -839,103 +830,60 @@ html, body{
     if(!root) return;
 
     /* Galeria – slider z animacją i swipe */
-    const imgsEl = document.getElementById('{{ GID }}-images');
-    if (imgsEl) {
-      const imgs = JSON.parse(imgsEl.textContent || '[]');
-      const gal  = document.getElementById('{{ GID }}');
+    const gal  = document.getElementById('{{ GID }}');
+    if (gal) {
+      const stage = gal.querySelector('.anaj-gal__stage');
+      const track = stage?.querySelector('.anaj-gal__track');
+      const slides = track ? [...track.querySelectorAll('.anaj-gal__slide')] : [];
+      const prev  = gal.querySelector('.anaj-gal__nav.is-prev');
+      const next  = gal.querySelector('.anaj-gal__nav.is-next');
 
-      if (gal) {
-        const stage = gal.querySelector('.anaj-gal__stage');
-        const prev  = gal.querySelector('.anaj-gal__nav.is-prev');
-        const next  = gal.querySelector('.anaj-gal__nav.is-next');
+      if (track && slides.length > 1) {
+        let current = 0;
+        const N = slides.length;
 
-        if (stage && prev && next) {
-          let track = stage.querySelector('.anaj-gal__track');
-          let slides = [...(track?.querySelectorAll('.anaj-gal__slide') || [])];
+        const goTo = (n) => {
+          current = (n + N) % N;
+          track.style.transform = `translateX(-${current * 100}%)`;
+        };
 
-          if ((!track || slides.length === 0) && Array.isArray(imgs) && imgs.length > 0) {
-            const navs = [prev, next];
-            track = document.createElement('div');
-            track.className = 'anaj-gal__track';
+        prev?.addEventListener('click', () => goTo(current - 1));
+        next?.addEventListener('click', () => goTo(current + 1));
 
-            imgs.forEach((src, idx) => {
-              const slide = document.createElement('div');
-              slide.className = 'anaj-gal__slide';
+        let startX = null;
+        let currentX = null;
 
-              const img = document.createElement('img');
-              img.src = src;
-              img.alt = stage.querySelector('img')?.alt || '{{ product.title | escape }}';
-              img.loading = idx === 0 ? 'eager' : 'lazy';
-              img.decoding = 'async';
-              if (idx === 0) img.fetchPriority = 'high';
+        const onTouchStart = (e) => {
+          if (!e.touches?.length) return;
+          startX = e.touches[0].clientX;
+          currentX = startX;
+        };
 
-              slide.appendChild(img);
-              track.appendChild(slide);
-            });
+        const onTouchMove = (e) => {
+          if (startX === null) return;
+          currentX = e.touches[0].clientX;
+        };
 
-            stage.innerHTML = '';
-            stage.appendChild(track);
-            navs.forEach(btn => stage.appendChild(btn));
-            slides = [...track.querySelectorAll('.anaj-gal__slide')];
-          }
-
-          if (!track || slides.length === 0) return;
-
-          let current = 0;
-          const N = slides.length;
-
-          const goTo = (n) => {
-            if (!N) return;
-            current = (n + N) % N;
-            track.style.transform = `translateX(-${current * 100}%)`;
-          };
-
-          prev.addEventListener('click', () => {
-            if (N > 1) goTo(current - 1);
-          });
-          next.addEventListener('click', () => {
-            if (N > 1) goTo(current + 1);
-          });
-
-          let startX = null;
-          let currentX = null;
-
-          const onTouchStart = (e) => {
-            if (!e.touches || !e.touches.length) return;
-            startX = e.touches[0].clientX;
-            currentX = startX;
-          };
-
-          const onTouchMove = (e) => {
-            if (startX === null) return;
-            currentX = e.touches[0].clientX;
-          };
-
-          const onTouchEnd = () => {
-            if (startX === null || currentX === null) {
-              startX = currentX = null;
-              return;
-            }
-            const deltaX = currentX - startX;
-            const threshold = 40;
-
-            if (Math.abs(deltaX) > threshold && N > 1) {
-              if (deltaX > 0) {
-                goTo(current - 1);
-              } else {
-                goTo(current + 1);
-              }
-            }
-
+        const onTouchEnd = () => {
+          if (startX === null || currentX === null) {
             startX = currentX = null;
-          };
+            return;
+          }
+          const deltaX = currentX - startX;
+          const threshold = 40;
 
-          stage.addEventListener('touchstart', onTouchStart, { passive: true });
-          stage.addEventListener('touchmove',  onTouchMove,  { passive: true });
-          stage.addEventListener('touchend',   onTouchEnd);
+          if (Math.abs(deltaX) > threshold) {
+            if (deltaX > 0) goTo(current - 1);
+            else goTo(current + 1);
+          }
+          startX = currentX = null;
+        };
 
-          goTo(0);
-        }
+        stage.addEventListener('touchstart', onTouchStart, { passive: true });
+        stage.addEventListener('touchmove',  onTouchMove,  { passive: true });
+        stage.addEventListener('touchend',   onTouchEnd);
+
+        goTo(0);
       }
     }
 
