@@ -716,18 +716,139 @@ html, body{
   margin-top:12px;
   text-align:center;
 }
-#{{ ROOT }} .anaj-banner img{
-  display:block;
-  width:100%;
-  height:auto;
-  object-fit:cover;
-}
-@media (min-width:1024px){
   #{{ ROOT }} .anaj-banner img{
-    width:auto;
-    max-width:360px;
-    margin-inline:auto;
+    display:block;
+    width:100%;
+    height:auto;
+    object-fit:cover;
   }
+  @media (min-width:1024px){
+    #{{ ROOT }} .anaj-banner img{
+      width:auto;
+      max-width:360px;
+      margin-inline:auto;
+    }
+  }
+
+/* === 1. Jeden font z polskimi znakami w całej sekcji === */
+#{{ ROOT }}{
+  font-family: var(--font-body-family, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif) !important;
+}
+
+/* === 2. Tytuł – bardziej „oczojebny”, ale wciąż elegancki === */
+#{{ ROOT }} .anaj-head{
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+#{{ ROOT }} .anaj-head__top{
+  display:flex;
+  justify-content:center;
+  margin-bottom:4px;
+}
+
+#{{ ROOT }} .anaj-pill{
+  padding:5px 14px;
+  border-radius:999px;
+  background:linear-gradient(180deg,#6b4121,#3f2411);
+  color:#fff;
+  font-size:11px;
+  font-weight:800;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  box-shadow:0 6px 14px rgba(0,0,0,.35);
+  border:1px solid rgba(255,255,255,.25);
+}
+
+#{{ ROOT }} .anaj-title{
+  margin:4px 0 0 0;
+  text-align:center;
+  text-transform:uppercase;
+  letter-spacing:.06em;
+  font-weight:900 !important;
+  font-size:clamp(26px, 4.2vw, 40px) !important;
+  line-height:1.05 !important;
+
+  background:linear-gradient(180deg,#3a2412,#1a0e05);
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+
+  text-shadow:
+    0 1px 0 #fcebd0,
+    0 2px 0 #f8e1bb,
+    0 10px 22px rgba(0,0,0,.55);
+}
+
+@media (max-width: 750px){
+  #{{ ROOT }} .anaj-title{
+    font-size:clamp(22px, 6vw, 30px) !important;
+    padding-inline:8px;
+  }
+}
+
+/* === 3. Timeline – środkowanie === */
+#{{ ROOT }} .anaj-tl__header{
+  text-align:center;
+}
+
+#{{ ROOT }} .anaj-tl__eyebrow{
+  display:block;
+  font-size:12px;
+  font-weight:800;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+}
+
+#{{ ROOT }} .anaj-tl__hint{
+  margin-top:2px;
+  font-size:13px;
+  opacity:.85;
+}
+
+/* === 4. Animacja accordionów === */
+#{{ ROOT }} .anaj-acc__item{
+  border-radius:16px;
+  overflow:hidden;
+}
+
+#{{ ROOT }} .anaj-acc__item > summary{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:12px 14px;
+  cursor:pointer;
+  font-weight:700;
+  position:relative;
+}
+
+#{{ ROOT }} .anaj-acc__item > summary::after{
+  content:'+';
+  margin-left:auto;
+  font-weight:900;
+  font-size:18px;
+  transition:transform .22s ease;
+}
+
+#{{ ROOT }} .anaj-acc__item[open] > summary::after{
+  transform:rotate(45deg);
+}
+
+#{{ ROOT }} .anaj-acc__content{
+  max-height:0;
+  opacity:0;
+  transform:translateY(-4px);
+  overflow:hidden;
+  transition:
+    max-height .3s ease,
+    opacity .22s ease,
+    transform .22s ease;
+}
+
+#{{ ROOT }} .anaj-acc__item[open] .anaj-acc__content{
+  max-height:650px;
+  opacity:1;
+  transform:translateY(0);
 }
 </style>
 
