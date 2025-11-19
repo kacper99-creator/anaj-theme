@@ -296,7 +296,6 @@ html, body{
   --chip:#EDE0CC; --chip-border:#D9C2A4;
   --padx: clamp(16px,4vw,40px); --pady: clamp(14px,3vw,28px);
   color:var(--ink);
-  font-family: var(--font-body-family, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif) !important;
   width:100vw;
   margin-left:calc(50% - 50vw);
   margin-right:calc(50% - 50vw);
@@ -392,7 +391,6 @@ html, body{
 }
 #{{ ROOT }} .anaj-title{
   margin:6px 0 4px 0;
-  font-family:"Playfair Display","DM Serif Display",Georgia,"Times New Roman",serif !important;
   font-weight:800 !important;
   font-size:clamp(30px, 3.8vw, 46px) !important;
   line-height:1.05 !important;
@@ -720,22 +718,6 @@ html, body{
     }
   }
 
-/* === 1. Jeden font z polskimi znakami w całej sekcji === */
-#{{ ROOT }}{
-  font-family: var(--font-body-family, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif) !important;
-}
-
-#{{ ROOT }} .anaj-acc__item,
-#{{ ROOT }} .anaj-acc__item > summary,
-#{{ ROOT }} .anaj-acc__content,
-#{{ ROOT }} .anaj-acc__content p,
-#{{ ROOT }} .anaj-acc__content li,
-#{{ ROOT }} .anaj-timeline,
-#{{ ROOT }} .anaj-usp,
-#{{ ROOT }} .anaj-usp li{
-  font-family: inherit;
-}
-
 /* === 2. Tytuł – bardziej „oczojebny”, ale wciąż elegancki === */
 #{{ ROOT }} .anaj-head{
   margin-bottom: 10px;
@@ -853,20 +835,29 @@ html, body{
   transform:translateY(0);
 }
 
-/* Wymuszenie jednego fontu z pełnym wsparciem PL ogonków na całym PDP */
+/* Wymuszenie jednego fontu dla całej sekcji – pełne wsparcie PL */
 #{{ ROOT }},
 #{{ ROOT }} * {
-  font-family: var(--font-body-family, -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif) !important;
+  font-family: var(--font-body-family) !important;
+  font-weight: 400 !important;
 }
 
-/* Doprecyzowanie wag, żeby nie mieszały wariantów fontu */
+/* Przywracamy pogrubienia */
 #{{ ROOT }} strong,
 #{{ ROOT }} b {
   font-weight: 700 !important;
 }
 
-#{{ ROOT }} .anaj-acc__item > summary {
+/* Pozwalamy TYLKO tytułowi używać dekoracyjnego fontu */
+#{{ ROOT }} .anaj-title{
+  font-family: var(--font-heading-family) !important;
   font-weight: 700 !important;
+}
+
+/* Usunięcie przypadkowego bordera nad sekcją ceny */
+#{{ ROOT }} [style*="border-top"],
+#{{ ROOT }} .anaj-price {
+  border-top: 0 !important;
 }
 </style>
 
