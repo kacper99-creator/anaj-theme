@@ -1,29 +1,21 @@
-{% comment %}
-  ANAJ – Pasek ogłoszeń z rotacją komunikatów
-{% endcomment %}
-
 {% if section.blocks.size > 0 %}
 <section
   id="anaj-announcement-bar-{{ section.id }}"
   class="anaj-announcement-bar"
-  role="status"
-  aria-live="polite"
-  data-rotation-interval="{{ section.settings.rotation_interval | default: 4 }}"
+  data-interval="{{ section.settings.rotation_interval | default: 4 }}"
 >
   <div class="anaj-announcement-bar__inner">
+
     {%- for block in section.blocks -%}
       {%- if block.settings.message != blank -%}
-        <div
-          class="anaj-announcement-bar__slide"
-          data-anaj-announcement-slide
-          {{ block.shopify_attributes }}
-        >
-          <p class="anaj-announcement-bar__text">
+        <div class="anaj-announcement-bar__slide" {{ block.shopify_attributes }}>
+          <span class="anaj-announcement-bar__text">
             {{ block.settings.message }}
-          </p>
+          </span>
         </div>
       {%- endif -%}
     {%- endfor -%}
+
   </div>
 </section>
 {% endif %}
@@ -34,102 +26,79 @@
   }
 
   .anaj-announcement-bar__inner {
-    position: relative;
+    background: linear-gradient(90deg, #00a6ff 0%, #0088dd 100%);
     display: flex;
     align-items: center;
     justify-content: center;
-    min-height: 40px;
-    padding: 8px 16px;
-    text-align: center;
+    padding: 6px 10px;
+    min-height: 32px;
     overflow: hidden;
-    /* Gradient w kolorach niebieskich jak logo ANAJ */
-    background: linear-gradient(90deg, #009fe3 0%, #0078c9 50%, #00b5ff 100%);
+    text-align: center;
   }
 
   .anaj-announcement-bar__text {
-    margin: 0;
     color: #ffffff;
-    font-size: 14px;
-    line-height: 1.4;
     font-weight: 600;
-    word-break: break-word;
+    font-size: 14px;
+    white-space: nowrap;
+  }
+
+  .anaj-announcement-bar__slide {
+    opacity: 0;
+    transition: opacity 0.35s ease, transform 0.35s ease;
+    transform: translateY(6px);
+    position: relative;
+  }
+
+  .anaj-announcement-bar__slide.is-active {
+    opacity: 1;
+    transform: translateY(0);
   }
 
   @media (min-width: 768px) {
     .anaj-announcement-bar__inner {
-      min-height: 48px;
-      padding: 10px 24px;
+      padding: 8px 12px;
+      min-height: 36px;
     }
 
     .anaj-announcement-bar__text {
       font-size: 15px;
     }
   }
-
-  .anaj-announcement-bar__slide {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    width: 100%;
-    max-width: 100%;
-    transform: translate(-50%, 8px);
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.4s ease-out, transform 0.4s ease-out;
-  }
-
-  .anaj-announcement-bar__slide.is-active {
-    opacity: 1;
-    transform: translate(-50%, 0);
-    pointer-events: auto;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .anaj-announcement-bar__slide,
-    .anaj-announcement-bar__slide.is-active {
-      transition: none;
-      transform: translate(-50%, 0);
-    }
-  }
 </style>
 
 <script>
   (function() {
-    function initAnajAnnouncementBar() {
-      var container = document.getElementById('anaj-announcement-bar-{{ section.id }}');
-      if (!container) return;
-      if (container.dataset.anajAnnouncementInit === 'true') return;
-      container.dataset.anajAnnouncementInit = 'true';
+    function initBar() {
+      var bar = document.getElementById("anaj-announcement-bar-{{ section.id }}");
+      if (!bar) return;
+      if (bar.dataset.inited === "true") return;
+      bar.dataset.inited = "true";
 
-      var slides = container.querySelectorAll('[data-anaj-announcement-slide]');
+      var slides = bar.querySelectorAll(".anaj-announcement-bar__slide");
       if (!slides.length) return;
 
-      var intervalSeconds = parseInt(container.dataset.rotationInterval, 10) || 4;
-      var currentIndex = 0;
+      var index = 0;
+      var interval = parseInt(bar.dataset.interval) * 1000 || 4000;
 
-      function showSlide(index) {
-        slides.forEach(function(slide, i) {
-          if (i === index) {
-            slide.classList.add('is-active');
-          } else {
-            slide.classList.remove('is-active');
-          }
+      function show(i) {
+        slides.forEach(function(slide, n) {
+          slide.classList.toggle("is-active", n === i);
         });
       }
 
-      showSlide(currentIndex);
+      show(0);
 
       if (slides.length > 1) {
         setInterval(function() {
-          currentIndex = (currentIndex + 1) % slides.length;
-          showSlide(currentIndex);
-        }, intervalSeconds * 1000);
+          index = (index + 1) % slides.length;
+          show(index);
+        }, interval);
       }
     }
 
-    document.addEventListener('DOMContentLoaded', initAnajAnnouncementBar);
-    document.addEventListener('shopify:section:load', initAnajAnnouncementBar);
-    document.addEventListener('shopify:section:select', initAnajAnnouncementBar);
+    document.addEventListener("DOMContentLoaded", initBar);
+    document.addEventListener("shopify:section:load", initBar);
   })();
 </script>
 
@@ -140,7 +109,7 @@
     {
       "type": "range",
       "id": "rotation_interval",
-      "label": "Czas wyświetlania jednego komunikatu (sekundy)",
+      "label": "Czas pokazywania jednego komunikatu (sekundy)",
       "min": 2,
       "max": 10,
       "step": 1,
@@ -155,7 +124,7 @@
         {
           "type": "text",
           "id": "message",
-          "label": "Treść komunikatu",
+          "label": "Treść",
           "default": "Standardowo wysyłka w 3 dni robocze."
         }
       ]
@@ -166,14 +135,7 @@
     {
       "name": "ANAJ – Pasek ogłoszeń",
       "category": "Nagłówek",
-      "blocks": [
-        {
-          "type": "message"
-        },
-        {
-          "type": "message"
-        }
-      ]
+      "blocks": [{ "type": "message" }]
     }
   ]
 }
