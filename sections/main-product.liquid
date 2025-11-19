@@ -33,7 +33,7 @@
     <header class="anaj-head">
       <div class="anaj-head__top">
         <span class="anaj-pill">
-          Rzemieślniczy wypiek
+          {{ section.settings.pill_label | default: 'Rzemieślniczy wypiek' }}
         </span>
       </div>
 
@@ -83,8 +83,8 @@
 
     {%- comment -%} USP POD ILOŚCIĄ SZTUK {%- endcomment -%}
     <ul class="anaj-usp">
-      <li>Świeżo wypiekane na zamówienie</li>
-      <li>Dostawa dzień roboczy po wypieku</li>
+      <li>{{ section.settings.usp_1 | default: 'Świeżo wypiekane na zamówienie' }}</li>
+      <li>{{ section.settings.usp_2 | default: 'Dostawa dzień roboczy po wypieku' }}</li>
     </ul>
 
     {%- comment -%} CTA {%- endcomment -%}
@@ -270,10 +270,17 @@
     </details>
 
     <div class="anaj-card anaj-banner">
-      <img
-        src="https://cdn.shopify.com/s/files/1/0994/5196/1676/files/xx.webp?v=1762705077"
-        alt="Płatności i dostawa"
-        loading="lazy" width="1600" height="640">
+      {% if section.settings.banner_image != blank %}
+        <img
+          src="{{ section.settings.banner_image | image_url: width: 800 }}"
+          alt="{{ section.settings.banner_alt | default: 'Płatności i dostawa' }}"
+          loading="lazy" width="1600" height="640">
+      {% else %}
+        <img
+          src="https://cdn.shopify.com/s/files/1/0994/5196/1676/files/xx.webp?v=1762705077"
+          alt="Płatności i dostawa"
+          loading="lazy" width="1600" height="640">
+      {% endif %}
     </div>
   </div>
 </div>
@@ -361,66 +368,6 @@ html, body{
 }
 #{{ GID }} .anaj-gal__nav.is-prev{ left:12px; }
 #{{ GID }} .anaj-gal__nav.is-next{ right:12px; }
-
-/* Hero */
-#{{ ROOT }} .anaj-head{
-  margin-bottom:8px;
-}
-#{{ ROOT }} .anaj-pill{
-  display:inline-flex;
-  align-items:center;
-  gap:6px;
-  position:relative;
-  padding:6px 14px;
-  border-radius:999px;
-  background:linear-gradient(180deg, #7a5228 0%, #5b3a1c 45%, #3c2512 100%);
-  border:1px solid rgba(255, 232, 200, 0.7);
-  color:#fff7e6;
-  font-size:11px;
-  font-weight:700;
-  letter-spacing:0.14em;
-  text-transform:uppercase;
-  box-shadow:
-    0 0 0 1px rgba(0, 0, 0, 0.25),
-    0 8px 16px rgba(0, 0, 0, 0.35),
-    inset 0 1px 0 rgba(255, 255, 255, 0.25);
-}
-#{{ ROOT }} .anaj-pill::before{
-  content:none;
-  display:none;
-}
-#{{ ROOT }} .anaj-title{
-  margin:6px 0 4px 0;
-  font-weight:800 !important;
-  font-size:clamp(30px, 3.8vw, 46px) !important;
-  line-height:1.05 !important;
-  letter-spacing:-0.01em;
-  color:#4b2a16 !important;
-  text-shadow:0 2px 0 rgba(255, 255, 255, 0.7);
-  position:relative;
-  display:inline-block;
-}
-#{{ ROOT }} .anaj-title::after{
-  content:"";
-  position:absolute;
-  left:0;
-  bottom:-6px;
-  width:68px;
-  height:3px;
-  border-radius:999px;
-  background:linear-gradient(90deg, #f7d9a0, #d79b4c);
-  box-shadow:0 1px 2px rgba(0, 0, 0, 0.25);
-}
-@media (max-width:480px){
-  #{{ ROOT }} .anaj-title::after{
-    width:54px;
-    bottom:-5px;
-  }
-  #{{ ROOT }} .anaj-pill{
-    letter-spacing:0.1em;
-    padding:5px 12px 5px 24px;
-  }
-}
 
 /* Card + cena */
 #{{ ROOT }} .anaj-card{
@@ -756,17 +703,25 @@ html, body{
   margin:4px 0 0 0;
   text-align:center;
   text-transform:uppercase;
-  letter-spacing:.02em;
+  letter-spacing:.03em;
   font-weight:900 !important;
-  font-size:clamp(26px, 4.2vw, 40px) !important;
-  line-height:1.05 !important;
-  color:#4b2a16 !important;
-  text-shadow:0 2px 0 rgba(255,255,255,0.7), 0 8px 18px rgba(0,0,0,.26);
+  font-size:clamp(30px, 5vw, 52px) !important;
+  line-height:1.03 !important;
+
+  /* mocny, „złoty” efekt, ale elegancki */
+  background:linear-gradient(180deg,#fff8e8 0%, #f6c97d 45%, #d79b4c 100%);
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+
+  text-shadow:
+    0 2px 0 rgba(255,255,255,0.9),
+    0 10px 22px rgba(0,0,0,.35);
 }
 
 @media (max-width: 750px){
   #{{ ROOT }} .anaj-title{
-    font-size:clamp(22px, 6vw, 30px) !important;
+    font-size:clamp(24px, 7vw, 34px) !important;
     padding-inline:8px;
   }
 }
@@ -835,23 +790,22 @@ html, body{
   transform:translateY(0);
 }
 
-/* Wymuszenie jednego fontu dla całej sekcji – pełne wsparcie PL */
-#{{ ROOT }},
-#{{ ROOT }} * {
-  font-family: var(--font-body-family) !important;
-  font-weight: 400 !important;
+/* Typografia – jeden font, żeby polskie znaki wyglądały spójnie */
+#{{ ROOT }}{
+  font-family: var(--font-body-family);
 }
 
-/* Przywracamy pogrubienia */
+/* Tytuł korzysta z tego samego fontu (żeby ą, ę, ł nie odstawały),
+   ale jest mocniej dociążony wizualnie */
+#{{ ROOT }} .anaj-title{
+  font-family: var(--font-body-family);
+  font-weight:900 !important;
+}
+
+/* Przywracamy pogrubienia w treści */
 #{{ ROOT }} strong,
 #{{ ROOT }} b {
-  font-weight: 700 !important;
-}
-
-/* Pozwalamy TYLKO tytułowi używać dekoracyjnego fontu */
-#{{ ROOT }} .anaj-title{
-  font-family: var(--font-heading-family) !important;
-  font-weight: 700 !important;
+  font-weight:700;
 }
 
 /* Usunięcie przypadkowego bordera nad sekcją ceny */
@@ -1019,7 +973,37 @@ html, body{
   "name": "ANAJ – strona produktu",
   "tag": "section",
   "class": "section",
-  "settings": [],
+  "settings": [
+    {
+      "type": "text",
+      "id": "pill_label",
+      "label": "Badge nad tytułem",
+      "default": "Rzemieślniczy wypiek"
+    },
+    {
+      "type": "text",
+      "id": "usp_1",
+      "label": "USP #1 pod ilością sztuk",
+      "default": "Świeżo wypiekane na zamówienie"
+    },
+    {
+      "type": "text",
+      "id": "usp_2",
+      "label": "USP #2 pod ilością sztuk",
+      "default": "Dostawa dzień roboczy po wypieku"
+    },
+    {
+      "type": "image_picker",
+      "id": "banner_image",
+      "label": "Baner na dole (płatności / dostawa)"
+    },
+    {
+      "type": "text",
+      "id": "banner_alt",
+      "label": "Tekst ALT dla banera",
+      "default": "Płatności i dostawa"
+    }
+  ],
   "blocks": [],
   "presets": [
     {
