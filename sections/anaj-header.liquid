@@ -507,61 +507,58 @@
 </style>
 
 <script>
-/* Drawer toggle */
 document.addEventListener('DOMContentLoaded', function(){
-  var toggle = document.getElementById('anaj-menu-toggle');
-  var drawer = document.getElementById('anaj-drawer');
-  var overlay = document.getElementById('anaj-drawer-overlay');
-  var close = document.getElementById('anaj-menu-close');
-  var panel = drawer && drawer.querySelector('.anaj-drawer__panel');
+  const drawer = document.querySelector('.anaj-drawer');
+  if(!drawer) return;
+
+  const openButton = document.querySelector('[data-anaj-drawer-open]') || document.getElementById('anaj-menu-toggle');
+  if(!openButton) return;
+
+  const closeButton = drawer.querySelector('[data-anaj-drawer-close]') || drawer.querySelector('#anaj-menu-close');
+  const overlay = drawer.querySelector('.anaj-drawer__overlay');
+  const panel = drawer.querySelector('.anaj-drawer__panel');
 
   function syncBodyScroll(){
-    var shouldLock = drawer && drawer.classList.contains('is-open');
-    document.body.style.overflow = shouldLock ? 'hidden' : '';
+    document.body.style.overflow = drawer.classList.contains('is-open') ? 'hidden' : '';
   }
 
-  function openDrawer(){
-    if(!drawer) return;
+  function openDrawer(event){
+    if(event) event.preventDefault();
     drawer.classList.add('is-open');
-    if(toggle) toggle.setAttribute('aria-expanded','true');
+    drawer.setAttribute('aria-hidden','false');
+    openButton.setAttribute('aria-expanded','true');
     syncBodyScroll();
   }
 
-  function anajCloseDrawer(){
-    if(!drawer) return;
+  function closeDrawer(event){
+    if(event) event.preventDefault();
     drawer.classList.remove('is-open');
-    if(toggle) toggle.setAttribute('aria-expanded','false');
+    drawer.setAttribute('aria-hidden','true');
+    openButton.setAttribute('aria-expanded','false');
     syncBodyScroll();
   }
 
-  window.anajCloseDrawer = anajCloseDrawer;
+  openButton.addEventListener('click', openDrawer);
 
-  if(toggle) toggle.addEventListener('click', openDrawer);
-  if(close) close.addEventListener('click', anajCloseDrawer);
-  if(overlay) overlay.addEventListener('click', function(){
-    anajCloseDrawer();
-  });
+  if(closeButton){
+    closeButton.addEventListener('click', closeDrawer);
+  }
+
+  if(overlay){
+    overlay.addEventListener('click', closeDrawer);
+  }
+
   if(panel){
     panel.addEventListener('click', function(event){
       event.stopPropagation();
     });
   }
 
-  document.addEventListener('keydown', function(e){
-    if(e.key==='Escape'){
-      anajCloseDrawer();
+  document.addEventListener('keydown', function(event){
+    if(event.key === 'Escape'){
+      closeDrawer();
     }
   });
-
-  const drawer = document.querySelector('.anaj-drawer');
-  if (!drawer) return;
-
-  const overlay = drawer.querySelector('.anaj-drawer__overlay');
-  if (overlay) {
-    overlay.addEventListener('click', function () {
-      drawer.classList.remove('is-open');
-    });
-  }
 });
 </script>
 
