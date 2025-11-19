@@ -1330,3 +1330,34 @@ class CartPerformance {
     );
   }
 }
+
+// === ANAJ – globalne animacje strony ===
+
+document.addEventListener('DOMContentLoaded', function () {
+  // 1) Page-load transition
+  const root = document.querySelector('body');
+  if (root && root.classList.contains('anaj-page-transition')) {
+    // małe opóźnienie dla płynności
+    requestAnimationFrame(() => {
+      root.classList.add('is-ready');
+    });
+  }
+
+  // 2) Scroll-reveal (IntersectionObserver)
+  const animatedElements = document.querySelectorAll('[data-anaj-animate]');
+  if (animatedElements.length > 0 && 'IntersectionObserver' in window) {
+    const observer = new IntersectionObserver((entries, obs) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('anaj-in-view');
+          obs.unobserve(entry.target);
+        }
+      });
+    }, {
+      threshold: 0.18,
+      rootMargin: '0px 0px -5% 0px'
+    });
+
+    animatedElements.forEach(el => observer.observe(el));
+  }
+});

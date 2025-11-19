@@ -3595,3 +3595,78 @@ details-disclosure > details {
     transform: translateX(100%) scaleX(0);
   }
 }
+
+/* === ANAJ – globalne animacje strony === */
+
+/* Płynne przewijanie anchorów */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Animacja wejścia całej strony */
+.anaj-page-transition {
+  opacity: 0;
+  transform: translateY(8px);
+  transition:
+    opacity .38s ease-out,
+    transform .38s ease-out;
+}
+
+.anaj-page-transition.is-ready {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Bazowa animacja scroll-reveal */
+[data-anaj-animate] {
+  opacity: 0;
+  transform: translateY(18px);
+  transition:
+    opacity .55s ease-out,
+    transform .55s ease-out;
+  will-change: opacity, transform;
+}
+
+/* Gdy element wszedł w viewport */
+[data-anaj-animate].anaj-in-view {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Wariant „fade-from-left” */
+[data-anaj-animate="left"] {
+  transform: translateX(-22px);
+}
+
+[data-anaj-animate="left"].anaj-in-view {
+  transform: translateX(0);
+}
+
+/* Wariant „fade-from-right” */
+[data-anaj-animate="right"] {
+  transform: translateX(22px);
+}
+
+[data-anaj-animate="right"].anaj-in-view {
+  transform: translateX(0);
+}
+
+/* Mikro-animacja przycisków (light premium) */
+.anaj-btn-animated,
+button.button,
+.button,
+.shopify-payment-button__button {
+  transition:
+    transform .18s ease-out,
+    box-shadow .18s ease-out,
+    background-color .18s ease-out,
+    color .18s ease-out;
+}
+
+.anaj-btn-animated:hover,
+button.button:hover,
+.button:hover,
+.shopify-payment-button__button:hover {
+  transform: translateY(-1px) scale(1.01);
+  box-shadow: 0 6px 18px rgba(0,0,0,.16);
+}

@@ -1,4 +1,4 @@
-<header id="anaj-header" class="anaj-header" role="banner" aria-label="Nagłówek ANAJ" style="--bg:#f6efe3;--bg2:#ead9c0;--ink:#2f271f;--gold:#edc68d;--gold2:#d1b078;">
+<header id="anaj-header" class="anaj-header" role="banner" aria-label="Nagłówek ANAJ" data-anaj-animate="top" style="--bg:#f6efe3;--bg2:#ead9c0;--ink:#2f271f;--gold:#edc68d;--gold2:#d1b078;">
   <div class="anaj-header__bar">
     <!-- Burger -->
     <button class="anaj-btn anaj-btn--icon" id="anaj-menu-toggle" aria-label="Otwórz menu" aria-expanded="false" aria-controls="anaj-drawer">
@@ -142,46 +142,67 @@
 .anaj-nav__link{ color:var(--ink); text-decoration:none; padding:.25rem .4rem; border-radius:8px; }
 .anaj-nav__link:hover{ background:rgba(0,0,0,.05); }
 
-/* ===== Drawer (mobile) w stylu ANAJ ===== */
+/* === ANAJ drawer – poprawiona kolejność warstw === */
+
 .anaj-drawer{
-  position:fixed;
-  inset:0;
-  opacity:0;
-  pointer-events:none;
-  transition:opacity .24s ease-out;
+  position: fixed;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;          /* domyślnie NIC nie klika */
+  transition: opacity .24s ease-out;
+  z-index: 9999;                 /* nad całą stroną */
+  display: block;
 }
+
 .anaj-drawer.is-open{
-  opacity:1;
-  pointer-events:auto;
+  opacity: 1;
+  pointer-events: auto;          /* gdy otwarty – łapie kliki */
 }
 
+/* Ciemne tło za panelem */
 .anaj-drawer__overlay{
-  position:absolute; inset:0;
-  background:rgba(0,0,0,.28);
-  opacity:0; transition:opacity .25s ease;
-  backdrop-filter:saturate(120%) blur(2px);
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,.25);
+  opacity: 0;
+  transition: opacity .24s ease-out;
+  z-index: 0;                    /* POD panelem */
 }
 
+/* Sam panel menu */
 .anaj-drawer__panel{
-  position:absolute; top:0; left:0; height:100%; width:min(86vw,360px);
-  /* warstwa tła: pasy kraftowe + delikatny połysk */
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 280px;
+  max-width: 90vw;
+
   background:
     linear-gradient(180deg, rgba(255,255,255,.28), rgba(255,255,255,0)) 0 0 / 100% 120px no-repeat,
     repeating-linear-gradient(90deg, var(--bg) 0 26px, var(--bg2) 26px 52px);
-  color:var(--ink);
+  color: var(--ink);
   box-shadow: 3px 0 22px rgba(0,0,0,.22);
-  display:flex; flex-direction:column;
-  border-right:2px solid var(--gold2);
-  transform:translateX(-16px);
-  opacity:0;
+  border-right: 2px solid var(--gold2);
+  display: flex;
+  flex-direction: column;
+
+  transform: translateX(-16px);
+  opacity: 0;
   transition:
     transform .26s cubic-bezier(.22,.61,.36,1),
-    opacity .26s ease-out;
+    opacity   .26s ease-out;
+
+  z-index: 1;                    /* NAD overlayem */
 }
-.anaj-drawer.is-open .anaj-drawer__overlay{ opacity:1; }
+
+/* Stany po otwarciu */
+.anaj-drawer.is-open .anaj-drawer__overlay{
+  opacity: 1;
+}
+
 .anaj-drawer.is-open .anaj-drawer__panel{
-  transform:translateX(0);
-  opacity:1;
+  transform: translateX(0);
+  opacity: 1;
 }
 
 .anaj-drawer__head{
