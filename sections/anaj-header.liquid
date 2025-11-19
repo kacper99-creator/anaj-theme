@@ -17,8 +17,16 @@
 
     <!-- Ikony: Szukaj + Koszyk -->
     <div class="anaj-header__icons">
-      <button type="button" class="anaj-btn anaj-btn--icon anaj-nav__link anaj-nav__search" data-open-search="true" aria-label="Szukaj" aria-expanded="false">
-        <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M10 4a6 6 0 1 1-4.24 10.24l-3.27 3.27 1.41 1.41 3.27-3.27A6 6 0 1 1 10 4Z"/></svg>
+      <button
+        type="button"
+        class="anaj-btn anaj-btn-icon anaj-nav_link anaj-nav_search"
+        data-anaj-search-toggle
+        aria-label="Szukaj"
+        aria-expanded="false"
+      >
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true">
+          <path d="M10 4a6 6 0 1 1-4.24 10.24L3.27 16.73a1 1 0 0 1-1.41-1.41l2.49-2.49A6 6 0 0 1 10 4z"></path>
+        </svg>
       </button>
 
       <a class="anaj-btn anaj-btn--icon anaj-cart" id="anaj-cart-link" href="{{ routes.cart_url }}" aria-label="Koszyk{% if cart.item_count > 0 %} — {{ cart.item_count }} szt.{% else %} — pusty{% endif %}">
@@ -64,21 +72,35 @@
     </aside>
   </div>
 
-  <div class="anaj-search-drawer" id="anaj-search-drawer" aria-hidden="true">
-    <div class="anaj-search-drawer__overlay" id="anaj-search-overlay"></div>
-    <aside class="anaj-search-drawer__panel" role="dialog" aria-label="Wyszukiwarka">
-      <div class="anaj-search-drawer__head">
-        <span>Wyszukaj</span>
-        <button class="anaj-btn" type="button" id="anaj-search-close" aria-label="Zamknij wyszukiwanie">✕</button>
+  <div class="anaj-search" data-anaj-search>
+    <div class="anaj-search__overlay" data-anaj-search-close></div>
+
+    <div class="anaj-search__panel">
+      <div class="anaj-search__head">
+        <span class="anaj-search__title">Wyszukaj</span>
+        <button
+          type="button"
+          class="anaj-search__close"
+          data-anaj-search-close
+          aria-label="Zamknij wyszukiwanie"
+        >
+          ×
+        </button>
       </div>
-      <div class="anaj-search-drawer__body">
-        <div class="anaj-search-drawer__content">
-          <form action="/search" method="get" class="anaj-search-form">
-            <input type="search" name="q" placeholder="Szukaj produktów..." autofocus>
-          </form>
-        </div>
-      </div>
-    </aside>
+
+      <form action="/search" method="get" class="anaj-search__form" role="search">
+        <input
+          type="search"
+          name="q"
+          class="anaj-search__input"
+          placeholder="Szukaj produktów..."
+          autocomplete="off"
+        >
+        <button type="submit" class="anaj-search__submit">
+          Szukaj
+        </button>
+      </form>
+    </div>
   </div>
 </header>
 
@@ -222,67 +244,145 @@
 .anaj-nav__link{ color:var(--ink); text-decoration:none; padding:.25rem .4rem; border-radius:8px; }
 .anaj-nav__link:hover{ background:rgba(0,0,0,.05); }
 
-/* Search drawer */
-.anaj-search-drawer{
+/* ===== WYSZUKIWANIE ANAJ ===== */
+
+.anaj-search{
   position:fixed;
   inset:0;
+  z-index:120;
   display:flex;
   align-items:flex-start;
   justify-content:center;
-  padding:24px;
   opacity:0;
   pointer-events:none;
   transition:opacity .24s ease-out;
-  z-index:4000;
 }
-.anaj-search-drawer.is-open{
+
+.anaj-search.is-open{
   opacity:1;
   pointer-events:auto;
 }
-.anaj-search-drawer__overlay{
+
+.anaj-search__overlay{
   position:absolute;
   inset:0;
-  background:rgba(0,0,0,.32);
-  opacity:0;
-  transition:opacity .25s ease;
-  backdrop-filter:saturate(120%) blur(2px);
+  background:rgba(0,0,0,.25);
+  backdrop-filter:blur(2px);
 }
-.anaj-search-drawer.is-open .anaj-search-drawer__overlay{ opacity:1; }
-.anaj-search-drawer__panel{
+
+.anaj-search__panel{
   position:relative;
-  background:#fff;
-  color:var(--ink);
+  margin-top:18px;
+  width:100%;
+  max-width:960px;
+  background:linear-gradient(180deg, #fdf2de 0%, #f6e0c0 100%);
   border-radius:18px;
-  width:min(640px, 100%);
-  box-shadow:0 20px 60px rgba(0,0,0,.25);
-  transform:translateY(-20px);
+  box-shadow:0 12px 40px rgba(0,0,0,.22);
+  border:2px solid var(--gold2, #d0a86b);
+  padding:16px 20px 20px;
+  transform:translateY(-24px);
   opacity:0;
   transition:
-    opacity .3s ease,
-    transform .3s cubic-bezier(.22,.61,.36,1);
-  overflow:hidden;
-  display:flex;
-  flex-direction:column;
+    transform .26s cubic-bezier(.22,.61,.36,1),
+    opacity .26s ease-out;
+  box-sizing:border-box;
 }
-.anaj-search-drawer.is-open .anaj-search-drawer__panel{
+
+.anaj-search.is-open .anaj-search__panel{
   transform:translateY(0);
   opacity:1;
 }
-.anaj-search-drawer__head{
+
+.anaj-search__head{
   display:flex;
   align-items:center;
   justify-content:space-between;
-  padding:1rem 1.25rem;
-  border-bottom:1px solid rgba(0,0,0,.08);
-  font-weight:700;
+  margin-bottom:12px;
 }
-.anaj-search-drawer__body{ padding:1.25rem; }
-.anaj-search-form input{
-  width:100%;
+
+.anaj-search__title{
+  font-weight:700;
+  font-size:18px;
+  color:var(--ink, #3b2b1a);
+}
+
+.anaj-search__close{
+  border:none;
+  background:transparent;
+  font-size:22px;
+  line-height:1;
+  cursor:pointer;
+  padding:4px 6px;
+  border-radius:999px;
+  transition:background .16s ease-out;
+}
+
+.anaj-search__close:hover{
+  background:rgba(0,0,0,.06);
+}
+
+.anaj-search__form{
+  display:flex;
+  gap:10px;
+}
+
+.anaj-search__input{
+  flex:1;
   padding:12px 16px;
-  border:1px solid #ccc;
-  border-radius:8px;
-  font-size:16px;
+  border-radius:999px;
+  border:2px solid #e0c8a2;
+  background:#fffaf3;
+  font-size:15px;
+  line-height:1.3;
+  outline:none;
+  box-shadow:inset 0 1px 3px rgba(0,0,0,.06);
+}
+
+.anaj-search__input:focus{
+  border-color:var(--gold2, #d0a86b);
+  box-shadow:0 0 0 1px rgba(0,0,0,.04);
+}
+
+.anaj-search__submit{
+  padding:10px 20px;
+  border-radius:999px;
+  border:none;
+  background:var(--gold2, #d0a86b);
+  color:#fff;
+  font-weight:600;
+  cursor:pointer;
+  white-space:nowrap;
+  box-shadow:0 4px 0 rgba(0,0,0,.18);
+  transition:
+    transform .05s ease-out,
+    box-shadow .05s ease-out,
+    background .16s ease-out;
+}
+
+.anaj-search__submit:hover{
+  background:#c79754;
+}
+
+.anaj-search__submit:active{
+  transform:translateY(1px);
+  box-shadow:0 2px 0 rgba(0,0,0,.2);
+}
+
+@media (max-width: 749px){
+  .anaj-search__panel{
+    margin:10px 10px 0;
+    border-radius:14px;
+    padding:14px 14px 16px;
+  }
+
+  .anaj-search__form{
+    flex-direction:column;
+  }
+
+  .anaj-search__submit{
+    width:100%;
+    text-align:center;
+  }
 }
 
 .anaj-drawer__head{
@@ -337,6 +437,7 @@
   .anaj-only-mobile{ display:none; }
   .anaj-header__bar{ padding:.65rem 1.25rem; }
 }
+
 </style>
 
 <script>
@@ -346,14 +447,9 @@
   var drawer = document.getElementById('anaj-drawer');
   var overlay = document.getElementById('anaj-drawer-overlay');
   var close = document.getElementById('anaj-menu-close');
-  var searchToggle = document.querySelector('[data-open-search="true"]');
-  var searchDrawer = document.getElementById('anaj-search-drawer');
-  var searchOverlay = document.getElementById('anaj-search-overlay');
-  var searchClose = document.getElementById('anaj-search-close');
-  var searchInput = searchDrawer ? searchDrawer.querySelector('input[type="search"]') : null;
 
   function syncBodyScroll(){
-    var shouldLock = (drawer && drawer.classList.contains('is-open')) || (searchDrawer && searchDrawer.classList.contains('is-open'));
+    var shouldLock = drawer && drawer.classList.contains('is-open');
     document.body.style.overflow = shouldLock ? 'hidden' : '';
   }
 
@@ -370,38 +466,59 @@
     syncBodyScroll();
   }
 
-  function openSearchDrawer(){
-    if(!searchDrawer) return;
-    searchDrawer.classList.add('is-open');
-    searchDrawer.setAttribute('aria-hidden','false');
-    if(searchToggle) searchToggle.setAttribute('aria-expanded','true');
-    syncBodyScroll();
-    if(searchInput){
-      setTimeout(function(){ searchInput.focus(); }, 120);
-    }
-  }
-  function closeSearchDrawer(){
-    if(!searchDrawer) return;
-    searchDrawer.classList.remove('is-open');
-    searchDrawer.setAttribute('aria-hidden','true');
-    if(searchToggle) searchToggle.setAttribute('aria-expanded','false');
-    syncBodyScroll();
-  }
-
   if(toggle) toggle.addEventListener('click', openDrawer);
   if(close) close.addEventListener('click', closeDrawer);
   if(overlay) overlay.addEventListener('click', closeDrawer);
-  if(searchToggle) searchToggle.addEventListener('click', openSearchDrawer);
-  if(searchClose) searchClose.addEventListener('click', closeSearchDrawer);
-  if(searchOverlay) searchOverlay.addEventListener('click', closeSearchDrawer);
   document.addEventListener('keydown', function(e){
     if(e.key==='Escape'){
       closeDrawer();
-      closeSearchDrawer();
     }
   });
 })();
+</script>
 
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  var searchToggle = document.querySelector('[data-anaj-search-toggle]');
+  var searchLayer  = document.querySelector('[data-anaj-search]');
+  if(!searchToggle || !searchLayer) return;
+
+  var closeElems = searchLayer.querySelectorAll('[data-anaj-search-close]');
+  var input      = searchLayer.querySelector('.anaj-search__input');
+
+  function openSearch(){
+    searchLayer.classList.add('is-open');
+    document.documentElement.classList.add('anaj-search-open');
+    if(input){
+      setTimeout(function(){ input.focus(); }, 150);
+    }
+  }
+
+  function closeSearch(){
+    searchLayer.classList.remove('is-open');
+    document.documentElement.classList.remove('anaj-search-open');
+  }
+
+  searchToggle.addEventListener('click', function(e){
+    e.preventDefault();
+    openSearch();
+  });
+
+  closeElems.forEach(function(el){
+    el.addEventListener('click', function(){
+      closeSearch();
+    });
+  });
+
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape'){
+      closeSearch();
+    }
+  });
+});
+</script>
+
+<script>
 /* ===== Dynamiczny licznik koszyka przy ikonie ===== */
 (function(){
   var countEl = document.getElementById('anaj-cart-count');
