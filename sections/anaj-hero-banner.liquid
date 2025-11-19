@@ -77,35 +77,28 @@
 </div>
 
 <style>
-/* GLOBAL: brak poziomego scrolla */
 html, body{
   overflow-x:hidden;
 }
 
-/* ===== USTAWIENIA OGÓLNE ===== */
 #{{ slider_id }}{
   --beige:#edc68d;
   --beige-2:#d8b177;
   --ink:#2f271f;
-  --mH:min(92svh,128vw); /* mobile */
+  --mH:min(92svh,128vw);
   position:relative;
   overflow:hidden;
   box-shadow:0 16px 46px rgba(0,0,0,.16);
-
-  /* full-bleed – desktop i mobile */
   width:100vw;
   max-width:100vw;
   margin-left:calc(50% - 50vw);
   margin-right:calc(50% - 50vw);
   border-radius:0;
 }
-
 #{{ slider_id }} .track{
   display:grid;
   position:relative;
 }
-
-/* ===== Slajd – desktop: niższy baner ===== */
 #{{ slider_id }} .slide{
   grid-area:1/1;
   position:relative;
@@ -122,8 +115,6 @@ html, body{
   pointer-events:auto;
   z-index:1;
 }
-
-/* ===== MEDIA: background-image ===== */
 #{{ slider_id }} .media{
   position:absolute;
   inset:0;
@@ -137,8 +128,6 @@ html, body{
   0%   { transform:scale(1.02) translate3d(0,-0.5%,0); }
   100% { transform:scale(1.06) translate3d(0,-2%,0); }
 }
-
-/* ===== Overlay i typografia ===== */
 #{{ slider_id }} .slide::before{
   content:"";
   position:absolute;
@@ -151,7 +140,6 @@ html, body{
   position:absolute;
   inset:0;
 }
-
 #{{ slider_id }} .copy{
   position:absolute;
   left:4%;
@@ -176,14 +164,12 @@ html, body{
 #{{ slider_id }} .slide.is-active .copy > *:nth-child(1){ animation-delay:.05s; }
 #{{ slider_id }} .slide.is-active .copy > *:nth-child(2){ animation-delay:.18s; }
 #{{ slider_id }} .slide.is-active .copy > *:nth-child(3){ animation-delay:.33s; }
-
 @keyframes fadeUp{
   to{
     opacity:1;
     transform:none;
   }
 }
-
 #{{ slider_id }} .eyebrow{
   display:inline-block;
   margin-bottom:8px;
@@ -214,14 +200,6 @@ html, body{
   font-size:14px;
   max-width:46rem;
 }
-#{{ slider_id }} .copy .hl{
-  background:linear-gradient(transparent 62%, rgba(237,198,141,.9) 62%);
-  box-decoration-break:clone;
-  padding:0 .12em;
-  border-radius:2px;
-}
-
-/* ===== CTA, strzałki, kropki ===== */
 #{{ slider_id }} .cta{
   margin-top:12px;
   position:relative;
@@ -248,7 +226,6 @@ html, body{
 #{{ slider_id }} .cta__icon{
   flex:0 0 auto;
 }
-
 #{{ slider_id }} .nav{
   position:absolute;
   top:50%;
@@ -265,7 +242,6 @@ html, body{
 }
 #{{ slider_id }} .prev{ left:12px; }
 #{{ slider_id }} .next{ right:12px; }
-
 #{{ slider_id }} .dots{
   position:absolute;
   left:50%;
@@ -293,8 +269,6 @@ html, body{
   70%{  box-shadow:0 0 0 8px rgba(237,198,141,0); }
   100%{ box-shadow:0 0 0 0 rgba(237,198,141,0); }
 }
-
-/* MOBILE – tylko lekkie dopasowanie typografii */
 @media(max-width:768px){
   #{{ slider_id }} .slide{
     height:var(--mH);
@@ -316,8 +290,6 @@ html, body{
     padding:11px 14px;
   }
 }
-
-/* Preferencje dostępu */
 @media(prefers-reduced-motion:reduce){
   #{{ slider_id }} *{
     animation:none !important;
@@ -371,7 +343,6 @@ html, body{
     });
   });
 
-  // Swipe na mobile
   let x0 = null;
   root.addEventListener('touchstart', e=>{
     x0 = e.touches[0].clientX;
@@ -392,7 +363,7 @@ html, body{
 
 {% schema %}
 {
-  "name": "ANAJ – hero banner (slider)",
+  "name": "ANAJ hero banner (slider)",
   "settings": [
     {
       "type": "range",
@@ -410,17 +381,8 @@ html, body{
       "type": "slide",
       "name": "Slajd",
       "settings": [
-        {
-          "type": "image_picker",
-          "id": "image",
-          "label": "Obraz tła"
-        },
-        {
-          "type": "text",
-          "id": "eyebrow",
-          "label": "Badge (np. PREMIUM)",
-          "default": "PREMIUM"
-        },
+        { "type": "image_picker", "id": "image", "label": "Obraz tła" },
+        { "type": "text", "id": "eyebrow", "label": "Badge (np. PREMIUM)", "default": "PREMIUM" },
         {
           "type": "select",
           "id": "eyebrow_style",
@@ -428,44 +390,21 @@ html, body{
           "default": "gold",
           "options": [
             { "value": "default", "label": "Jasny" },
-            { "value": "gold", "label": "Złoty (jak na screenie)" }
+            { "value": "gold", "label": "Złoty" }
           ]
         },
-        {
-          "type": "text",
-          "id": "title",
-          "label": "Tytuł",
-          "default": "Na maśle z orzechem włoskim"
-        },
-        {
-          "type": "text",
-          "id": "subtitle",
-          "label": "Podtytuł",
-          "default": "Świeże, chrupiące, prosto do Twojego domu."
-        },
-        {
-          "type": "product",
-          "id": "product",
-          "label": "Produkt (opcjonalnie)"
-        },
-        {
-          "type": "url",
-          "id": "cta_link",
-          "label": "Własny link (jeśli nie wybierzesz produktu)"
-        },
-        {
-          "type": "text",
-          "id": "cta_label",
-          "label": "Tekst przycisku",
-          "default": "Zamów teraz!"
-        }
+        { "type": "text", "id": "title", "label": "Tytuł", "default": "Na maśle z orzechem włoskim" },
+        { "type": "text", "id": "subtitle", "label": "Podtytuł", "default": "Świeże, chrupiące, prosto do Twojego domu." },
+        { "type": "product", "id": "product", "label": "Produkt (opcjonalnie)" },
+        { "type": "url", "id": "cta_link", "label": "Własny link (jeśli nie wybierzesz produktu)" },
+        { "type": "text", "id": "cta_label", "label": "Tekst przycisku", "default": "Zamów teraz!" }
       ]
     }
   ],
   "max_blocks": 6,
   "presets": [
     {
-      "name": "ANAJ – hero banner (slider)",
+      "name": "ANAJ hero banner (slider)",
       "blocks": [
         {
           "type": "slide",
