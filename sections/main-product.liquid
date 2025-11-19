@@ -318,20 +318,30 @@ html, body{
   }
 }
 
-/* GALERIA – 4:3 */
+/* GALERIA – slider 4:3 */
 #{{ GID }} .anaj-gal__stage{
   position:relative;
   border-radius:18px;
   overflow:hidden;
   background:transparent;
   box-shadow:0 14px 30px rgba(0,0,0,.12);
+  touch-action:pan-y;
+}
+#{{ GID }} .anaj-gal__track{
+  display:flex;
+  width:100%;
+  height:100%;
+  transition:transform .4s ease-out;
+}
+#{{ GID }} .anaj-gal__slide{
+  min-width:100%;
   aspect-ratio:4 / 3;
 }
-#{{ GID }} img{
-  display:block;
+#{{ GID }} .anaj-gal__slide img{
   width:100%;
   height:100%;
   object-fit:cover;
+  display:block;
   user-select:none;
   -webkit-user-drag:none;
 }
@@ -339,7 +349,7 @@ html, body{
   position:absolute;
   top:50%;
   transform:translateY(-50%);
-  z-index:5;
+  z-index:10;
   width:46px;
   height:46px;
   border-radius:999px;
@@ -347,9 +357,10 @@ html, body{
   border:1px solid rgba(0,0,0,.10);
   box-shadow:0 14px 28px rgba(0,0,0,.18);
   cursor:pointer;
+  pointer-events:auto;
 }
-#{{ GID }} .is-prev{ left:12px }
-#{{ GID }} .is-next{ right:12px }
+#{{ GID }} .anaj-gal__nav.is-prev{ left:12px; }
+#{{ GID }} .anaj-gal__nav.is-next{ right:12px; }
 
 /* Hero */
 #{{ ROOT }} .anaj-head{
@@ -680,19 +691,96 @@ html, body{
     const root = document.getElementById('{{ ROOT }}');
     if(!root) return;
 
-    /* Galeria */
+    /* Galeria – slider z animacją i swipe */
     const imgsEl = document.getElementById('{{ GID }}-images');
-    if(imgsEl){
+    if (imgsEl) {
       const imgs = JSON.parse(imgsEl.textContent || '[]');
       const gal  = document.getElementById('{{ GID }}');
-      if(gal){
-        const stage = gal.querySelector('#{{ GID }}-stage');
+
+      if (gal && Array.isArray(imgs) && imgs.length > 0) {
+        const stage = gal.querySelector('.anaj-gal__stage');
         const prev  = gal.querySelector('.anaj-gal__nav.is-prev');
         const next  = gal.querySelector('.anaj-gal__nav.is-next');
-        let i = 0, N = imgs.length;
-        const show=(n)=>{ if(N<=1) return; i=(n+N)%N; if(stage && imgs[i]) stage.src = imgs[i]; };
-        prev && prev.addEventListener('click', ()=> show(i-1));
-        next && next.addEventListener('click', ()=> show(i+1));
+
+        if (stage && prev && next) {
+          const navs = [prev, next];
+
+          const track = document.createElement('div');
+          track.className = 'anaj-gal__track';
+
+          imgs.forEach((src, idx) => {
+            const slide = document.createElement('div');
+            slide.className = 'anaj-gal__slide';
+
+            const img = document.createElement('img');
+            img.src = src;
+            img.alt = stage.querySelector('img')?.alt || '{{ product.title | escape }}';
+            img.loading = idx === 0 ? 'eager' : 'lazy';
+            img.decoding = 'async';
+
+            slide.appendChild(img);
+            track.appendChild(slide);
+          });
+
+          stage.innerHTML = '';
+          stage.appendChild(track);
+          navs.forEach(btn => stage.appendChild(btn));
+
+          let current = 0;
+          const N = imgs.length;
+
+          const goTo = (n) => {
+            if (!N) return;
+            current = (n + N) % N;
+            track.style.transform = `translateX(-${current * 100}%)`;
+          };
+
+          prev.addEventListener('click', () => {
+            if (N > 1) goTo(current - 1);
+          });
+          next.addEventListener('click', () => {
+            if (N > 1) goTo(current + 1);
+          });
+
+          let startX = null;
+          let currentX = null;
+
+          const onTouchStart = (e) => {
+            if (!e.touches || !e.touches.length) return;
+            startX = e.touches[0].clientX;
+            currentX = startX;
+          };
+
+          const onTouchMove = (e) => {
+            if (startX === null) return;
+            currentX = e.touches[0].clientX;
+          };
+
+          const onTouchEnd = () => {
+            if (startX === null || currentX === null) {
+              startX = currentX = null;
+              return;
+            }
+            const deltaX = currentX - startX;
+            const threshold = 40;
+
+            if (Math.abs(deltaX) > threshold && N > 1) {
+              if (deltaX > 0) {
+                goTo(current - 1);
+              } else {
+                goTo(current + 1);
+              }
+            }
+
+            startX = currentX = null;
+          };
+
+          stage.addEventListener('touchstart', onTouchStart, { passive: true });
+          stage.addEventListener('touchmove',  onTouchMove,  { passive: true });
+          stage.addEventListener('touchend',   onTouchEnd);
+
+          goTo(0);
+        }
       }
     }
 
