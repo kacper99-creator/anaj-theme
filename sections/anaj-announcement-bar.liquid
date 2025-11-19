@@ -1,3 +1,7 @@
+{% comment %}
+Rotujący pasek ogłoszeń ANAJ – jeden komunikat na raz, auto-zmiana.
+{% endcomment %}
+
 {% if section.settings.enabled and section.blocks.size > 0 %}
   <div
     class="anaj-announcement"
@@ -47,7 +51,6 @@
   box-sizing:border-box;
 }
 
-/* Widok z jednym slajdem naraz */
 .anaj-announcement__viewport{
   position:relative;
   min-height:20px;
@@ -57,7 +60,6 @@
   overflow:hidden;
 }
 
-/* Każdy slajd to komunikat – animujemy opacity + lekkie przesunięcie */
 .anaj-announcement__slide{
   position:absolute;
   left:50%;
@@ -76,7 +78,6 @@
   transform:translate(-50%, 0);
 }
 
-/* Mobile – pozwalamy na łamanie tekstu w 2 linie */
 @media (max-width: 749px){
   .anaj-announcement{
     font-size:12px;
@@ -101,7 +102,6 @@ document.addEventListener('DOMContentLoaded', function(){
   var slides = bar.querySelectorAll('[data-anaj-announcement-slide]');
   if (!slides.length) return;
 
-  // Jeśli jest tylko jeden slajd – nie ma czego rotować, po prostu go zostawiamy.
   if (slides.length === 1) {
     slides[0].classList.add('is-active');
     return;
@@ -185,36 +185,33 @@ document.addEventListener('DOMContentLoaded', function(){
     }
   ],
   "max_blocks": 8,
-  "presets": [
-    {
-      "name": "ANAJ announcement bar",
-      "blocks": [
-        {
-          "type": "message",
-          "settings": {
-            "text": "Rzemieślnicza Cukiernia od 1988"
-          }
-        },
-        {
-          "type": "message",
-          "settings": {
-            "text": "Darmowa wysyłka od 149 zł"
-          }
-        },
-        {
-          "type": "message",
-          "settings": {
-            "text": "Świeże produkty"
-          }
-        },
-        {
-          "type": "message",
-          "settings": {
-            "text": "Szybka dostawa"
-          }
+  "default": {
+    "blocks": [
+      {
+        "type": "message",
+        "settings": {
+          "text": "Rzemieślnicza Cukiernia od 1988"
         }
-      ]
-    }
-  ]
+      },
+      {
+        "type": "message",
+        "settings": {
+          "text": "Darmowa wysyłka od 149 zł"
+        }
+      },
+      {
+        "type": "message",
+        "settings": {
+          "text": "Świeże produkty"
+        }
+      },
+      {
+        "type": "message",
+        "settings": {
+          "text": "Szybka dostawa"
+        }
+      }
+    ]
+  }
 }
 {% endschema %}
