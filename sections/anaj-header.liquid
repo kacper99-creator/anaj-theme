@@ -545,6 +545,16 @@ document.addEventListener('DOMContentLoaded', function(){
       anajCloseDrawer();
     }
   });
+
+  const drawer = document.querySelector('.anaj-drawer');
+  if (!drawer) return;
+
+  const overlay = drawer.querySelector('.anaj-drawer__overlay');
+  if (overlay) {
+    overlay.addEventListener('click', function () {
+      drawer.classList.remove('is-open');
+    });
+  }
 });
 </script>
 
