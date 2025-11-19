@@ -100,6 +100,7 @@
           Szukaj
         </button>
       </form>
+      <div class="anaj-search__suggestions" data-anaj-search-suggestions hidden></div>
     </div>
   </div>
 </header>
@@ -368,6 +369,55 @@
   box-shadow:0 2px 0 rgba(0,0,0,.2);
 }
 
+/* ===== PODPOWIEDZI WYSZUKIWANIA ANAJ ===== */
+
+.anaj-search__suggestions{
+  margin-top:10px;
+  background:#fffaf3;
+  border-radius:14px;
+  border:1px solid #e0c8a2;
+  box-shadow:0 10px 30px rgba(0,0,0,.16);
+  max-height:320px;
+  overflow:auto;
+  padding:6px 0;
+}
+
+.anaj-search__suggestions-list{
+  list-style:none;
+  margin:0;
+  padding:0;
+}
+
+.anaj-search__suggestion-item a{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:8px 14px;
+  text-decoration:none;
+  color:var(--ink, #3b2b1a);
+  font-size:14px;
+}
+
+.anaj-search__suggestion-item a:hover{
+  background:rgba(0,0,0,.04);
+}
+
+.anaj-search__suggestion-title{
+  font-weight:500;
+}
+
+.anaj-search__suggestion-meta{
+  font-size:13px;
+  opacity:.8;
+}
+
+/* Na mobile podpowiedzi zajmują całą szerokość panelu */
+@media (max-width: 749px){
+  .anaj-search__suggestions{
+    max-height:260px;
+  }
+}
+
 @media (max-width: 749px){
   .anaj-search__panel{
     margin:10px 10px 0;
@@ -483,8 +533,10 @@ document.addEventListener('DOMContentLoaded', function(){
   var searchLayer  = document.querySelector('[data-anaj-search]');
   if(!searchToggle || !searchLayer) return;
 
-  var closeElems = searchLayer.querySelectorAll('[data-anaj-search-close]');
-  var input      = searchLayer.querySelector('.anaj-search__input');
+  var closeElems   = searchLayer.querySelectorAll('[data-anaj-search-close]');
+  var input        = searchLayer.querySelector('.anaj-search__input');
+  var suggestionsEl = searchLayer.querySelector('[data-anaj-search-suggestions]');
+  var fetchTimer    = null;
 
   function openSearch(){
     searchLayer.classList.add('is-open');
@@ -497,6 +549,10 @@ document.addEventListener('DOMContentLoaded', function(){
   function closeSearch(){
     searchLayer.classList.remove('is-open');
     document.documentElement.classList.remove('anaj-search-open');
+    if(suggestionsEl){
+      suggestionsEl.innerHTML = '';
+      suggestionsEl.hidden = true;
+    }
   }
 
   searchToggle.addEventListener('click', function(e){
@@ -515,6 +571,75 @@ document.addEventListener('DOMContentLoaded', function(){
       closeSearch();
     }
   });
+
+  function renderSuggestions(data){
+    if(!suggestionsEl) return;
+
+    var products = (data && data.resources && data.resources.results && data.resources.results.products) || [];
+    if(!products.length){
+      suggestionsEl.innerHTML = '';
+      suggestionsEl.hidden = true;
+      return;
+    }
+
+    var html = '<ul class="anaj-search__suggestions-list">';
+    products.forEach(function(p){
+      if(!p || !p.url || !p.title) return;
+      html += '<li class="anaj-search__suggestion-item">';
+      html +=   '<a href="' + p.url + '">';
+      html +=     '<span class="anaj-search__suggestion-title">' + p.title + '</span>';
+      if (p.product_type) {
+        html +=   '<span class="anaj-search__suggestion-meta">' + p.product_type + '</span>';
+      }
+      html +=   '</a>';
+      html += '</li>';
+    });
+    html += '</ul>';
+
+    suggestionsEl.innerHTML = html;
+    suggestionsEl.hidden = false;
+  }
+
+  function fetchSuggestions(query){
+    if(!query || query.length < 2){
+      if(suggestionsEl){
+        suggestionsEl.innerHTML = '';
+        suggestionsEl.hidden = true;
+      }
+      return;
+    }
+
+    var url = '/search/suggest.json'
+      + '?q=' + encodeURIComponent(query)
+      + '&resources[type]=product'
+      + '&resources[limit]=6';
+
+    fetch(url, { headers: { 'Accept': 'application/json' }})
+      .then(function(res){
+        if(!res.ok) return null;
+        return res.json();
+      })
+      .then(function(data){
+        if(!data) return;
+        renderSuggestions(data);
+      })
+      .catch(function(){
+        if(suggestionsEl){
+          suggestionsEl.innerHTML = '';
+          suggestionsEl.hidden = true;
+        }
+      });
+  }
+
+  if(input){
+    input.addEventListener('input', function(){
+      var value = this.value.trim();
+      if(fetchTimer) clearTimeout(fetchTimer);
+      fetchTimer = setTimeout(function(){
+        fetchSuggestions(value);
+      }, 220);
+    });
+  }
 });
 </script>
 
