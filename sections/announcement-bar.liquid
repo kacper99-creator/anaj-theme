@@ -1,37 +1,32 @@
-{%- liquid
-  assign has_messages = false
-  for block in section.blocks
-    if block.type == 'message' and block.settings.message != blank
-      assign has_messages = true
-      break
-    endif
-  endfor
--%}
+{% comment %}
+  ANAJ – Pasek ogłoszeń z rotacją komunikatów
+{% endcomment %}
 
-{%- if has_messages -%}
+{% if section.blocks.size > 0 %}
 <section
-  id="anaj-announcement-bar"
+  id="anaj-announcement-bar-{{ section.id }}"
   class="anaj-announcement-bar"
   role="status"
   aria-live="polite"
+  data-rotation-interval="{{ section.settings.rotation_interval | default: 4 }}"
 >
   <div class="anaj-announcement-bar__inner">
     {%- for block in section.blocks -%}
-      {%- if block.type == 'message' and block.settings.message != blank -%}
+      {%- if block.settings.message != blank -%}
         <div
           class="anaj-announcement-bar__slide"
           data-anaj-announcement-slide
           {{ block.shopify_attributes }}
         >
           <p class="anaj-announcement-bar__text">
-            {{ block.settings.message | escape }}
+            {{ block.settings.message }}
           </p>
         </div>
       {%- endif -%}
     {%- endfor -%}
   </div>
 </section>
-{%- endif -%}
+{% endif %}
 
 <style>
   .anaj-announcement-bar {
@@ -39,7 +34,7 @@
   }
 
   .anaj-announcement-bar__inner {
-    width: 100%;
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -47,8 +42,8 @@
     padding: 8px 16px;
     text-align: center;
     overflow: hidden;
-    background: linear-gradient(90deg, #0b1f3b, #cba05a);
-    position: relative;
+    /* Gradient w kolorach niebieskich jak logo ANAJ */
+    background: linear-gradient(90deg, #009fe3 0%, #0078c9 50%, #00b5ff 100%);
   }
 
   .anaj-announcement-bar__text {
@@ -56,7 +51,8 @@
     color: #ffffff;
     font-size: 14px;
     line-height: 1.4;
-    font-weight: 500;
+    font-weight: 600;
+    word-break: break-word;
   }
 
   @media (min-width: 768px) {
@@ -71,64 +67,70 @@
   }
 
   .anaj-announcement-bar__slide {
-    opacity: 0;
-    transform: translateY(10px);
-    pointer-events: none;
     position: absolute;
     left: 50%;
-    transform-origin: center;
-    transition: opacity 0.4s ease-out, transform 0.4s ease-out;
+    top: 50%;
     width: 100%;
     max-width: 100%;
+    transform: translate(-50%, 8px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease-out, transform 0.4s ease-out;
   }
 
   .anaj-announcement-bar__slide.is-active {
     opacity: 1;
-    transform: translateY(0);
+    transform: translate(-50%, 0);
     pointer-events: auto;
-    position: relative;
-    left: auto;
   }
 
   @media (prefers-reduced-motion: reduce) {
     .anaj-announcement-bar__slide,
     .anaj-announcement-bar__slide.is-active {
       transition: none;
-      transform: none;
+      transform: translate(-50%, 0);
     }
   }
 </style>
 
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
-    var bar = document.getElementById('anaj-announcement-bar');
-    if (!bar) return;
+  (function() {
+    function initAnajAnnouncementBar() {
+      var container = document.getElementById('anaj-announcement-bar-{{ section.id }}');
+      if (!container) return;
+      if (container.dataset.anajAnnouncementInit === 'true') return;
+      container.dataset.anajAnnouncementInit = 'true';
 
-    var slides = bar.querySelectorAll('[data-anaj-announcement-slide]');
-    if (!slides.length) return;
+      var slides = container.querySelectorAll('[data-anaj-announcement-slide]');
+      if (!slides.length) return;
 
-    var intervalSeconds = {{ section.settings.rotation_interval | default: 4 | json }};
-    var currentIndex = 0;
+      var intervalSeconds = parseInt(container.dataset.rotationInterval, 10) || 4;
+      var currentIndex = 0;
 
-    function showSlide(index) {
-      slides.forEach(function(slide, i) {
-        if (i === index) {
-          slide.classList.add('is-active');
-        } else {
-          slide.classList.remove('is-active');
-        }
-      });
+      function showSlide(index) {
+        slides.forEach(function(slide, i) {
+          if (i === index) {
+            slide.classList.add('is-active');
+          } else {
+            slide.classList.remove('is-active');
+          }
+        });
+      }
+
+      showSlide(currentIndex);
+
+      if (slides.length > 1) {
+        setInterval(function() {
+          currentIndex = (currentIndex + 1) % slides.length;
+          showSlide(currentIndex);
+        }, intervalSeconds * 1000);
+      }
     }
 
-    showSlide(currentIndex);
-
-    if (slides.length > 1) {
-      setInterval(function() {
-        currentIndex = (currentIndex + 1) % slides.length;
-        showSlide(currentIndex);
-      }, intervalSeconds * 1000);
-    }
-  });
+    document.addEventListener('DOMContentLoaded', initAnajAnnouncementBar);
+    document.addEventListener('shopify:section:load', initAnajAnnouncementBar);
+    document.addEventListener('shopify:section:select', initAnajAnnouncementBar);
+  })();
 </script>
 
 {% schema %}
