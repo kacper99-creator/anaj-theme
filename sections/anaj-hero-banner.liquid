@@ -1,11 +1,353 @@
-{% raw %}
-<div class="anaj-hero">
-  {% for block in section.blocks %}
-    <div class="slide">
-      <p>SLIDE: {{ block.settings.title }}</p>
-    </div>
-  {% endfor %}
+{% assign slider_id = 'anaj-hero-' | append: section.id %}
+
+{% if section.blocks.size > 0 %}
+<div id="{{ slider_id }}" class="anaj-slider anaj-hero" role="region" aria-label="Pokaz slajdów ANAJ – hero">
+  <div class="track">
+    {% for block in section.blocks %}
+      {% assign bg_image = block.settings.image | image_url: width: 2000 %}
+      {% assign eyebrow  = block.settings.eyebrow %}
+      {% assign title    = block.settings.title %}
+      {% assign subtitle = block.settings.subtitle %}
+      {% assign cta_href = block.settings.cta_link %}
+      {% assign cta_label = block.settings.cta_label %}
+
+      <div class="slide{% if forloop.first %} is-active{% endif %}" data-index="{{ forloop.index0 }}" {{ block.shopify_attributes }}>
+        {% if cta_href != blank %}
+          <a class="slide-link" href="{{ cta_href }}" aria-label="{{ cta_label | default: title | escape }}">
+            <div class="media" style="--bg:url('{{ bg_image }}');"></div>
+          </a>
+        {% else %}
+          <div class="slide-link">
+            <div class="media" style="--bg:url('{{ bg_image }}');"></div>
+          </div>
+        {% endif %}
+
+        <div class="copy">
+          {% if eyebrow != blank %}
+            <span class="eyebrow">{{ eyebrow }}</span>
+          {% endif %}
+
+          {% if title != blank %}
+            <h2>{{ title }}</h2>
+          {% endif %}
+
+          {% if subtitle != blank %}
+            <p class="subtitle">{{ subtitle }}</p>
+          {% endif %}
+
+          {% if cta_href != blank and cta_label != blank %}
+            <a class="cta" href="{{ cta_href }}" aria-label="{{ cta_label | escape }}">
+              {{ cta_label }}
+              <svg class="cta__icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+                <path fill="currentColor" d="M13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41L13.17 12z"/>
+              </svg>
+            </a>
+          {% endif %}
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+  <button class="nav prev" aria-label="Poprzedni slajd">‹</button>
+  <button class="nav next" aria-label="Następny slajd">›</button>
+
+  <div class="dots" role="tablist" aria-label="Paginacja slajdów">
+    {% for block in section.blocks %}
+      <button class="dot{% if forloop.first %} is-active{% endif %}" data-index="{{ forloop.index0 }}" role="tab" aria-selected="{% if forloop.first %}true{% else %}false{% endif %}"></button>
+    {% endfor %}
+  </div>
 </div>
+{% endif %}
+
+<style>
+html, body{
+  overflow-x:hidden;
+}
+
+#{{ slider_id }}{
+  --beige:#edc68d;
+  --beige-2:#d8b177;
+  --ink:#2f271f;
+  --mH:min(92svh,128vw);
+  position:relative;
+  overflow:hidden;
+  box-shadow:0 16px 46px rgba(0,0,0,.16);
+
+  width:100vw;
+  max-width:100vw;
+  margin-left:calc(50% - 50vw);
+  margin-right:calc(50% - 50vw);
+  border-radius:0;
+}
+#{{ slider_id }} .track{
+  display:grid;
+  position:relative;
+}
+
+#{{ slider_id }} .slide{
+  grid-area:1/1;
+  position:relative;
+  opacity:0;
+  z-index:0;
+  pointer-events:none;
+  transition:opacity .6s ease;
+  height:clamp(360px, 60vh, 640px);
+  aspect-ratio:auto;
+  overflow:hidden;
+}
+#{{ slider_id }} .slide.is-active{
+  opacity:1;
+  pointer-events:auto;
+  z-index:1;
+}
+
+#{{ slider_id }} .media{
+  position:absolute;
+  inset:0;
+  background:var(--bg) center 40% / cover no-repeat;
+  will-change:transform;
+}
+#{{ slider_id }} .slide.is-active .media{
+  animation:kb 6.5s ease-out both;
+}
+@keyframes kb{
+  0%   { transform:scale(1.02) translate3d(0,-0.5%,0); }
+  100% { transform:scale(1.06) translate3d(0,-2%,0); }
+}
+
+#{{ slider_id }} .slide::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(180deg,rgba(0,0,0,.02),rgba(0,0,0,.22));
+  pointer-events:none;
+}
+#{{ slider_id }} .slide-link{
+  display:block;
+  position:absolute;
+  inset:0;
+}
+
+#{{ slider_id }} .copy{
+  position:absolute;
+  left:4%;
+  bottom:6%;
+  display:inline-block;
+  max-width:min(92%,720px);
+  color:#fff;
+  padding:12px 16px;
+  border-radius:12px;
+  background:rgba(15,15,15,.28);
+  border:1px solid rgba(255,255,255,.18);
+  backdrop-filter:blur(4px);
+  box-shadow:0 10px 24px rgba(0,0,0,.18);
+}
+#{{ slider_id }} .copy > *{
+  opacity:0;
+  transform:translateY(10px);
+}
+#{{ slider_id }} .slide.is-active .copy > *{
+  animation:fadeUp .6s ease both;
+}
+#{{ slider_id }} .slide.is-active .copy > *:nth-child(1){ animation-delay:.05s; }
+#{{ slider_id }} .slide.is-active .copy > *:nth-child(2){ animation-delay:.18s; }
+#{{ slider_id }} .slide.is-active .copy > *:nth-child(3){ animation-delay:.33s; }
+
+@keyframes fadeUp{
+  to{
+    opacity:1;
+    transform:none;
+  }
+}
+
+#{{ slider_id }} .eyebrow{
+  display:inline-block;
+  margin-bottom:8px;
+  font-size:12px;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  padding:5px 10px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.45);
+  background:rgba(255,255,255,.14);
+}
+#{{ slider_id }} .eyebrow--gold{
+  background:linear-gradient(180deg,var(--beige),var(--beige-2));
+  color:#3b2a17;
+  border-color:transparent;
+}
+#{{ slider_id }} .copy h2{
+  margin:0;
+  font-weight:800;
+  line-height:1.08;
+  letter-spacing:.2px;
+  font-size:clamp(22px,5.2vw,44px);
+  text-shadow:0 10px 24px rgba(0,0,0,.32);
+  text-wrap:balance;
+}
+#{{ slider_id }} .copy .subtitle{
+  margin-top:6px;
+  margin-bottom:0;
+  font-size:14px;
+  line-height:1.5;
+  text-shadow:0 6px 16px rgba(0,0,0,.45);
+}
+#{{ slider_id }} .copy .hl{
+  background:linear-gradient(transparent 62%, rgba(237,198,141,.9) 62%);
+  box-decoration-break:clone;
+  padding:0 .12em;
+  border-radius:2px;
+}
+
+#{{ slider_id }} .cta{
+  margin-top:12px;
+  position:relative;
+  overflow:hidden;
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  font-weight:800;
+  font-size:15px;
+  line-height:1;
+  color:var(--ink);
+  background:linear-gradient(#fff7e6,#ecd6ad);
+  border:1px solid var(--beige-2);
+  border-radius:999px;
+  padding:12px 16px;
+  box-shadow:0 1px 0 rgba(255,255,255,.75) inset, 0 8px 20px rgba(0,0,0,.18);
+  text-decoration:none;
+  transition:transform .15s ease, box-shadow .2s ease, background .2s ease;
+}
+#{{ slider_id }} .cta:hover{
+  transform:translateY(-1px);
+  box-shadow:0 10px 24px rgba(0,0,0,.22);
+}
+#{{ slider_id }} .cta__icon{
+  flex:0 0 auto;
+}
+
+#{{ slider_id }} .nav{
+  position:absolute;
+  top:50%;
+  transform:translateY(-50%);
+  width:44px;
+  height:44px;
+  border-radius:999px;
+  background:rgba(255,255,255,.24);
+  backdrop-filter:blur(6px);
+  border:1px solid rgba(255,255,255,.6);
+  box-shadow:0 8px 24px rgba(0,0,0,.18);
+  z-index:5;
+}
+#{{ slider_id }} .prev{ left:12px; }
+#{{ slider_id }} .next{ right:12px; }
+
+#{{ slider_id }} .dots{
+  position:absolute;
+  left:50%;
+  transform:translateX(-50%);
+  bottom:14px;
+  display:flex;
+  gap:8px;
+  z-index:5;
+}
+#{{ slider_id }} .dot{
+  width:8px;
+  height:8px;
+  border:none;
+  border-radius:999px;
+  background:rgba(255,255,255,.55);
+  box-shadow:0 2px 8px rgba(0,0,0,.25);
+  cursor:pointer;
+}
+#{{ slider_id }} .dot.is-active{
+  background:var(--beige);
+  animation:dotpulse 1.8s ease infinite;
+}
+@keyframes dotpulse{
+  0%{   box-shadow:0 0 0 0 rgba(237,198,141,.35); }
+  70%{  box-shadow:0 0 0 8px rgba(237,198,141,0); }
+  100%{ box-shadow:0 0 0 0 rgba(237,198,141,0); }
+}
+
+@media(max-width:768px){
+  #{{ slider_id }} .slide{
+    height:var(--mH);
+  }
+  #{{ slider_id }} .copy{
+    left:5%;
+    bottom:6%;
+    max-width:92%;
+    padding:10px 12px;
+    border-radius:10px;
+  }
+  #{{ slider_id }} .eyebrow{
+    margin-bottom:6px;
+    padding:4px 8px;
+    font-size:11px;
+  }
+  #{{ slider_id }} .cta{
+    font-size:14px;
+    padding:11px 14px;
+  }
+}
+
+@media(prefers-reduced-motion:reduce){
+  #{{ slider_id }} *{
+    animation:none !important;
+    transition:none !important;
+  }
+}
+</style>
+
+<script>
+(function(){
+  const root = document.getElementById('{{ slider_id }}');
+  if(!root) return;
+  const slides = [...root.querySelectorAll('.slide')];
+  const dots   = [...root.querySelectorAll('.dot')];
+  const prev   = root.querySelector('.prev');
+  const next   = root.querySelector('.next');
+  let i = 0, t = null, delay = 6500;
+
+  function setSlide(n){
+    i = (n + slides.length) % slides.length;
+    slides.forEach((s,idx)=>s.classList.toggle('is-active', idx===i));
+    dots.forEach((d,idx)=>{
+      d.classList.toggle('is-active', idx===i);
+      d.setAttribute('aria-selected', idx===i ? 'true' : 'false');
+    });
+  }
+  function play(){ stop(); t = setInterval(()=>setSlide(i+1), delay); }
+  function stop(){ if(t){ clearInterval(t); t = null; } }
+
+  prev.addEventListener('click', ()=>{ setSlide(i-1); play(); });
+  next.addEventListener('click', ()=>{ setSlide(i+1); play(); });
+  dots.forEach(d=>{
+    d.addEventListener('click', ()=>{
+      const idx = +d.dataset.index;
+      setSlide(idx);
+      play();
+    });
+  });
+
+  let x0 = null;
+  root.addEventListener('touchstart', e=>{
+    x0 = e.touches[0].clientX;
+    stop();
+  }, {passive:true});
+  root.addEventListener('touchend', e=>{
+    if(x0 === null) return;
+    const dx = e.changedTouches[0].clientX - x0;
+    if(Math.abs(dx) > 30) setSlide(i + (dx < 0 ? 1 : -1));
+    x0 = null;
+    play();
+  });
+
+  setSlide(0);
+  play();
+})();
+</script>
 
 {% schema %}
 {
@@ -38,4 +380,3 @@
   ]
 }
 {% endschema %}
-{% endraw %}
