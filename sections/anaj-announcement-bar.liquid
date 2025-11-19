@@ -185,33 +185,36 @@ document.addEventListener('DOMContentLoaded', function(){
     }
   ],
   "max_blocks": 8,
-  "default": {
-    "blocks": [
-      {
-        "type": "message",
-        "settings": {
-          "text": "Rzemieślnicza Cukiernia od 1988"
+  "presets": [
+    {
+      "name": "ANAJ announcement bar",
+      "blocks": [
+        {
+          "type": "message",
+          "settings": {
+            "text": "Rzemieślnicza Cukiernia od 1988"
+          }
+        },
+        {
+          "type": "message",
+          "settings": {
+            "text": "Darmowa wysyłka od 149 zł"
+          }
+        },
+        {
+          "type": "message",
+          "settings": {
+            "text": "Świeże produkty"
+          }
+        },
+        {
+          "type": "message",
+          "settings": {
+            "text": "Szybka dostawa"
+          }
         }
-      },
-      {
-        "type": "message",
-        "settings": {
-          "text": "Darmowa wysyłka od 149 zł"
-        }
-      },
-      {
-        "type": "message",
-        "settings": {
-          "text": "Świeże produkty"
-        }
-      },
-      {
-        "type": "message",
-        "settings": {
-          "text": "Szybka dostawa"
-        }
-      }
-    ]
-  }
+      ]
+    }
+  ]
 }
 {% endschema %}
