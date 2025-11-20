@@ -672,6 +672,11 @@ html, body{
     }
   }
 
+#{{ ROOT }},
+#{{ ROOT }} * {
+  font-family: var(--font-body-family) !important;
+}
+
 /* === 2. Tytuł – bardziej „oczojebny”, ale wciąż elegancki === */
 #{{ ROOT }} .anaj-head{
   margin-bottom: 10px;
@@ -707,7 +712,6 @@ html, body{
 }
 
 #{{ ROOT }} .anaj-title{
-  font-family: var(--font-heading-family), var(--font-body-family);
   margin:6px 0 0 0;
   text-align:center;
   text-transform:uppercase;
@@ -717,15 +721,9 @@ html, body{
   line-height:1.04 !important;
   display:inline-block;
 
-  /* mocny, „złoty” efekt, ale elegancki */
-  background:linear-gradient(180deg,#fff8e8 0%, #f6c97d 45%, #d79b4c 100%);
-  -webkit-background-clip:text;
-  background-clip:text;
-  color:transparent;
-
-  text-shadow:
-    0 2px 0 rgba(255,255,255,0.92),
-    0 12px 26px rgba(0,0,0,.36);
+  /* ciemny, „oczojebny” brąz zamiast złotego gradientu */
+  color:#4b2a16 !important;
+  text-shadow:0 2px 4px rgba(0,0,0,.22);
 }
 
 #{{ ROOT }} .anaj-title::after{
