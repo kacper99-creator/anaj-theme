@@ -1,15 +1,12 @@
-{%- comment -%}
-  Raw tags removed so Shopify can parse the section schema.
-{%- endcomment -%}
 {% assign slider_id = 'anaj-hero-' | append: section.id %}
 
 {% if section.blocks.size > 0 %}
 <div id="{{ slider_id }}" class="anaj-slider anaj-hero" role="region" aria-label="Pokaz slajdów ANAJ – hero">
   <div class="track">
     {% for block in section.blocks %}
-      {% assign bg_image = block.settings.image | image_url: width: 2000 %}
-      {% assign cta_href = block.settings.cta_link %}
-      {% assign cta_label = block.settings.cta_label %}
+      {% assign bg_image  = block.settings.image | image_url: width: 2000 %}
+      {% assign cta_href  = block.settings.cta_link %}
+      {% assign cta_label = block.settings.cta_label | default: 'Zamów teraz' %}
 
       <div class="slide{% if forloop.first %} is-active{% endif %}" data-index="{{ forloop.index0 }}" {{ block.shopify_attributes }}>
         <div class="media" style="--bg:url('{{ bg_image }}');"></div>
@@ -31,7 +28,10 @@
 
   <div class="dots" role="tablist" aria-label="Paginacja slajdów">
     {% for block in section.blocks %}
-      <button class="dot{% if forloop.first %} is-active{% endif %}" data-index="{{ forloop.index0 }}" role="tab" aria-selected="{% if forloop.first %}true{% else %}false{% endif %}"></button>
+      <button class="dot{% if forloop.first %} is-active{% endif %}"
+              data-index="{{ forloop.index0 }}"
+              role="tab"
+              aria-selected="{% if forloop.first %}true{% else %}false{% endif %}"></button>
     {% endfor %}
   </div>
 </div>
@@ -100,6 +100,8 @@ html, body{
   background:linear-gradient(180deg,rgba(0,0,0,.02),rgba(0,0,0,.22));
   pointer-events:none;
 }
+
+/* TYLKO PRZYCISK JEST KLIKALNY */
 #{{ slider_id }} .hero-cta{
   position:absolute;
   left:50%;
@@ -112,11 +114,12 @@ html, body{
   border-radius:999px;
   font-weight:800;
   font-size:15px;
-  text-decoration:none;
-  border:1px solid var(--beige-2);
-  background:linear-gradient(#fff7e6,#ecd6ad);
+  line-height:1;
   color:var(--ink);
+  background:linear-gradient(#fff7e6,#ecd6ad);
+  border:1px solid var(--beige-2);
   box-shadow:0 1px 0 rgba(255,255,255,.75) inset, 0 8px 20px rgba(0,0,0,.18);
+  text-decoration:none;
   transition:transform .15s ease, box-shadow .2s ease, background .2s ease;
 }
 #{{ slider_id }} .hero-cta:hover{
@@ -206,8 +209,8 @@ html, body{
   function play(){ stop(); t = setInterval(()=>setSlide(i+1), delay); }
   function stop(){ if(t){ clearInterval(t); t = null; } }
 
-  prev.addEventListener('click', ()=>{ setSlide(i-1); play(); });
-  next.addEventListener('click', ()=>{ setSlide(i+1); play(); });
+  if(prev) prev.addEventListener('click', ()=>{ setSlide(i-1); play(); });
+  if(next) next.addEventListener('click', ()=>{ setSlide(i+1); play(); });
   dots.forEach(d=>{
     d.addEventListener('click', ()=>{
       const idx = +d.dataset.index;
@@ -240,7 +243,6 @@ html, body{
   "tag": "section",
   "class": "section",
   "settings": [],
-
   "blocks": [
     {
       "type": "slide",
@@ -252,7 +254,6 @@ html, body{
       ]
     }
   ],
-
   "max_blocks": 6,
   "presets": [
     {
