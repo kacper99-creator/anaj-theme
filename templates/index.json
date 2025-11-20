@@ -21,10 +21,21 @@
             "cta_x": 31,
             "cta_y": 35
           }
+        },
+        "slide_AJEXkH": {
+          "type": "slide",
+          "settings": {
+            "image": "shopify://shop_images/Aspect-ratio-16x9_svg.png",
+            "cta_link": "",
+            "cta_label": "Zamów teraz",
+            "cta_x": 50,
+            "cta_y": 80
+          }
         }
       },
       "block_order": [
-        "slide_ifjzjQ"
+        "slide_ifjzjQ",
+        "slide_AJEXkH"
       ],
       "name": "ANAJ – slider z hotspotem",
       "settings": {}
