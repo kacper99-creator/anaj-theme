@@ -68,11 +68,29 @@
     {%- assign mf = product.metafields -%}
     {%- assign cutoff = mf.anaj.cutoff_hour | default: 20 -%}
     {%- assign free  = mf.anaj.free_ship_threshold | default: 199 -%}
-    {%- assign ingredients = mf.anaj.ingredients | default: "zgodny z recepturą Cechu Cukierników i Piekarzy w Poznaniu. Mąka pszenna, cukier, tłuszcz roślinny w zmiennych proporcjach palmowy, rzepakowy i kokosowy, jajka świeże, mak biały, drożdże, mleko w proszku pełne, orzechy arachidowe 3%, rodzynki 3%, skórka pomarańczowa, aromat migdałowy." -%}
-    {%- assign allergens   = mf.anaj.allergens   | default: "jaja, mleko, orzechy arachidowe" -%}
-    {%- assign shelf       = mf.anaj.shelf_life | default: 'Najlepiej spożyć w ciągu 3 dni od dostawy.' -%}
-    {%- assign storage     = mf.anaj.storage | default: 'Przechowywać w chłodnym, suchym miejscu. Najlepszy smak po lekkim podgrzaniu.' -%}
-    {%- assign nutrition   = mf.anaj.nutrition -%}
+
+    {% comment %} Teksty akordeonów z ustawień sekcji z fallbackiem do metafieldów i domyślnych treści {% endcomment %}
+    {%- assign ingredients = section.settings.acc_ingredients
+      | default: mf.anaj.ingredients
+      | default: "zgodny z recepturą Cechu Cukierników i Piekarzy w Poznaniu. Mąka pszenna, cukier, tłuszcz roślinny w zmiennych proporcjach palmowy, rzepakowy i kokosowy, jajka świeże, mak biały, drożdże, mleko w proszku pełne, orzechy arachidowe 3%, rodzynki 3%, skórka pomarańczowa, aromat migdałowy."
+    -%}
+
+    {%- assign allergens = section.settings.acc_allergens
+      | default: mf.anaj.allergens
+      | default: "jaja, mleko, orzechy arachidowe"
+    -%}
+
+    {%- assign storage = section.settings.acc_storage
+      | default: mf.anaj.storage
+      | default: "Przechowywać w chłodnym, suchym miejscu. Najlepszy smak po lekkim podgrzaniu."
+    -%}
+
+    {%- assign shelf = section.settings.acc_shelf
+      | default: mf.anaj.shelf_life
+      | default: "Najlepiej spożyć w ciągu 3 dni od dostawy."
+    -%}
+
+    {%- assign nutrition = section.settings.acc_nutrition | default: mf.anaj.nutrition -%}
 
     {%- comment -%} WARIANTY / ILOŚĆ SZTUK {%- endcomment -%}
     {% unless product.has_only_default_variant %}
@@ -239,6 +257,7 @@
           {{ nutrition }}
         {% else %}
           <div class="anaj-nutri">
+            <!-- zachowaj wszystkie dotychczasowe wartości jako fallback -->
             <div class="anaj-nutri__row"><span>Wartość energetyczna</span><strong>411,31 kcal • 1719,88 kJ</strong></div>
             <div class="anaj-nutri__row"><span>Tłuszcz</span><strong>22,5 g</strong></div>
             <div class="anaj-nutri__sub"><span>— kwasy tłuszczowe nasycone</span><strong>6,1 g</strong></div>
@@ -674,7 +693,17 @@ html, body{
 
 #{{ ROOT }},
 #{{ ROOT }} * {
-  font-family: var(--font-body-family) !important;
+  font-family:
+    var(--font-body-family),
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    "Roboto",
+    "Helvetica Neue",
+    Arial,
+    sans-serif !important;
+  font-feature-settings: "kern" 1, "liga" 1;
 }
 
 /* === 2. Tytuł – bardziej „oczojebny”, ale wciąż elegancki === */
@@ -973,6 +1002,36 @@ html, body{
       "id": "banner_alt",
       "label": "Tekst ALT dla banera",
       "default": "Płatności i dostawa"
+    },
+    {
+      "type": "textarea",
+      "id": "acc_ingredients",
+      "label": "Skład – treść w akordeonie",
+      "info": "Treść wyświetlana w sekcji „Skład i alergeny”. Jeśli puste, użyje domyślnej lub metafield."
+    },
+    {
+      "type": "textarea",
+      "id": "acc_allergens",
+      "label": "Alergeny – treść w akordeonie",
+      "info": "Tekst po etykiecie „Alergeny:”. Jeśli puste, użyje domyślnej lub metafield."
+    },
+    {
+      "type": "richtext",
+      "id": "acc_nutrition",
+      "label": "Wartości odżywcze (na 100 g)",
+      "info": "Jeśli wypełnione, nadpisuje domyślne wartości lub metafield."
+    },
+    {
+      "type": "textarea",
+      "id": "acc_storage",
+      "label": "Przechowywanie i świeżość – opis",
+      "info": "Jeśli puste, użyje treści domyślnej lub metafield."
+    },
+    {
+      "type": "text",
+      "id": "acc_shelf",
+      "label": "Termin przydatności",
+      "info": "Wyświetlane po etykiecie „Termin przydatności:”. Jeśli puste, użyje treści domyślnej lub metafield."
     }
   ],
   "blocks": [],
