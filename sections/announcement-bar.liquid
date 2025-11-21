@@ -2,7 +2,7 @@
 <section
   id="anaj-announcement-bar-{{ section.id }}"
   class="anaj-announcement-bar"
-  data-interval="{{ section.settings.rotation_interval | default: 4 }}"
+  data-interval="{{ section.settings.rotation_interval | default: 2 }}"
 >
   <div class="anaj-announcement-bar__inner">
 
@@ -52,7 +52,8 @@
     position: absolute;
     left: 50%;
     top: 50%;
-    transform: translate(-50%, 6px);
+    /* Centrowanie tekstu, aby nie był obcięty w pasku ogłoszeń */
+    transform: translate(-50%, -30%);
     opacity: 0;
     transition: opacity 0.35s ease, transform 0.35s ease;
     width: 100%;
@@ -63,7 +64,7 @@
 
   .anaj-announcement-bar__slide.is-active {
     opacity: 1;
-    transform: translate(-50%, 0);
+    transform: translate(-50%, -50%);
     pointer-events: auto;
   }
 
@@ -82,7 +83,7 @@
     .anaj-announcement-bar__slide,
     .anaj-announcement-bar__slide.is-active {
       transition: none;
-      transform: translate(-50%, 0);
+      transform: translate(-50%, -50%);
     }
   }
 </style>
@@ -99,7 +100,8 @@
       if (!slides.length) return;
 
       var index = 0;
-      var interval = parseInt(bar.dataset.interval) * 1000 || 4000;
+      // Domyślnie przełączaj komunikaty co 2 sekundy
+      var interval = (parseInt(bar.dataset.interval, 10) || 2) * 1000;
 
       function show(i) {
         slides.forEach(function(slide, n) {
@@ -133,7 +135,7 @@
       "min": 2,
       "max": 10,
       "step": 1,
-      "default": 4
+      "default": 2
     }
   ],
   "blocks": [
