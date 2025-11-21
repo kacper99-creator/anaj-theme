@@ -449,19 +449,21 @@
 
       font-family: var(--font-body-family);
       color:var(--ink);
-      width:100vw;
-      margin-left:calc(50% - 50vw);
-      margin-right:calc(50% - 50vw);
+
+      /* zamiast 100vw + calc — poprawne centrowanie */
+      width:100%;
+      max-width: var(--page-width);
+      margin: 0 auto;
+
       background:
         linear-gradient(180deg, rgba(0,0,0,.03), rgba(0,0,0,0)),
         repeating-linear-gradient(90deg, #f4e6d1 0 24px, #ead6b6 24px 48px);
+
       padding-inline:var(--padx);
       padding-block:var(--pady);
       display:grid;
       gap:24px;
-      grid-template-areas:
-        "gal"
-        "info";
+      grid-template-areas:"gal" "info";
       overflow-x:hidden;
     }
 
@@ -1023,6 +1025,22 @@
     #{{ ROOT }} [style*="border-top"],
     #{{ ROOT }} .anaj-price{
       border-top:0 !important;
+    }
+
+    /* Dodatkowe wyrównanie nagłówka sekcji */
+    #{{ ROOT }} .anaj-head{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+    }
+
+    #{{ ROOT }} .anaj-title-wrapper{
+      margin:6px auto 0 auto;
+    }
+
+    #{{ ROOT }} .anaj-title{
+      text-align:center;
+      margin:0;
     }
   </style>
 
