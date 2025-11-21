@@ -47,7 +47,10 @@
             {{ section.settings.pill_label | default: 'Rzemieślniczy wypiek' }}
           </span>
         </div>
-        <h1 class="anaj-title">{{ product.title }}</h1>
+        {% comment %} Delikatne tło premium pod tytułem dla lepszej czytelności {% endcomment %}
+        <div class="anaj-title-wrapper">
+          <h1 class="anaj-title">{{ product.title }}</h1>
+        </div>
       </header>
 
       {%- comment -%} CENA + STAN {%- endcomment -%}
@@ -916,15 +919,26 @@
       font-size:clamp(34px, 5.6vw, 60px) !important;
       line-height:1.04 !important;
       display:inline-block;
-      /* Gradient w kolorystyce ANAJ oraz delikatniejszy cień dla lepszej czytelności */
-      color:#0B6FBF !important;
-      background:linear-gradient(180deg, #7FD7FF 0%, #0B6FBF 100%);
-      -webkit-background-clip:text;
-      -webkit-text-fill-color: transparent;
+      /* Brązowy tytuł na złoto-karmelowym tle dla premium efektu */
+      color:#4b2a16 !important;
+      background:none !important;
+      -webkit-background-clip: initial !important;
+      -webkit-text-fill-color: currentColor;
       text-shadow:0 1px 3px rgba(0,0,0,.22);
       /* Wyłączamy dzielenie wyrazów, żeby polskie litery i cały tytuł wyglądały spójnie */
       hyphens:none;
       word-break:keep-all;
+    }
+
+    /* Subtelna złoto-karmelowa płyta pod tytułem dla lepszej czytelności */
+    #{{ ROOT }} .anaj-title-wrapper {
+      position: relative;
+      display: inline-block;
+      padding: 12px 22px;
+      border-radius: 14px;
+      background: rgba(244, 229, 206, 0.65); /* jasny złoto-beżowy */
+      backdrop-filter: blur(3px);
+      box-shadow: 0 8px 22px rgba(0,0,0,0.15);
     }
 
     #{{ ROOT }} .anaj-title::after{
@@ -942,6 +956,11 @@
       #{{ ROOT }} .anaj-title{
         /* Mniejszy rozmiar na desktopie, żeby dłuższe tytuły mieściły się estetycznie */
         font-size:clamp(28px, 3.6vw, 44px) !important;
+      }
+
+      #{{ ROOT }} .anaj-title-wrapper {
+        padding: 16px 32px;
+        border-radius: 18px;
       }
     }
 
