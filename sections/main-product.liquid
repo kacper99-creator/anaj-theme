@@ -465,6 +465,8 @@
       gap:24px;
       grid-template-areas:"gal" "info";
       overflow-x:hidden;
+      {% comment %} Zapobieganie przekręceniu widoku w podglądzie mobilnym {% endcomment %}
+      transform:none;
     }
 
     @media (min-width:1024px){
