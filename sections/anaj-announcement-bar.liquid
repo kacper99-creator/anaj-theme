@@ -1,174 +1,216 @@
 {% comment %}
-Rotujący pasek ogłoszeń ANAJ – jeden komunikat na raz, auto-zmiana.
+  Sekcja: ANAJ – Pasek ogłoszeń z rotacją komunikatów (fade in/out)
 {% endcomment %}
 
-{% if section.settings.enabled and section.blocks.size > 0 %}
-  <div
-    class="anaj-announcement"
-    data-anaj-announcement
-    style="
-      --anaj-ann-bg: {{ section.settings.background_color | default: '#52b8ff' }};
-      --anaj-ann-ink: {{ section.settings.text_color | default: '#ffffff' }};
-      --anaj-ann-interval: {{ section.settings.rotation_interval | default: 4 }}s;
-    "
-  >
-    <div class="anaj-announcement__inner">
-      <div class="anaj-announcement__viewport">
-        {% for block in section.blocks %}
-          {% if block.type == 'message' and block.settings.text != blank %}
-            <div
-              class="anaj-announcement__slide{% if forloop.first %} is-active{% endif %}"
-              data-anaj-announcement-slide
-              {{ block.shopify_attributes }}
-            >
-              {{ block.settings.text }}
-            </div>
-          {% endif %}
-        {% endfor %}
-      </div>
+<section
+  id="anaj-announcement-{{ section.id }}"
+  class="anaj-ab"
+  role="region"
+  aria-label="{{ section.settings.aria_label | escape | default: 'Informacje sklepu' }}"
+>
+  <div class="anaj-ab__inner anaj-ab__inner--{{ section.settings.align }}">
+    <div class="anaj-ab__slot" data-ab-rotator>
+      {% for block in section.blocks %}
+        {% assign text = block.settings.text %}
+        {% if text != blank %}
+          <div
+            class="anaj-ab__item{% if forloop.first %} is-active{% endif %}"
+            data-index="{{ forloop.index0 }}"
+            {{ block.shopify_attributes }}
+          >
+            {{ text }}
+          </div>
+        {% endif %}
+      {% endfor %}
     </div>
   </div>
-{% endif %}
+</section>
 
 <style>
-.anaj-announcement{
-  position:relative;
-  z-index:130;
-  background:linear-gradient(to bottom, #52b8ff, #1d9ee7);
-  background:var(--anaj-ann-bg, linear-gradient(to bottom, #52b8ff, #1d9ee7));
-  color:var(--anaj-ann-ink, #ffffff);
-  font-size:13px;
-}
-
-.anaj-announcement__inner{
-  max-width:1200px;
-  margin:0 auto;
-  padding:5px 14px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  text-align:center;
-  box-sizing:border-box;
-}
-
-.anaj-announcement__viewport{
-  position:relative;
-  min-height:20px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  overflow:hidden;
-}
-
-.anaj-announcement__slide{
-  position:absolute;
-  left:50%;
-  transform:translate(-50%, 40%);
-  opacity:0;
-  white-space:nowrap;
-  font-weight:500;
-  transition:
-    opacity .45s ease-out,
-    transform .45s ease-out;
-  padding:0 6px;
-}
-
-.anaj-announcement__slide.is-active{
-  opacity:1;
-  transform:translate(-50%, 0);
-}
-
-@media (max-width: 749px){
-  .anaj-announcement{
-    font-size:12px;
+  #anaj-announcement-{{ section.id }}.anaj-ab{
+    box-sizing:border-box;
+    width:100%;
+    background:#19B2FF; /* ten sam kolor co wcześniej */
+    color:#fff;
+    font-family:var(--font-body-family, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
+    font-size:clamp(13px,1.25vw,16px);
+    font-weight:700;
+    line-height:1.25;
+    padding:10px 16px;
+    min-height:42px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    position:relative;
+    z-index:30;
   }
 
-  .anaj-announcement__inner{
-    padding:6px 10px;
+  #anaj-announcement-{{ section.id }} .anaj-ab__inner{
+    width:100%;
+    max-width:none;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
   }
 
-  .anaj-announcement__slide{
+  #anaj-announcement-{{ section.id }} .anaj-ab__inner--left{
+    justify-content:flex-start;
+  }
+
+  #anaj-announcement-{{ section.id }} .anaj-ab__slot{
+    position:relative;
+    width:100%;
+  }
+
+  #anaj-announcement-{{ section.id }} .anaj-ab__item{
+    position:absolute;
+    inset:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding-inline:4px;
+    text-align:center;
+    opacity:0;
+    transform:translateY(8px);
+    pointer-events:none;
+    transition:
+      opacity .32s ease-out,
+      transform .32s ease-out;
     white-space:normal;
-    max-width:100%;
   }
-}
+
+  #anaj-announcement-{{ section.id }} .anaj-ab__inner--left .anaj-ab__item{
+    justify-content:flex-start;
+    text-align:left;
+  }
+
+  #anaj-announcement-{{ section.id }} .anaj-ab__item.is-active{
+    opacity:1;
+    transform:translateY(0);
+    pointer-events:auto;
+  }
+
+  #anaj-announcement-{{ section.id }} .anaj-ab__item strong{
+    color:#FFD700;
+    font-weight:800;
+    letter-spacing:-0.1px;
+  }
+
+  @media (max-width: 768px){
+    #anaj-announcement-{{ section.id }}{
+      padding-inline:10px;
+      font-size:13px;
+      line-height:1.35;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    #anaj-announcement-{{ section.id }} .anaj-ab__item{
+      transition:none !important;
+    }
+  }
 </style>
 
 <script>
-document.addEventListener('DOMContentLoaded', function(){
-  var bar = document.querySelector('[data-anaj-announcement]');
-  if (!bar) return;
+(function(){
+  const root = document.getElementById('anaj-announcement-{{ section.id }}');
+  if (!root) return;
 
-  var slides = bar.querySelectorAll('[data-anaj-announcement-slide]');
-  if (!slides.length) return;
+  const slot  = root.querySelector('[data-ab-rotator]');
+  if (!slot) return;
 
-  if (slides.length === 1) {
-    slides[0].classList.add('is-active');
+  const items = slot.querySelectorAll('.anaj-ab__item');
+  if (!items.length) return;
+
+  // Jeżeli jest tylko jeden komunikat – pokaż go bez rotacji
+  if (items.length === 1){
+    items[0].classList.add('is-active');
     return;
   }
 
-  var current = 0;
-  var intervalSeconds = 4;
+  const mq = window.matchMedia('(max-width: 768px)');
 
-  try {
-    var cssInterval = getComputedStyle(bar).getPropertyValue('--anaj-ann-interval');
-    if (cssInterval) {
-      var parsed = parseFloat(cssInterval);
-      if (!isNaN(parsed) && parsed > 1) {
-        intervalSeconds = parsed;
-      }
-    }
-  } catch (e) {}
+  const intervalDesktopSeconds = {{ section.settings.interval_desktop | default: 8 }};
+  const intervalMobileSeconds  = {{ section.settings.interval_mobile  | default: 10 }};
 
-  function showSlide(index) {
-    for (var i = 0; i < slides.length; i++) {
-      if (i === index) {
-        slides[i].classList.add('is-active');
-      } else {
-        slides[i].classList.remove('is-active');
-      }
-    }
+  function getIntervalMs(){
+    return (mq.matches ? intervalMobileSeconds : intervalDesktopSeconds) * 1000;
   }
 
-  showSlide(current);
+  let current = 0;
+  let timer   = null;
 
-  setInterval(function(){
-    current = (current + 1) % slides.length;
-    showSlide(current);
-  }, intervalSeconds * 1000);
-});
+  function show(index){
+    items.forEach((el, i) => {
+      if (i === index){
+        el.classList.add('is-active');
+      } else {
+        el.classList.remove('is-active');
+      }
+    });
+  }
+
+  function next(){
+    current = (current + 1) % items.length;
+    show(current);
+  }
+
+  function start(){
+    if (timer) clearInterval(timer);
+    show(current);
+    timer = setInterval(next, getIntervalMs());
+  }
+
+  // Restart przy zmianie rozmiaru / trybu mobile/desktop
+  mq.addEventListener ? mq.addEventListener('change', start) :
+    mq.addListener && mq.addListener(start);
+
+  window.addEventListener('pageshow', function(e){
+    if (e.persisted) start();
+  });
+
+  start();
+})();
 </script>
 
 {% schema %}
 {
-  "name": "Pasek ogłoszeń ANAJ",
+  "name": "ANAJ – Pasek ogłoszeń (rotacja)",
   "settings": [
     {
-      "type": "checkbox",
-      "id": "enabled",
-      "label": "Włącz pasek ogłoszeń",
-      "default": true
+      "type": "text",
+      "id": "aria_label",
+      "label": "Opis dla czytników ekranu",
+      "default": "Informacje sklepu"
     },
     {
-      "type": "color",
-      "id": "background_color",
-      "label": "Kolor tła",
-      "default": "#52b8ff"
+      "type": "select",
+      "id": "align",
+      "label": "Wyrównanie tekstu",
+      "options": [
+        { "value": "center", "label": "Wyśrodkowany" },
+        { "value": "left",   "label": "Do lewej" }
+      ],
+      "default": "center"
     },
     {
-      "type": "color",
-      "id": "text_color",
-      "label": "Kolor tekstu",
-      "default": "#ffffff"
+      "type": "range",
+      "id": "interval_desktop",
+      "label": "Czas wyświetlania na desktopie (sekundy)",
+      "min": 3,
+      "max": 20,
+      "step": 1,
+      "default": 8
     },
     {
-      "type": "number",
-      "id": "rotation_interval",
-      "label": "Czas wyświetlania komunikatu (sekundy)",
-      "default": 4,
-      "min": 2,
-      "max": 15,
-      "step": 1
+      "type": "range",
+      "id": "interval_mobile",
+      "label": "Czas wyświetlania na mobile (sekundy)",
+      "min": 3,
+      "max": 25,
+      "step": 1,
+      "default": 10
     }
   ],
   "blocks": [
@@ -177,45 +219,39 @@ document.addEventListener('DOMContentLoaded', function(){
       "name": "Komunikat",
       "settings": [
         {
-          "type": "text",
+          "type": "richtext",
           "id": "text",
-          "label": "Tekst komunikatu"
+          "label": "Tekst komunikatu",
+          "default": "<p>+10&nbsp;000 zadowolonych klientów</p>"
         }
       ]
     }
   ],
   "max_blocks": 8,
-  "default": {
-    "blocks": [
-      {
-        "type": "message",
-        "settings": {
-          "text": "Rzemieślnicza Cukiernia od 1988"
-        }
-      },
-      {
-        "type": "message",
-        "settings": {
-          "text": "Darmowa wysyłka od 149 zł"
-        }
-      },
-      {
-        "type": "message",
-        "settings": {
-          "text": "Świeże produkty"
-        }
-      },
-      {
-        "type": "message",
-        "settings": {
-          "text": "Szybka dostawa"
-        }
-      }
-    ]
-  },
   "presets": [
     {
-      "name": "Pasek ogłoszeń ANAJ"
+      "name": "ANAJ – Pasek ogłoszeń (rotacja)",
+      "category": "Nagłówek",
+      "blocks": [
+        {
+          "type": "message",
+          "settings": {
+            "text": "<p>+10&nbsp;000 zadowolonych klientów</p>"
+          }
+        },
+        {
+          "type": "message",
+          "settings": {
+            "text": "<p>Darmowa dostawa od 100&nbsp;zł</p>"
+          }
+        },
+        {
+          "type": "message",
+          "settings": {
+            "text": "<p>Z kodem: <strong>Simply7</strong> — 7% taniej</p>"
+          }
+        }
+      ]
     }
   ]
 }
