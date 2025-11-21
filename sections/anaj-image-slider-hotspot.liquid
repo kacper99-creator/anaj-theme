@@ -12,7 +12,7 @@
 
       <div class="slide{% if forloop.first %} is-active{% endif %}" data-index="{{ forloop.index0 }}" {{ block.shopify_attributes }}>
         {% if bg_image != blank %}
-          <div class="media" style="--bg:url('{{ bg_image }}');"></div>
+          <div class="media" style="background-image:url('{{ bg_image }}');"></div>
         {% endif %}
 
         {% if cta_href != blank and cta_label != blank %}
@@ -77,7 +77,9 @@
 #{{ slider_id }} .media{
   position:absolute;
   inset:0;
-  background:var(--bg) center 50% / cover no-repeat;
+  background-position:center 50%;
+  background-size:cover;
+  background-repeat:no-repeat;
   will-change:transform;
 }
 
