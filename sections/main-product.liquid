@@ -918,6 +918,9 @@
       display:inline-block;
       color:#4b2a16 !important;
       text-shadow:0 2px 4px rgba(0,0,0,.22);
+      /* Wyłączamy dzielenie wyrazów, żeby polskie litery i cały tytuł wyglądały spójnie */
+      hyphens:none;
+      word-break:keep-all;
     }
 
     #{{ ROOT }} .anaj-title::after{
