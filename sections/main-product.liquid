@@ -980,23 +980,32 @@
       box-shadow:0 10px 22px rgba(0,0,0,.25);
     }
 
-    @media (min-width: 1024px){
-      #{{ ROOT }} .anaj-title{
-        font-size:clamp(28px, 3.6vw, 44px) !important;
-      }
+    /* [PDP-TITLE-DESKTOP] */
+@media (min-width: 1024px){
+  #{{ ROOT }} .anaj-title{
+    font-size:clamp(28px, 3.2vw, 40px) !important;
+  }
 
-      #{{ ROOT }} .anaj-title-wrapper {
-        padding: 16px 32px;
-        border-radius: 18px;
-      }
-    }
+  #{{ ROOT }} .anaj-title-wrapper {
+    padding: 16px 32px;
+    border-radius: 18px;
+  }
+}
 
-    @media (max-width: 750px){
-      #{{ ROOT }} .anaj-title{
-        font-size:clamp(26px, 8vw, 38px) !important;
-        padding-inline:8px;
-      }
-    }
+/* [PDP-TITLE-MOBILE] – mocniejsze ścięcie na telefonach, żeby długie nazwy się nie rozjeżdżały */
+@media (max-width: 750px){
+  #{{ ROOT }} .anaj-title{
+    font-size:clamp(20px, 5.2vw, 26px) !important;
+    letter-spacing:.02em;
+    line-height:1.12 !important;
+    padding-inline:8px;
+  }
+
+  #{{ ROOT }} .anaj-title-wrapper{
+    padding:10px 14px;
+  }
+}
+
 
     /* [PDP-TITLE-MOBILE] – na bardzo wąskich ekranach pozwalamy łamać słowa */
     @media (max-width: 480px){
