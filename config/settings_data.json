@@ -149,24 +149,24 @@
               "message": "Darmowa wysyłka od 149zł"
             }
           },
-          "message_RaTgcp": {
-            "type": "message",
-            "settings": {
-              "message": "Szybka wysyłka"
-            }
-          },
           "message_bWjYXr": {
             "type": "message",
             "settings": {
               "message": "Świeże produkty"
+            }
+          },
+          "message_RaTgcp": {
+            "type": "message",
+            "settings": {
+              "message": "Szybka wysyłka i dostawa"
             }
           }
         },
         "block_order": [
           "message_CDnG7F",
           "message_8qrVGM",
-          "message_RaTgcp",
-          "message_bWjYXr"
+          "message_bWjYXr",
+          "message_RaTgcp"
         ],
         "settings": {
           "rotation_interval": 4
