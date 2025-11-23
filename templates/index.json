@@ -18,8 +18,8 @@
             "image": "shopify://shop_images/Aspect-ratio-16x9_svg.png",
             "cta_link": "shopify://products/rogale-swietomarcinskie-certyfikowane",
             "cta_label": "Zamów teraz",
-            "cta_x": 32,
-            "cta_y": 17
+            "cta_x": 22,
+            "cta_y": 35
           }
         },
         "slide_AJEXkH": {
@@ -28,7 +28,7 @@
             "image": "shopify://shop_images/Aspect-ratio-16x9_svg.png",
             "cta_link": "",
             "cta_label": "Zamów teraz",
-            "cta_x": 97,
+            "cta_x": 35,
             "cta_y": 25
           }
         }
