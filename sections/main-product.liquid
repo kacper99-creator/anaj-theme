@@ -938,23 +938,24 @@
       list-style:none;
     }
 
-    #{{ ROOT }} .anaj-title{
-      margin:6px 0 0 0;
-      text-align:center;
-      text-transform:uppercase;
-      letter-spacing:.03em;
-      font-weight:900 !important;
-      font-size:clamp(34px, 5.6vw, 60px) !important;
-      line-height:1.04 !important;
-      display:inline-block;
-      color:#4b2a16 !important;
-      background:none !important;
-      -webkit-background-clip: initial !important;
-      -webkit-text-fill-color: currentColor;
-      text-shadow:0 1px 3px rgba(0,0,0,.22);
-      hyphens:none;
-      word-break:keep-all;
-    }
+   /* [PDP-TITLE] – główny tytuł produktu */
+#{{ ROOT }} .anaj-title{
+  margin:6px 0 0 0;
+  text-align:center;
+  text-transform:uppercase;
+  letter-spacing:.03em;
+  font-weight:900 !important;
+  font-size:clamp(28px, 3.6vw, 44px) !important; /* trochę spokojniejszy base */
+  line-height:1.06 !important;
+  display:inline-block;
+  color:#4b2a16 !important;
+  background:none !important;
+  -webkit-background-clip: initial !important;
+  -webkit-text-fill-color: currentColor;
+  text-shadow:0 1px 3px rgba(0,0,0,.22);
+  hyphens:none;
+  word-break:keep-all;
+}
 
     /* płyta pod tytułem */
     #{{ ROOT }} .anaj-title-wrapper {
