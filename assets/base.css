@@ -3596,12 +3596,19 @@ details-disclosure > details {
   }
 }
 
-/* === ANAJ – globalne animacje strony === */
-
-/* Płynne przewijanie anchorów */
+/* Płynne przewijanie anchorów + blokada poziomego scrolla */
 html {
   scroll-behavior: smooth;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
 }
+body {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
 
 /* Animacja wejścia całej strony */
 .anaj-page-transition {
