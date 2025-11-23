@@ -13,7 +13,6 @@
 
       <div class="slide{% if forloop.first %} is-active{% endif %}" data-index="{{ forloop.index0 }}" {{ block.shopify_attributes }}>
         {% if bg_image != blank %}
-          {% comment %} Używamy <img>, aby tło slajdu zawsze się wczytywało {% endcomment %}
           <div class="media">
             <img src="{{ bg_image }}" alt="{{ block.settings.image.alt | escape }}" loading="lazy">
           </div>
@@ -60,6 +59,7 @@
   position:relative;
 }
 
+/* KAŻDY SLAJD – wysokość wynika z obrazka, nic nie wymuszamy */
 #{{ slider_id }} .slide{
   grid-area:1/1;
   position:relative;
@@ -68,7 +68,6 @@
   pointer-events:none;
   transition:opacity .6s ease;
   width:100%;
-  aspect-ratio:16 / 9; /* domyślna proporcja 16:9 */
   overflow:hidden;
 }
 
@@ -78,30 +77,33 @@
   z-index:1;
 }
 
+/* Obraz steruje wysokością – pełny kadr, bez przycinania */
 #{{ slider_id }} .media{
-  position:absolute;
-  inset:0;
+  position:relative;
+  width:100%;
   overflow:hidden;
 }
 
 #{{ slider_id }} .media img{
-  width:100%;
-  height:100%;
-  object-fit:cover;
   display:block;
-  will-change:transform;
+  width:100%;
+  height:auto;      /* proporcja z pliku */
+  /* brak object-fit: cover/contain – nic nie tniemy */
 }
 
+/* WYŁĄCZAMY ANIMACJĘ, ŻEBY NIE POWIĘKSZAŁA / NIE UCINAŁA OBRAZU */
 #{{ slider_id }} .slide.is-active .media img{
-  animation:kb 6.5s ease-out both;
+  animation:none;
 }
 
+/* (opcjonalnie możesz całe @keyframes kb wywalić,
+   zostawiam, jakbyś kiedyś chciał wrócić) */
 @keyframes kb{
-  0%   { transform:scale(1.02) translate3d(0,-0.5%,0); }
-  100% { transform:scale(1.06) translate3d(0,-2%,0); }
+  0%   { transform:none; }
+  100% { transform:none; }
 }
 
-/* TYLKO PRZYCISK JEST KLIKALNY – POZYCJA X/Y W % */
+/* CTA – zostaje jak było, dalej w % względem obrazka */
 #{{ slider_id }} .hero-cta{
   position:absolute;
   left:var(--cta-x);
@@ -174,19 +176,7 @@
   background:#edc68d;
 }
 
-/* Mobile – dalej pełne 16:9 */
-@media (max-width: 768px){
-  #{{ slider_id }} .slide{
-    aspect-ratio:16 / 9;
-  }
-}
-
-/* Desktop – niższy o ok. połowę */
-@media (min-width: 1024px){
-  #{{ slider_id }} .slide{
-    aspect-ratio:16 / 4.5;
-  }
-}
+/* ŻADNYCH różnych proporcji na desktop/mobile – usunięte media queries */
 
 @media (prefers-reduced-motion: reduce){
   #{{ slider_id }} *{
@@ -259,7 +249,7 @@
       "type": "slide",
       "name": "Slajd",
       "settings": [
-        { "type": "image_picker", "id": "image", "label": "Obraz tła (16:9 zalecane)" },
+        { "type": "image_picker", "id": "image", "label": "Obraz tła (dowolne proporcje – wyświetlany w całości)" },
         { "type": "url", "id": "cta_link", "label": "Link przycisku CTA" },
         { "type": "text", "id": "cta_label", "label": "Tekst przycisku CTA", "default": "Zamów teraz" },
         { "type": "range", "id": "cta_x", "label": "Poziome położenie przycisku (X)", "min": 0, "max": 100, "step": 1, "default": 50 },
