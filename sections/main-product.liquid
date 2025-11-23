@@ -629,12 +629,20 @@
     }
 
     /* CTA */
-    #{{ ROOT }} .anaj-ctaBar{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      margin-top:8px;
-    }
+#{{ ROOT }} .anaj-ctaBar{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;   /* wyrównanie na środek */
+  gap:10px;
+  margin-top:8px;
+}
+
+#{{ ROOT }} .anaj-ctaBar .anaj-form{
+  margin:0;
+  width:100%;               /* pełna szerokość na mobile */
+  max-width:420px;          /* ograniczenie, żeby nie wyglądało jak „klocek” */
+}
+
 
     #{{ ROOT }} .anaj-ctaBar .anaj-form{
       margin:0;
