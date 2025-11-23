@@ -467,12 +467,26 @@
   transform:none;
 }
 
-/* [PDP-CENTER-MOBILE] – wycentrowanie kolumny info na mobile */
+/* [PDP-CENTER-MOBILE] – wycentrowanie prawej kolumny na gridzie + spójna szerokość */
 @media (max-width: 1023px){
+  /* sama kolumna info w gridzie */
   #{{ ROOT }} .anaj-right{
+    justify-self: center;   /* ważne przy CSS Grid */
+    width: 100%;
     max-width: 480px;
-    margin-left:auto;
-    margin-right:auto;
+  }
+
+  /* żeby wszystkie „kafelki” w kolumnie miały taką samą szerokość jak CTA */
+  #{{ ROOT }} .anaj-price,
+  #{{ ROOT }} .anaj-variants,
+  #{{ ROOT }} .anaj-usp,
+  #{{ ROOT }} .anaj-ctaBar,
+  #{{ ROOT }} .anaj-timeline,
+  #{{ ROOT }} .anaj-acc__item,
+  #{{ ROOT }} .anaj-banner{
+    max-width: 420px;
+    margin-left: auto;
+    margin-right: auto;
   }
 }
 
