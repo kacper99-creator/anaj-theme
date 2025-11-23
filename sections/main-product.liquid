@@ -144,7 +144,7 @@
             <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
               <path
                 fill="currentColor"
-                d="M7 18a2 2 0 1 0 2 2 2 2 0 0 0-2-2Zm10 0a 2 2 0 1 0 2 2 2 2 0 0 0-2-2ZM3 4h2l2.2 9.5a2 2 0 0 0 2 1.5h7.3a2 2 0 0 0 1.9-1.4L20 9H8"
+                d="M7 18a2 2 0 1 0 2 2 2 2 0 0 0-2-2Zm10 0a2 2 0 1 0 2 2 2 2 0 0 0-2-2ZM3 4h2l2.2 9.5a2 2 0 0 0 2 1.5h7.3a2 2 0 0 0 1.9-1.4L20 9H8"
               ></path>
               <path d="M10 5l1.2-2h3.6L16 5"></path>
             </svg>
@@ -395,7 +395,8 @@
       <div class="anaj-card anaj-banner">
         {% if section.settings.banner_image != blank %}
           <img
-            src="{{ section.settings.banner_image | image_url: width: 800 }}"
+            src="{{ section.settings.banner_image | image_url: width: 800 }}
+"
             alt="{{ section.settings.banner_alt | default: 'Płatności i dostawa' }}"
             loading="lazy"
             width="1600"
@@ -826,51 +827,6 @@
       #{{ ROOT }} .anaj-tl__label{font-size:12px}
     }
 
-    /* === AKORDEONY / NUTRIA === */
-    #{{ ROOT }} .anaj-acc__item > summary{
-      padding:12px 14px;
-      cursor:pointer;
-      list-style:none;
-      font-weight:700;
-      border-radius:12px;
-    }
-
-    #{{ ROOT }} .anaj-acc__item > summary::-webkit-details-marker{
-      display:none;
-    }
-
-    #{{ ROOT }} .anaj-acc__content{
-      padding:0 14px 12px 14px;
-    }
-
-    #{{ ROOT }} .anaj-nutri{
-      display:grid;
-      gap:6px;
-    }
-
-    #{{ ROOT }} .anaj-nutri__row{
-      display:flex;
-      justify-content:space-between;
-      gap:12px;
-      padding:6px 0;
-      border-bottom:1px dashed rgba(0,0,0,.08);
-    }
-
-    #{{ ROOT }} .anaj-nutri__sub{
-      display:flex;
-      justify-content:space-between;
-      gap:12px;
-      padding:4px 0 4px 12px;
-      font-size:14px;
-      opacity:.95;
-    }
-
-    #{{ ROOT }} .anaj-nutri__foot{
-      margin-top:8px;
-      font-size:12px;
-      opacity:.75;
-    }
-
     /* Baner płatności – mniejszy na desktopie */
     #{{ ROOT }} .anaj-banner{
       padding:0;
@@ -938,14 +894,14 @@
       list-style:none;
     }
 
-    /* [PDP-TITLE] – główny tytuł produktu */
+    /* [PDP-TITLE] – główny tytuł produktu, ładne łamanie (desktop) */
     #{{ ROOT }} .anaj-title{
       margin:6px 0 0 0;
       text-align:center;
       text-transform:uppercase;
       letter-spacing:.03em;
       font-weight:900 !important;
-      font-size:clamp(28px, 3.4vw, 40px) !important;
+      font-size:clamp(26px, 3.4vw, 42px) !important;
       line-height:1.08 !important;
       display:inline-block;
       color:#4b2a16 !important;
@@ -953,11 +909,21 @@
       -webkit-background-clip: initial !important;
       -webkit-text-fill-color: currentColor;
       text-shadow:0 1px 3px rgba(0,0,0,.22);
-      hyphens:none;
-      word-break:keep-all;
+
+      /* klucz: dobre łamanie tekstu na desktopie */
+      max-width:22ch;
+      margin-inline:auto;
+      word-break:normal;
+      overflow-wrap:break-word;
+      hyphens:auto;
       text-wrap:balance;
-      max-width:100%;
       box-sizing:border-box;
+    }
+
+    @supports not (text-wrap: balance){
+      #{{ ROOT }} .anaj-title{
+        text-wrap:wrap;
+      }
     }
 
     /* płyta pod tytułem */
@@ -970,8 +936,6 @@
       backdrop-filter: blur(3px);
       box-shadow: 0 8px 22px rgba(0,0,0,0.15);
       margin:6px auto 0 auto;
-      max-width:100%;
-      box-sizing:border-box;
     }
 
     #{{ ROOT }} .anaj-title::after{
@@ -985,21 +949,7 @@
       box-shadow:0 10px 22px rgba(0,0,0,.25);
     }
 
-    /* [PDP-TITLE-DESKTOP] – delikatne dopieszczenie */
-    @media (min-width: 1024px){
-      #{{ ROOT }} .anaj-title{
-        font-size:clamp(30px, 3vw, 38px) !important;
-        max-width:24ch;
-      }
-
-      #{{ ROOT }} .anaj-title-wrapper {
-        padding: 16px 32px;
-        border-radius: 18px;
-        max-width:26ch;
-      }
-    }
-
-    /* [PDP-TITLE-MOBILE] – większy, szerszy hero na telefonach */
+    /* MOBILE – wygląd jak w nowym kodzie */
     @media (max-width: 750px){
       #{{ ROOT }} .anaj-title{
         font-size:clamp(24px, 7vw, 32px) !important;
@@ -1021,7 +971,7 @@
       }
     }
 
-    /* [PDP-TITLE-MOBILE-XS] – awaryjne łamanie bardzo długich słów */
+    /* XS – awaryjne łamanie bardzo długich słów */
     @media (max-width: 480px){
       #{{ ROOT }} .anaj-title{
         word-break:break-word;
@@ -1045,7 +995,7 @@
     }
 
     #{{ ROOT }} .anaj-acc__item > summary::after{
-      content:'+';
+      content:'+'; 
       margin-left:auto;
       font-weight:900;
       font-size:18px;
@@ -1163,7 +1113,7 @@
 
         const priceBox = document.getElementById('{{ ROOT }}-price');
         const elCurr  = priceBox ? priceBox.querySelector('.anaj-price__current') : null;
-        const elComp  = priceBox ? priceBox.querySelector('.anaj-price__compare') : null;
+               const elComp  = priceBox ? priceBox.querySelector('.anaj-price__compare') : null;
         const elBadge = priceBox ? priceBox.querySelector('.anaj-price__badge') : null;
         const elStock = priceBox ? priceBox.querySelector('.anaj-price__stock') : null;
 
