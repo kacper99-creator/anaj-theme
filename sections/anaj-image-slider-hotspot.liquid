@@ -9,10 +9,10 @@
       {% assign cta_label = block.settings.cta_label | default: 'Zamów teraz' %}
       {% assign cta_x     = block.settings.cta_x | default: 50 %}
       {% assign cta_y     = block.settings.cta_y | default: 80 %}
-      {% assign cta_scale = block.settings.cta_scale | default: 100 %}
 
       <div class="slide{% if forloop.first %} is-active{% endif %}" data-index="{{ forloop.index0 }}" {{ block.shopify_attributes }}>
         {% if bg_image != blank %}
+          {% comment %} Używamy <img>, aby tło slajdu zawsze się wczytywało {% endcomment %}
           <div class="media">
             <img src="{{ bg_image }}" alt="{{ block.settings.image.alt | escape }}" loading="lazy">
           </div>
@@ -22,7 +22,7 @@
           <a class="hero-cta"
              href="{{ cta_href }}"
              aria-label="{{ cta_label | escape }}"
-             style="--cta-x: {{ cta_x }}%; --cta-y: {{ cta_y }}%; --cta-scale: {{ cta_scale | divided_by: 100.0 }};">
+             style="--cta-x: {{ cta_x }}%; --cta-y: {{ cta_y }}%;">
             {{ cta_label }}
             <svg class="hero-cta__icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
               <path fill="currentColor" d="M13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41L13.17 12z"/>
@@ -59,7 +59,6 @@
   position:relative;
 }
 
-/* Slajd – wysokość wynika z obrazka, nic nie wymuszamy */
 #{{ slider_id }} .slide{
   grid-area:1/1;
   position:relative;
@@ -68,6 +67,7 @@
   pointer-events:none;
   transition:opacity .6s ease;
   width:100%;
+  aspect-ratio:16 / 9; /* stała proporcja 16:9 */
   overflow:hidden;
 }
 
@@ -77,39 +77,35 @@
   z-index:1;
 }
 
-/* Obraz steruje wysokością, pokazujemy 100% kadru bez przycinania */
 #{{ slider_id }} .media{
-  position:relative;
-  width:100%;
+  position:absolute;
+  inset:0;
   overflow:hidden;
 }
 
 #{{ slider_id }} .media img{
-  display:block;
   width:100%;
-  height:auto;         /* zachowuje proporcje z pliku */
-  object-fit:contain;  /* 100% obrazka, bez ucięć */
+  height:100%;
+  object-fit:cover;
+  display:block;
   will-change:transform;
 }
 
-/* Wyłączamy powiększającą animację, żeby obraz nie wychodził poza kadr */
 #{{ slider_id }} .slide.is-active .media img{
-  animation:none;
+  animation:kb 6.5s ease-out both;
 }
 
-/* Zostawiamy keyframes „na przyszłość” – aktualnie nic nie robią */
 @keyframes kb{
-  0%   { transform:none; }
-  100% { transform:none; }
+  0%   { transform:scale(1.02) translate3d(0,-0.5%,0); }
+  100% { transform:scale(1.06) translate3d(0,-2%,0); }
 }
 
-/* CTA – pozycjonowanie po X/Y w % */
+/* TYLKO PRZYCISK JEST KLIKALNY – POZYCJA X/Y W % */
 #{{ slider_id }} .hero-cta{
   position:absolute;
   left:var(--cta-x);
   top:var(--cta-y);
-  --cta-scale: 1;
-  transform:translate(-50%, -50%) scale(var(--cta-scale));
+  transform:translate(-50%, -50%);
   display:inline-flex;
   align-items:center;
   gap:8px;
@@ -127,7 +123,7 @@
 }
 
 #{{ slider_id }} .hero-cta:hover{
-  transform:translate(-50%, -50%) translateY(-1px) scale(var(--cta-scale));
+  transform:translate(-50%, -50%) translateY(-1px);
   box-shadow:0 10px 24px rgba(0,0,0,.22);
 }
 
@@ -135,7 +131,6 @@
   flex:0 0 auto;
 }
 
-/* Nawigacja */
 #{{ slider_id }} .nav{
   position:absolute;
   top:50%;
@@ -148,13 +143,11 @@
   backdrop-filter:blur(6px);
   box-shadow:0 8px 24px rgba(0,0,0,.18);
   z-index:5;
-  cursor:pointer;
 }
 
 #{{ slider_id }} .prev{ left:12px; }
 #{{ slider_id }} .next{ right:12px; }
 
-/* Kropeczki */
 #{{ slider_id }} .dots{
   position:absolute;
   left:50%;
@@ -179,9 +172,12 @@
   background:#edc68d;
 }
 
-/* Bez różnych aspect-ratio na desktop/mobile – nic nie wymuszamy */
+@media (max-width: 768px){
+  #{{ slider_id }} .slide{
+    aspect-ratio:16 / 9;
+  }
+}
 
-/* Accessibility */
 @media (prefers-reduced-motion: reduce){
   #{{ slider_id }} *{
     animation:none !important;
@@ -209,27 +205,11 @@
     });
   }
 
-  function play(){
-    stop();
-    t = setInterval(()=>setSlide(i+1), delay);
-  }
+  function play(){ stop(); t = setInterval(()=>setSlide(i+1), delay); }
+  function stop(){ if(t){ clearInterval(t); t = null; } }
 
-  function stop(){
-    if(t){
-      clearInterval(t);
-      t = null;
-    }
-  }
-
-  if (prev) prev.addEventListener('click', ()=>{
-    setSlide(i-1);
-    play();
-  });
-
-  if (next) next.addEventListener('click', ()=>{
-    setSlide(i+1);
-    play();
-  });
+  if (prev) prev.addEventListener('click', ()=>{ setSlide(i-1); play(); });
+  if (next) next.addEventListener('click', ()=>{ setSlide(i+1); play(); });
 
   dots.forEach(d=>{
     d.addEventListener('click', ()=>{
@@ -269,49 +249,11 @@
       "type": "slide",
       "name": "Slajd",
       "settings": [
-        {
-          "type": "image_picker",
-          "id": "image",
-          "label": "Obraz tła (pokazywany w całości – bez przycinania)"
-        },
-        {
-          "type": "url",
-          "id": "cta_link",
-          "label": "Link przycisku CTA"
-        },
-        {
-          "type": "text",
-          "id": "cta_label",
-          "label": "Tekst przycisku CTA",
-          "default": "Zamów teraz"
-        },
-        {
-          "type": "range",
-          "id": "cta_x",
-          "label": "Poziome położenie przycisku (X)",
-          "min": 0,
-          "max": 100,
-          "step": 1,
-          "default": 50
-        },
-        {
-          "type": "range",
-          "id": "cta_y",
-          "label": "Pionowe położenie przycisku (Y)",
-          "min": 0,
-          "max": 100,
-          "step": 1,
-          "default": 80
-        },
-        {
-          "type": "range",
-          "id": "cta_scale",
-          "label": "Skala przycisku (%)",
-          "min": 60,
-          "max": 160,
-          "step": 5,
-          "default": 100
-        }
+        { "type": "image_picker", "id": "image", "label": "Obraz tła (16:9 zalecane)" },
+        { "type": "url", "id": "cta_link", "label": "Link przycisku CTA" },
+        { "type": "text", "id": "cta_label", "label": "Tekst przycisku CTA", "default": "Zamów teraz" },
+        { "type": "range", "id": "cta_x", "label": "Poziome położenie przycisku (X)", "min": 0, "max": 100, "step": 1, "default": 50 },
+        { "type": "range", "id": "cta_y", "label": "Pionowe położenie przycisku (Y)", "min": 0, "max": 100, "step": 1, "default": 80 }
       ]
     }
   ],
@@ -321,9 +263,7 @@
       "name": "ANAJ – slider z hotspotem",
       "category": "Banner",
       "blocks": [
-        {
-          "type": "slide"
-        }
+        { "type": "slide" }
       ]
     }
   ]
