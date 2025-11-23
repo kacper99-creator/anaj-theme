@@ -19,7 +19,8 @@
             "cta_link": "shopify://products/rogale-swietomarcinskie-certyfikowane",
             "cta_label": "Zamów teraz",
             "cta_x": 22,
-            "cta_y": 35
+            "cta_y": 35,
+            "cta_scale": 100
           }
         },
         "slide_AJEXkH": {
@@ -29,7 +30,8 @@
             "cta_link": "",
             "cta_label": "Zamów teraz",
             "cta_x": 35,
-            "cta_y": 25
+            "cta_y": 25,
+            "cta_scale": 100
           }
         }
       },
@@ -75,6 +77,7 @@
         "button"
       ],
       "settings": {
+        "image": "shopify://shop_images/2_ed76d704-b008-4495-ad50-b163ce7c1c76.png",
         "image_overlay_opacity": 40,
         "image_height": "large",
         "image_behavior": "none",
