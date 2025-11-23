@@ -9,6 +9,7 @@
       {% assign cta_label = block.settings.cta_label | default: 'Zamów teraz' %}
       {% assign cta_x     = block.settings.cta_x | default: 50 %}
       {% assign cta_y     = block.settings.cta_y | default: 80 %}
+      {% assign cta_scale = block.settings.cta_scale | default: 100 %}
 
       {%- comment -%}
         Jak w Dawn image-banner:
@@ -28,7 +29,6 @@
            style="--pb: {{ slide_pb }}%;"
            {{ block.shopify_attributes }}>
         {% if bg_image != blank %}
-          {% comment %} Używamy <img>, aby tło slajdu zawsze się wczytywało {% endcomment %}
           <div class="media">
             <img src="{{ bg_image }}" alt="{{ block.settings.image.alt | escape }}" loading="lazy">
           </div>
@@ -38,7 +38,7 @@
           <a class="hero-cta"
              href="{{ cta_href }}"
              aria-label="{{ cta_label | escape }}"
-             style="--cta-x: {{ cta_x }}%; --cta-y: {{ cta_y }}%;">
+             style="--cta-x: {{ cta_x }}%; --cta-y: {{ cta_y }}%; --cta-scale: {{ cta_scale | divided_by: 100.0 }};">
             {{ cta_label }}
             <svg class="hero-cta__icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
               <path fill="currentColor" d="M13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41L13.17 12z"/>
@@ -115,23 +115,22 @@
   will-change:transform;
 }
 
-/* Wyłączamy powiększanie, żeby 100% kadru było zawsze widoczne */
+/* Bez powiększania – 100% kadru zawsze widoczne */
 #{{ slider_id }} .slide.is-active .media img{
   animation:none;
 }
 
-/* Zostawiamy keyframes na przyszłość, ale aktualnie nigdzie nie używane */
 @keyframes kb{
   0%   { transform:scale(1.02) translate3d(0,-0.5%,0); }
   100% { transform:scale(1.06) translate3d(0,-2%,0); }
 }
 
-/* CTA – jak było, pozycjonowane w % */
+/* CTA – położenie i skala sterowane zmiennymi per slajd */
 #{{ slider_id }} .hero-cta{
   position:absolute;
   left:var(--cta-x);
   top:var(--cta-y);
-  transform:translate(-50%, -50%);
+  transform:translate(-50%, -50%) scale(var(--cta-scale, 1));
   display:inline-flex;
   align-items:center;
   gap:8px;
@@ -149,7 +148,7 @@
 }
 
 #{{ slider_id }} .hero-cta:hover{
-  transform:translate(-50%, -50%) translateY(-1px);
+  transform:translate(-50%, -50%) translateY(-1px) scale(var(--cta-scale, 1));
   box-shadow:0 10px 24px rgba(0,0,0,.22);
 }
 
@@ -274,7 +273,8 @@
         { "type": "url", "id": "cta_link", "label": "Link przycisku CTA" },
         { "type": "text", "id": "cta_label", "label": "Tekst przycisku CTA", "default": "Zamów teraz" },
         { "type": "range", "id": "cta_x", "label": "Poziome położenie przycisku (X)", "min": 0, "max": 100, "step": 1, "default": 50 },
-        { "type": "range", "id": "cta_y", "label": "Pionowe położenie przycisku (Y)", "min": 0, "max": 100, "step": 1, "default": 80 }
+        { "type": "range", "id": "cta_y", "label": "Pionowe położenie przycisku (Y)", "min": 0, "max": 100, "step": 1, "default": 80 },
+        { "type": "range", "id": "cta_scale", "label": "Skala przycisku (%)", "min": 60, "max": 160, "step": 5, "default": 100 }
       ]
     }
   ],
