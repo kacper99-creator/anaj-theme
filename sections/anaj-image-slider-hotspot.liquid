@@ -59,7 +59,7 @@
   position:relative;
 }
 
-/* KAŻDY SLAJD – wysokość wynika z obrazka, nic nie wymuszamy */
+/* Slajd – wysokość wynika z obrazka, nic nie wymuszamy */
 #{{ slider_id }} .slide{
   grid-area:1/1;
   position:relative;
@@ -77,7 +77,7 @@
   z-index:1;
 }
 
-/* Obraz steruje wysokością – pełny kadr, bez przycinania */
+/* Obraz steruje wysokością, pokazujemy 100% kadru bez przycinania */
 #{{ slider_id }} .media{
   position:relative;
   width:100%;
@@ -87,23 +87,23 @@
 #{{ slider_id }} .media img{
   display:block;
   width:100%;
-  height:auto;      /* proporcja z pliku */
-  /* brak object-fit: cover/contain – nic nie tniemy */
+  height:auto;         /* zachowuje proporcje z pliku */
+  object-fit:contain;  /* 100% obrazka, bez ucięć */
+  will-change:transform;
 }
 
-/* WYŁĄCZAMY ANIMACJĘ, ŻEBY NIE POWIĘKSZAŁA / NIE UCINAŁA OBRAZU */
+/* Wyłączamy powiększającą animację, żeby obraz nie wychodził poza kadr */
 #{{ slider_id }} .slide.is-active .media img{
   animation:none;
 }
 
-/* (opcjonalnie możesz całe @keyframes kb wywalić,
-   zostawiam, jakbyś kiedyś chciał wrócić) */
+/* Zostawiamy keyframes „na przyszłość” – aktualnie nic nie robią */
 @keyframes kb{
   0%   { transform:none; }
   100% { transform:none; }
 }
 
-/* CTA – zostaje jak było, dalej w % względem obrazka */
+/* CTA – pozycjonowanie po X/Y w % */
 #{{ slider_id }} .hero-cta{
   position:absolute;
   left:var(--cta-x);
@@ -135,6 +135,7 @@
   flex:0 0 auto;
 }
 
+/* Nawigacja */
 #{{ slider_id }} .nav{
   position:absolute;
   top:50%;
@@ -147,11 +148,13 @@
   backdrop-filter:blur(6px);
   box-shadow:0 8px 24px rgba(0,0,0,.18);
   z-index:5;
+  cursor:pointer;
 }
 
 #{{ slider_id }} .prev{ left:12px; }
 #{{ slider_id }} .next{ right:12px; }
 
+/* Kropeczki */
 #{{ slider_id }} .dots{
   position:absolute;
   left:50%;
@@ -176,8 +179,9 @@
   background:#edc68d;
 }
 
-/* ŻADNYCH różnych proporcji na desktop/mobile – usunięte media queries */
+/* Bez różnych aspect-ratio na desktop/mobile – nic nie wymuszamy */
 
+/* Accessibility */
 @media (prefers-reduced-motion: reduce){
   #{{ slider_id }} *{
     animation:none !important;
@@ -205,11 +209,27 @@
     });
   }
 
-  function play(){ stop(); t = setInterval(()=>setSlide(i+1), delay); }
-  function stop(){ if(t){ clearInterval(t); t = null; } }
+  function play(){
+    stop();
+    t = setInterval(()=>setSlide(i+1), delay);
+  }
 
-  if (prev) prev.addEventListener('click', ()=>{ setSlide(i-1); play(); });
-  if (next) next.addEventListener('click', ()=>{ setSlide(i+1); play(); });
+  function stop(){
+    if(t){
+      clearInterval(t);
+      t = null;
+    }
+  }
+
+  if (prev) prev.addEventListener('click', ()=>{
+    setSlide(i-1);
+    play();
+  });
+
+  if (next) next.addEventListener('click', ()=>{
+    setSlide(i+1);
+    play();
+  });
 
   dots.forEach(d=>{
     d.addEventListener('click', ()=>{
@@ -249,12 +269,49 @@
       "type": "slide",
       "name": "Slajd",
       "settings": [
-        { "type": "image_picker", "id": "image", "label": "Obraz tła (dowolne proporcje – wyświetlany w całości)" },
-        { "type": "url", "id": "cta_link", "label": "Link przycisku CTA" },
-        { "type": "text", "id": "cta_label", "label": "Tekst przycisku CTA", "default": "Zamów teraz" },
-        { "type": "range", "id": "cta_x", "label": "Poziome położenie przycisku (X)", "min": 0, "max": 100, "step": 1, "default": 50 },
-        { "type": "range", "id": "cta_y", "label": "Pionowe położenie przycisku (Y)", "min": 0, "max": 100, "step": 1, "default": 80 },
-        { "type": "range", "id": "cta_scale", "label": "Skala przycisku (%)", "min": 60, "max": 160, "step": 5, "default": 100 }
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Obraz tła (pokazywany w całości – bez przycinania)"
+        },
+        {
+          "type": "url",
+          "id": "cta_link",
+          "label": "Link przycisku CTA"
+        },
+        {
+          "type": "text",
+          "id": "cta_label",
+          "label": "Tekst przycisku CTA",
+          "default": "Zamów teraz"
+        },
+        {
+          "type": "range",
+          "id": "cta_x",
+          "label": "Poziome położenie przycisku (X)",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "default": 50
+        },
+        {
+          "type": "range",
+          "id": "cta_y",
+          "label": "Pionowe położenie przycisku (Y)",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "default": 80
+        },
+        {
+          "type": "range",
+          "id": "cta_scale",
+          "label": "Skala przycisku (%)",
+          "min": 60,
+          "max": 160,
+          "step": 5,
+          "default": 100
+        }
       ]
     }
   ],
@@ -264,7 +321,9 @@
       "name": "ANAJ – slider z hotspotem",
       "category": "Banner",
       "blocks": [
-        { "type": "slide" }
+        {
+          "type": "slide"
+        }
       ]
     }
   ]
