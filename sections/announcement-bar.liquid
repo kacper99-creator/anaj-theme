@@ -23,6 +23,9 @@
 <style>
   .anaj-announcement-bar {
     width: 100%;
+    display: block;
+    position: relative;
+    z-index: 40; /* żeby pasek nie znikał pod headerem / innymi elementami */
   }
 
   .anaj-announcement-bar__inner {
@@ -52,7 +55,7 @@
     position: absolute;
     left: 50%;
     top: 50%;
-    /* Centrowanie tekstu, aby nie był obcięty w pasku ogłoszeń */
+    /* lekko podniesione, żeby tekst nie był obcięty przy niskim pasku */
     transform: translate(-50%, -30%);
     opacity: 0;
     transition: opacity 0.35s ease, transform 0.35s ease;
