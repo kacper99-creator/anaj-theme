@@ -610,26 +610,30 @@
       border:1px solid rgba(0,0,0,.06);
     }
 
-    /* Warianty */
+        /* [PDP-VARIANTS] – wycentrowane pole „ilość sztuk” */
     #{{ ROOT }} .anaj-variants{
       display:grid;
       gap:8px;
       margin-top:8px;
+      justify-items:center;      /* centrum w gridzie */
     }
 
     #{{ ROOT }} .anaj-variants__label{
       font-size:13px;
       font-weight:600;
+      text-align:center;         /* napis „ilość sztuk” też na środek */
     }
 
     #{{ ROOT }} .anaj-variants__select{
       width:100%;
+      max-width:260px;           /* żeby dropdown nie był „na całą ścianę” */
       border-radius:999px;
       border:1px solid rgba(0,0,0,.12);
       padding:8px 14px;
       font-size:14px;
       background:#fff;
     }
+
 
     /* USP pod ilością */
     #{{ ROOT }} .anaj-usp{
