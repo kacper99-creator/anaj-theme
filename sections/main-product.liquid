@@ -430,9 +430,8 @@
     ]
   </script>
 
-  <style>
-    /* Blokujemy wycieki stylów wyłącznie w obrębie sekcji produktu */
-   #{{ ROOT }}{
+  /* Blokujemy wycieki stylów wyłącznie w obrębie sekcji produktu */
+ #{{ ROOT }}{
   --ink:#2b2219;
   --ring:rgba(185,142,85,.45);
   --border:#B98E55;
@@ -445,6 +444,7 @@
 
   font-family: var(--font-body-family);
   color:var(--ink);
+  box-sizing:border-box;
 
   /* pełna szerokość tła jak w niestandardowym kodzie */
   width:100vw;
