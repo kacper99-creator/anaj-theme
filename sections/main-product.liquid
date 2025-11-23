@@ -430,66 +430,52 @@
     ]
   </script>
 
- <style>
-    /* Blokujemy wycieki stylów wyłącznie w obrębie sekcji produktu */
-   #{{ ROOT }}{
-  --ink:#2b2219;
-  --ring:rgba(185,142,85,.45);
-  --border:#B98E55;
-  --surface-top:#F3E1C6;
-  --surface-bot:#E2BE8F;
-  --chip:#EDE0CC;
-  --chip-border:#D9C2A4;
-  --padx: clamp(16px,4vw,40px);
-  --pady: clamp(14px,3vw,28px);
+  <style>
+    /* === 1. GŁÓWNY KONTENER PDP === */
+    #{{ ROOT }}{
+      --ink:#2b2219;
+      --ring:rgba(185,142,85,.45);
+      --border:#B98E55;
+      --surface-top:#F3E1C6;
+      --surface-bot:#E2BE8F;
+      --chip:#EDE0CC;
+      --chip-border:#D9C2A4;
+      --padx: clamp(16px,4vw,40px);
+      --pady: clamp(14px,3vw,28px);
 
-  font-family: var(--font-body-family);
-  color:var(--ink);
+      font-family: var(--font-body-family);
+      color:var(--ink);
 
-  /* Dopilnowujemy pełnej szerokości i bez uciekania w prawo na mobile */
-  box-sizing:border-box;
-  max-width:100vw;
+      box-sizing:border-box;
+      max-width:100vw;
+      width:100%;
+      margin:0 auto;
 
-  /* pełna szerokość tła jak w niestandardowym kodzie */
-  width:100%;
-  margin:0 auto;
+      background:
+        linear-gradient(180deg, rgba(0,0,0,.03), rgba(0,0,0,0)),
+        repeating-linear-gradient(90deg, #f4e6d1 0 24px, #ead6b6 24px 48px);
 
-  background:
-    linear-gradient(180deg, rgba(0,0,0,.03), rgba(0,0,0,0)),
-    repeating-linear-gradient(90deg, #f4e6d1 0 24px, #ead6b6 24px 48px);
+      padding-inline:var(--padx);
+      padding-block:var(--pady);
 
-  padding-inline:var(--padx);
-  padding-block:var(--pady);
-  display:grid;
-  gap:24px;
-  grid-template-areas:"gal" "info";
-  overflow-x:hidden;
-  transform:none;
-}
+      display:grid;
+      gap:24px;
+      grid-template-areas:"gal" "info";
 
-/* [PDP-CENTER-MOBILE] – wycentrowanie prawej kolumny na gridzie + spójna szerokość */
-@media (max-width: 1023px){
-  /* sama kolumna info w gridzie */
-  #{{ ROOT }} .anaj-right{
-    justify-self: center;   /* ważne przy CSS Grid */
-    width: 100%;
-    max-width: 480px;
-  }
+      /* klucz do centrowania całej zawartości na mobile */
+      justify-items:center;
 
-  /* żeby wszystkie „kafelki” w kolumnie miały taką samą szerokość jak CTA */
-  #{{ ROOT }} .anaj-price,
-  #{{ ROOT }} .anaj-variants,
-  #{{ ROOT }} .anaj-usp,
-  #{{ ROOT }} .anaj-ctaBar,
-  #{{ ROOT }} .anaj-timeline,
-  #{{ ROOT }} .anaj-acc__item,
-  #{{ ROOT }} .anaj-banner{
-    max-width: 420px;
-    margin-left: auto;
-    margin-right: auto;
-  }
-}
+      overflow-x:hidden;
+      transform:none;
+    }
 
+    /* [PDP-FIX-MOBILE-LAYOUT] – centrowanie galerii i prawej kolumny */
+    #{{ ROOT }} .anaj-gal,
+    #{{ ROOT }} .anaj-right {
+      width:100%;
+      max-width:480px;
+      box-sizing:border-box;
+    }
 
     @media (min-width:1024px){
       #{{ ROOT }}{
@@ -497,10 +483,16 @@
         grid-template-areas:"gal info";
         align-items:start;
         min-height:100vh;
+        justify-items:stretch;
+      }
+
+      #{{ ROOT }} .anaj-gal,
+      #{{ ROOT }} .anaj-right{
+        max-width:none;
       }
     }
 
-    /* GALERIA – slider 4:3 */
+    /* === 2. GALERIA – slider 4:3 === */
     #{{ GID }} .anaj-gal__stage{
       position:relative;
       border-radius:18px;
@@ -555,7 +547,7 @@
       right:12px;
     }
 
-    /* Card + cena */
+    /* === 3. CARD + CENA === */
     #{{ ROOT }} .anaj-card{
       background:linear-gradient(180deg,var(--surface-top),var(--surface-bot)) !important;
       border:1px solid var(--border) !important;
@@ -610,30 +602,29 @@
       border:1px solid rgba(0,0,0,.06);
     }
 
-        /* [PDP-VARIANTS] – wycentrowane pole „ilość sztuk” */
+    /* [PDP-VARIANTS] – wycentrowane pole „ilość sztuk” */
     #{{ ROOT }} .anaj-variants{
       display:grid;
       gap:8px;
       margin-top:8px;
-      justify-items:center;      /* centrum w gridzie */
+      justify-items:center;
     }
 
     #{{ ROOT }} .anaj-variants__label{
       font-size:13px;
       font-weight:600;
-      text-align:center;         /* napis „ilość sztuk” też na środek */
+      text-align:center;
     }
 
     #{{ ROOT }} .anaj-variants__select{
       width:100%;
-      max-width:260px;           /* żeby dropdown nie był „na całą ścianę” */
+      max-width:260px;
       border-radius:999px;
       border:1px solid rgba(0,0,0,.12);
       padding:8px 14px;
       font-size:14px;
       background:#fff;
     }
-
 
     /* USP pod ilością */
     #{{ ROOT }} .anaj-usp{
@@ -659,24 +650,19 @@
       box-shadow:0 6px 14px rgba(0,0,0,.12);
     }
 
-    /* CTA */
-#{{ ROOT }} .anaj-ctaBar{
-  display:flex;
-  flex-wrap:wrap;
-  justify-content:center;   /* wyrównanie na środek */
-  gap:10px;
-  margin-top:8px;
-}
-
-#{{ ROOT }} .anaj-ctaBar .anaj-form{
-  margin:0;
-  width:100%;               /* pełna szerokość na mobile */
-  max-width:420px;          /* ograniczenie, żeby nie wyglądało jak „klocek” */
-}
-
+    /* === CTA === */
+    #{{ ROOT }} .anaj-ctaBar{
+      display:flex;
+      flex-wrap:wrap;
+      justify-content:center;
+      gap:10px;
+      margin-top:8px;
+    }
 
     #{{ ROOT }} .anaj-ctaBar .anaj-form{
       margin:0;
+      width:100%;
+      max-width:420px;
     }
 
     #{{ ROOT }} .anaj-ctaBar .anaj-btn{
@@ -740,7 +726,7 @@
       outline-offset:2px;
     }
 
-    /* Timeline */
+    /* === TIMELINE === */
     #{{ ROOT }} .anaj-timeline{
       --gold1:#D9A055;
       --gold2:#B98E55;
@@ -840,7 +826,7 @@
       #{{ ROOT }} .anaj-tl__label{font-size:12px}
     }
 
-    /* Akordeony / nutria */
+    /* === AKORDEONY / NUTRIA === */
     #{{ ROOT }} .anaj-acc__item > summary{
       padding:12px 14px;
       cursor:pointer;
@@ -908,16 +894,20 @@
       }
     }
 
+    /* Font + globalny reset w sekcji */
     #{{ ROOT }},
     #{{ ROOT }} * {
       font-family: var(--font-body-family), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Helvetica Neue", Arial, sans-serif !important;
       font-feature-settings: "kern" 1, "liga" 1;
     }
 
-    /* Tytuł */
+    /* === TYTUŁ === */
     #{{ ROOT }} .anaj-head{
       margin-bottom: 10px;
       text-align: center;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
     }
 
     #{{ ROOT }} .anaj-head__top{
@@ -957,26 +947,25 @@
       font-size:clamp(34px, 5.6vw, 60px) !important;
       line-height:1.04 !important;
       display:inline-block;
-      /* Brązowy tytuł na złoto-karmelowym tle dla premium efektu */
       color:#4b2a16 !important;
       background:none !important;
       -webkit-background-clip: initial !important;
       -webkit-text-fill-color: currentColor;
       text-shadow:0 1px 3px rgba(0,0,0,.22);
-      /* Wyłączamy dzielenie wyrazów, żeby polskie litery i cały tytuł wyglądały spójnie */
       hyphens:none;
       word-break:keep-all;
     }
 
-    /* Subtelna złoto-karmelowa płyta pod tytułem dla lepszej czytelności */
+    /* płyta pod tytułem */
     #{{ ROOT }} .anaj-title-wrapper {
       position: relative;
       display: inline-block;
       padding: 12px 22px;
       border-radius: 14px;
-      background: rgba(244, 229, 206, 0.65); /* jasny złoto-beżowy */
+      background: rgba(244, 229, 206, 0.65);
       backdrop-filter: blur(3px);
       box-shadow: 0 8px 22px rgba(0,0,0,0.15);
+      margin:6px auto 0 auto;
     }
 
     #{{ ROOT }} .anaj-title::after{
@@ -992,7 +981,6 @@
 
     @media (min-width: 1024px){
       #{{ ROOT }} .anaj-title{
-        /* Mniejszy rozmiar na desktopie, żeby dłuższe tytuły mieściły się estetycznie */
         font-size:clamp(28px, 3.6vw, 44px) !important;
       }
 
@@ -1006,6 +994,13 @@
       #{{ ROOT }} .anaj-title{
         font-size:clamp(26px, 8vw, 38px) !important;
         padding-inline:8px;
+      }
+    }
+
+    /* [PDP-TITLE-MOBILE] – na bardzo wąskich ekranach pozwalamy łamać słowa */
+    @media (max-width: 480px){
+      #{{ ROOT }} .anaj-title{
+        word-break:break-word;
       }
     }
 
@@ -1063,21 +1058,6 @@
       border-top:0 !important;
     }
 
-    /* Dodatkowe wyrównanie nagłówka sekcji */
-    #{{ ROOT }} .anaj-head{
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-    }
-
-    #{{ ROOT }} .anaj-title-wrapper{
-      margin:6px auto 0 auto;
-    }
-
-    #{{ ROOT }} .anaj-title{
-      text-align:center;
-      margin:0;
-    }
   </style>
 
   <script>
