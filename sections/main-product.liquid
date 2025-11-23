@@ -144,7 +144,7 @@
             <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
               <path
                 fill="currentColor"
-                d="M7 18a2 2 0 1 0 2 2 2 2 0 0 0-2-2Zm10 0a 2 2 0 1 0 2 2 2 2 0 0 0-2-2ZM3 4h2l2.2 9.5a2 2 0 0 0 2 1.5h7.3a2 2 0 0 0 1.9-1.4L20 9H8"
+                d="M7 18a2 2 0 1 0 2 2 2 2 0 0 0-2-2Zm10 0a2 2 0 1 0 2 2 2 2 0 0 0-2-2ZM3 4h2l2.2 9.5a2 2 0 0 0 2 1.5h7.3a2 2 0 0 0 1.9-1.4L20 9H8"
               ></path>
               <path d="M10 5l1.2-2h3.6L16 5"></path>
             </svg>
@@ -938,24 +938,36 @@
       list-style:none;
     }
 
-   /* [PDP-TITLE] – główny tytuł produktu */
-#{{ ROOT }} .anaj-title{
-  margin:6px 0 0 0;
-  text-align:center;
-  text-transform:uppercase;
-  letter-spacing:.03em;
-  font-weight:900 !important;
-  font-size:clamp(28px, 3.6vw, 44px) !important; /* trochę spokojniejszy base */
-  line-height:1.06 !important;
-  display:inline-block;
-  color:#4b2a16 !important;
-  background:none !important;
-  -webkit-background-clip: initial !important;
-  -webkit-text-fill-color: currentColor;
-  text-shadow:0 1px 3px rgba(0,0,0,.22);
-  hyphens:none;
-  word-break:keep-all;
-}
+    /* [PDP-TITLE] – główny tytuł produktu, ładne łamanie */
+    #{{ ROOT }} .anaj-title{
+      margin:6px 0 0 0;
+      text-align:center;
+      text-transform:uppercase;
+      letter-spacing:.03em;
+      font-weight:900 !important;
+      font-size:clamp(26px, 3.4vw, 42px) !important;
+      line-height:1.08 !important;
+      display:inline-block;
+      color:#4b2a16 !important;
+      background:none !important;
+      -webkit-background-clip: initial !important;
+      -webkit-text-fill-color: currentColor;
+      text-shadow:0 1px 3px rgba(0,0,0,.22);
+
+      /* klucz: dobre łamanie tekstu */
+      max-width:22ch;
+      margin-inline:auto;
+      word-break:normal;
+      overflow-wrap:break-word;
+      hyphens:auto;
+      text-wrap:balance;
+    }
+
+    @supports not (text-wrap: balance){
+      #{{ ROOT }} .anaj-title{
+        text-wrap:wrap;
+      }
+    }
 
     /* płyta pod tytułem */
     #{{ ROOT }} .anaj-title-wrapper {
@@ -980,27 +992,28 @@
       box-shadow:0 10px 22px rgba(0,0,0,.25);
     }
 
-   /* [PDP-TITLE-MOBILE] – większy, czytelniejszy, premium */
-@media (max-width: 750px){
-  #{{ ROOT }} .anaj-title{
-    font-size: clamp(30px, 9vw, 46px) !important;
-    letter-spacing: .02em;
-    line-height: 1.06 !important;
-    padding-inline: 6px;
-  }
+    /* [PDP-TITLE-MOBILE] – bardziej pod mobile, bez „rozjeżdżania” */
+    @media (max-width: 750px){
+      #{{ ROOT }} .anaj-title{
+        font-size: clamp(26px, 7.2vw, 40px) !important;
+        letter-spacing: .02em;
+        line-height: 1.08 !important;
+        max-width: 20ch;
+        padding-inline: 4px;
+      }
 
-  #{{ ROOT }} .anaj-title-wrapper{
-    padding: 14px 26px;
-    border-radius: 18px;
-  }
-}
+      #{{ ROOT }} .anaj-title-wrapper{
+        padding: 14px 26px;
+        border-radius: 18px;
+        max-width: min(520px, 100%);
+      }
+    }
 
-
-
-    /* [PDP-TITLE-MOBILE] – na bardzo wąskich ekranach pozwalamy łamać słowa */
+    /* Na bardzo wąskich ekranach pozwalamy ratować się łamaniem słów, ale dopiero wtedy */
     @media (max-width: 480px){
       #{{ ROOT }} .anaj-title{
-        word-break:break-word;
+        max-width: 18ch;
+        overflow-wrap: break-word;
       }
     }
 
@@ -1021,7 +1034,7 @@
     }
 
     #{{ ROOT }} .anaj-acc__item > summary::after{
-      content:'+';
+      content:'+'; 
       margin-left:auto;
       font-weight:900;
       font-size:18px;
