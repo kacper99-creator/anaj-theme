@@ -395,8 +395,7 @@
       <div class="anaj-card anaj-banner">
         {% if section.settings.banner_image != blank %}
           <img
-            src="{{ section.settings.banner_image | image_url: width: 800 }}
-"
+            src="{{ section.settings.banner_image | image_url: width: 800 }}"
             alt="{{ section.settings.banner_alt | default: 'Płatności i dostawa' }}"
             loading="lazy"
             width="1600"
@@ -425,7 +424,7 @@
           "compare_cents": {{ v.compare_at_price | default: 0 | json }},
           "opt1": {{ v.option1 | json }},
           "opt2": {{ v.option2 | json }},
-          "opt3": {{ v.option3 | json }}
+          "opt3": {{ v.opt3 | json }}
         }{% unless forloop.last %},{% endunless %}
       {% endfor %}
     ]
@@ -827,6 +826,51 @@
       #{{ ROOT }} .anaj-tl__label{font-size:12px}
     }
 
+    /* === AKORDEONY / NUTRIA === */
+    #{{ ROOT }} .anaj-acc__item > summary{
+      padding:12px 14px;
+      cursor:pointer;
+      list-style:none;
+      font-weight:700;
+      border-radius:12px;
+    }
+
+    #{{ ROOT }} .anaj-acc__item > summary::-webkit-details-marker{
+      display:none;
+    }
+
+    #{{ ROOT }} .anaj-acc__content{
+      padding:0 14px 12px 14px;
+    }
+
+    #{{ ROOT }} .anaj-nutri{
+      display:grid;
+      gap:6px;
+    }
+
+    #{{ ROOT }} .anaj-nutri__row{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      padding:6px 0;
+      border-bottom:1px dashed rgba(0,0,0,.08);
+    }
+
+    #{{ ROOT }} .anaj-nutri__sub{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      padding:4px 0 4px 12px;
+      font-size:14px;
+      opacity:.95;
+    }
+
+    #{{ ROOT }} .anaj-nutri__foot{
+      margin-top:8px;
+      font-size:12px;
+      opacity:.75;
+    }
+
     /* Baner płatności – mniejszy na desktopie */
     #{{ ROOT }} .anaj-banner{
       padding:0;
@@ -894,7 +938,7 @@
       list-style:none;
     }
 
-    /* [PDP-TITLE] – główny tytuł produktu, ładne łamanie (desktop) */
+    /* [PDP-TITLE] – główny tytuł produktu, ładne łamanie */
     #{{ ROOT }} .anaj-title{
       margin:6px 0 0 0;
       text-align:center;
@@ -910,14 +954,13 @@
       -webkit-text-fill-color: currentColor;
       text-shadow:0 1px 3px rgba(0,0,0,.22);
 
-      /* klucz: dobre łamanie tekstu na desktopie */
+      /* klucz: dobre łamanie tekstu */
       max-width:22ch;
       margin-inline:auto;
       word-break:normal;
       overflow-wrap:break-word;
       hyphens:auto;
       text-wrap:balance;
-      box-sizing:border-box;
     }
 
     @supports not (text-wrap: balance){
@@ -949,32 +992,26 @@
       box-shadow:0 10px 22px rgba(0,0,0,.25);
     }
 
-    /* MOBILE – wygląd jak w nowym kodzie */
+    /* [PDP-TITLE-MOBILE] */
     @media (max-width: 750px){
       #{{ ROOT }} .anaj-title{
-        font-size:clamp(24px, 7vw, 32px) !important;
-        letter-spacing:.025em;
-        line-height:1.16 !important;
-        padding-inline:4px;
-        max-width:100%;
+        font-size: clamp(26px, 7.2vw, 40px) !important;
+        letter-spacing: .02em;
+        line-height: 1.08 !important;
+        max-width: 100%;
+        padding-inline: 4px;
       }
 
       #{{ ROOT }} .anaj-title-wrapper{
-        padding:12px 16px;
-        border-radius:16px;
-        max-width:100%;
-      }
-
-      #{{ ROOT }} .anaj-title::after{
-        width:min(160px, 60vw);
-        margin-top:10px;
+        padding: 14px 18px;
+        border-radius: 16px;
+        max-width: 100%;
       }
     }
 
-    /* XS – awaryjne łamanie bardzo długich słów */
     @media (max-width: 480px){
       #{{ ROOT }} .anaj-title{
-        word-break:break-word;
+        overflow-wrap: break-word;
       }
     }
 
@@ -995,7 +1032,7 @@
     }
 
     #{{ ROOT }} .anaj-acc__item > summary::after{
-      content:'+'; 
+      content:'+';
       margin-left:auto;
       font-weight:900;
       font-size:18px;
@@ -1031,7 +1068,6 @@
     #{{ ROOT }} .anaj-price{
       border-top:0 !important;
     }
-
   </style>
 
   <script>
@@ -1113,7 +1149,7 @@
 
         const priceBox = document.getElementById('{{ ROOT }}-price');
         const elCurr  = priceBox ? priceBox.querySelector('.anaj-price__current') : null;
-               const elComp  = priceBox ? priceBox.querySelector('.anaj-price__compare') : null;
+        const elComp  = priceBox ? priceBox.querySelector('.anaj-price__compare') : null;
         const elBadge = priceBox ? priceBox.querySelector('.anaj-price__badge') : null;
         const elStock = priceBox ? priceBox.querySelector('.anaj-price__stock') : null;
 
