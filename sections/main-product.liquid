@@ -431,8 +431,8 @@
   </script>
 
  <style>
-    /* Blokujemy wycieki stylów wyłącznie w obrębie sekcji produktu */
-   #{{ ROOT }}{
+   /* Blokujemy wycieki stylów wyłącznie w obrębie sekcji produktu */
+#{{ ROOT }}{
   --ink:#2b2219;
   --ring:rgba(185,142,85,.45);
   --border:#B98E55;
@@ -446,10 +446,10 @@
   font-family: var(--font-body-family);
   color:var(--ink);
 
-  /* pełna szerokość tła jak w niestandardowym kodzie */
-  width:100vw;
-  margin-left:calc(50% - 50vw);
-  margin-right:calc(50% - 50vw);
+  /* NORMALNE centrowanie sekcji wewnątrz motywu */
+  width:100%;
+  max-width: var(--page-width);
+  margin: 0 auto;
 
   background:
     linear-gradient(180deg, rgba(0,0,0,.03), rgba(0,0,0,0)),
