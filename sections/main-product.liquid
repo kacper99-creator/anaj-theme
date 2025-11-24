@@ -395,8 +395,7 @@
       <div class="anaj-card anaj-banner">
         {% if section.settings.banner_image != blank %}
           <img
-            src="{{ section.settings.banner_image | image_url: width: 800 }}
-"
+            src="{{ section.settings.banner_image | image_url: width: 800 }}"
             alt="{{ section.settings.banner_alt | default: 'Płatności i dostawa' }}"
             loading="lazy"
             width="1600"
@@ -448,8 +447,8 @@
       color:var(--ink);
 
       box-sizing:border-box;
-      max-width:100vw;
       width:100%;
+      max-width:100%;   /* <-- zamiast 100vw */
       margin:0 auto;
 
       background:
@@ -463,10 +462,9 @@
       gap:24px;
       grid-template-areas:"gal" "info";
 
-      /* klucz do centrowania całej zawartości na mobile */
       justify-items:center;
 
-      overflow-x:hidden;
+      overflow-x:hidden; /* sekcja nic nie wystaje */
       transform:none;
     }
 
@@ -894,7 +892,7 @@
       list-style:none;
     }
 
-    /* [PDP-TITLE] – główny tytuł produktu, ładne łamanie (desktop) */
+    /* [PDP-TITLE] – desktop */
     #{{ ROOT }} .anaj-title{
       margin:6px 0 0 0;
       text-align:center;
@@ -910,7 +908,6 @@
       -webkit-text-fill-color: currentColor;
       text-shadow:0 1px 3px rgba(0,0,0,.22);
 
-      /* klucz: dobre łamanie tekstu na desktopie */
       max-width:22ch;
       margin-inline:auto;
       word-break:normal;
@@ -936,6 +933,8 @@
       backdrop-filter: blur(3px);
       box-shadow: 0 8px 22px rgba(0,0,0,0.15);
       margin:6px auto 0 auto;
+      max-width:100%;
+      box-sizing:border-box;
     }
 
     #{{ ROOT }} .anaj-title::after{
@@ -949,7 +948,7 @@
       box-shadow:0 10px 22px rgba(0,0,0,.25);
     }
 
-    /* MOBILE – wygląd jak w nowym kodzie */
+    /* MOBILE – jak w nowym kodzie */
     @media (max-width: 750px){
       #{{ ROOT }} .anaj-title{
         font-size:clamp(24px, 7vw, 32px) !important;
@@ -971,7 +970,6 @@
       }
     }
 
-    /* XS – awaryjne łamanie bardzo długich słów */
     @media (max-width: 480px){
       #{{ ROOT }} .anaj-title{
         word-break:break-word;
@@ -1020,18 +1018,15 @@
       transform:translateY(0);
     }
 
-    /* Przywracamy pogrubienia w treści */
     #{{ ROOT }} strong,
     #{{ ROOT }} b{
       font-weight:700;
     }
 
-    /* Usunięcie przypadkowego bordera nad sekcją ceny */
     #{{ ROOT }} [style*="border-top"],
     #{{ ROOT }} .anaj-price{
       border-top:0 !important;
     }
-
   </style>
 
   <script>
@@ -1113,7 +1108,7 @@
 
         const priceBox = document.getElementById('{{ ROOT }}-price');
         const elCurr  = priceBox ? priceBox.querySelector('.anaj-price__current') : null;
-               const elComp  = priceBox ? priceBox.querySelector('.anaj-price__compare') : null;
+        const elComp  = priceBox ? priceBox.querySelector('.anaj-price__compare') : null;
         const elBadge = priceBox ? priceBox.querySelector('.anaj-price__badge') : null;
         const elStock = priceBox ? priceBox.querySelector('.anaj-price__stock') : null;
 
