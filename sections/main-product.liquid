@@ -281,7 +281,7 @@
               >
                 <rect x="4" y="9" width="16" height="11" rx="1.5"></rect>
                 <path d="M4 12h16M12 9v11"></path>
-                <path d="M8.5 9V6a2 2 0 0 1 4 0v3M15.5 9V6a 2 2 0 0 0-4 0"></path>
+                <path d="M8.5 9V6a 2 2 0 0 1 4 0v3M15.5 9V6a 2 2 0 0 0-4 0"></path>
               </svg>
             </div>
             <div class="anaj-tl__meta">
@@ -447,8 +447,8 @@
       color:var(--ink);
 
       box-sizing:border-box;
-      max-width:100vw;
       width:100%;
+      max-width:100%;
       margin:0 auto;
 
       background:
@@ -462,10 +462,10 @@
       gap:24px;
       grid-template-areas:"gal" "info";
 
-      /* klucz do centrowania całej zawartości na mobile */
       justify-items:center;
 
-      overflow-x:hidden;
+      /* klucz: nic nie ucinamy z prawej */
+      overflow-x:visible;
       transform:none;
     }
 
@@ -1068,35 +1068,6 @@
     #{{ ROOT }} .anaj-price{
       border-top:0 !important;
     }
-    /* Bezpiecznik na mobile – nic nie ma prawa wystawać w bok */
-@media (max-width: 750px){
-  html, body{
-    overflow-x: hidden;
-  }
-
-  #{{ ROOT }}{
-    max-width: 100%;
-  }
-
-  #{{ ROOT }} img,
-  #{{ ROOT }} svg{
-    max-width: 100%;
-    height: auto;
-  }
-
-  #{{ ROOT }} .anaj-price,
-  #{{ ROOT }} .anaj-usp{
-    flex-wrap: wrap;
-  }
-
-  #{{ ROOT }} .anaj-usp li,
-  #{{ ROOT }} .anaj-pill,
-  #{{ ROOT }} summary,
-  #{{ ROOT }} .anaj-title-wrapper,
-  #{{ ROOT }} .anaj-title{
-    white-space: normal;
-  }
-}
   </style>
 
   <script>
