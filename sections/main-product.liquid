@@ -47,6 +47,7 @@
             {{ section.settings.pill_label | default: 'Rzemieślniczy wypiek' }}
           </span>
         </div>
+        {% comment %} Delikatne tło premium pod tytułem dla lepszej czytelności {% endcomment %}
         <div class="anaj-title-wrapper">
           <h1 class="anaj-title">{{ product.title }}</h1>
         </div>
@@ -290,13 +291,8 @@
           </div>
         </div>
       </div>
-    </div> <!-- /.anaj-right -->
 
-    {%- comment -%}
-      BLOK Z KAFELKAMI / AKORDEONAMI + BANER
-      – NA MOBILE PODRZĘDNIE, NA DESKTOPIE NA OSOBNYM RZĘDZIE POD CAŁĄ SEKCJĄ
-    {%- endcomment -%}
-    <div class="anaj-accWrap" style="grid-area: acc;">
+      {%- comment -%} AKORDEONY – domyślnie zamknięte {%- endcomment -%}
       <details class="anaj-acc__item anaj-card">
         <summary>O produkcie</summary>
         <div class="anaj-acc__content">
@@ -415,7 +411,7 @@
           >
         {% endif %}
       </div>
-    </div> <!-- /.anaj-accWrap -->
+    </div>
   </div>
 
   <script type="application/json" id="{{ ROOT }}-vmap">
@@ -451,8 +447,8 @@
       color:var(--ink);
 
       box-sizing:border-box;
-      max-width:100vw;
       width:100%;
+      max-width:100%;   /* <-- zamiast 100vw */
       margin:0 auto;
 
       background:
@@ -464,15 +460,11 @@
 
       display:grid;
       gap:24px;
-      grid-template-areas:
-        "gal"
-        "info"
-        "acc";
+      grid-template-areas:"gal" "info";
 
-      /* klucz do centrowania całej zawartości na mobile */
       justify-items:center;
 
-      overflow-x:hidden;
+      overflow-x:hidden; /* sekcja nic nie wystaje */
       transform:none;
     }
 
@@ -484,24 +476,10 @@
       box-sizing:border-box;
     }
 
-    /* nowy pełnoszeroki rząd na kafelki */
-    #{{ ROOT }} .anaj-accWrap{
-      width:100%;
-      max-width:620px;
-      box-sizing:border-box;
-      margin:0 auto;
-      display:flex;
-      flex-direction:column;
-      gap:10px;
-    }
-
     @media (min-width:1024px){
       #{{ ROOT }}{
-        /* mniejsza kolumna ze zdjęciem, większa z treścią */
-        grid-template-columns:minmax(0, 0.9fr) minmax(0, 1.1fr);
-        grid-template-areas:
-          "gal info"
-          "acc acc";
+        grid-template-columns:minmax(0, 1.15fr) minmax(0, 0.95fr);
+        grid-template-areas:"gal info";
         align-items:start;
         min-height:100vh;
         justify-items:stretch;
@@ -511,13 +489,9 @@
       #{{ ROOT }} .anaj-right{
         max-width:none;
       }
-
-      #{{ ROOT }} .anaj-accWrap{
-        max-width:880px;
-      }
     }
 
-    /* === 2. GALERIA – slider 4:3 (na desktopie zajmuje mniej bo kolumna węższa) === */
+    /* === 2. GALERIA – slider 4:3 === */
     #{{ GID }} .anaj-gal__stage{
       position:relative;
       border-radius:18px;
@@ -675,7 +649,7 @@
       box-shadow:0 6px 14px rgba(0,0,0,.12);
     }
 
-    /* === CTA – większe przyciski, na desktopie obok siebie === */
+    /* === CTA === */
     #{{ ROOT }} .anaj-ctaBar{
       display:flex;
       flex-wrap:wrap;
@@ -709,17 +683,11 @@
 
     @media (min-width:1024px){
       #{{ ROOT }} .anaj-ctaBar{
-        justify-content:flex-start;
-      }
-      #{{ ROOT }} .anaj-ctaBar .anaj-form{
-        flex:1 1 0;
-        max-width:none;
+        justify-content:center;
       }
       #{{ ROOT }} .anaj-ctaBar .anaj-btn{
-        width:100%;
-        min-width:0;
-        min-height:64px;
-        font-size:16px;
+        width:auto;
+        min-width:220px;
       }
     }
 
@@ -857,7 +825,7 @@
       #{{ ROOT }} .anaj-tl__label{font-size:12px}
     }
 
-    /* Baner płatności – mniejszy na desktopie (teraz w accWrap) */
+    /* Baner płatności – mniejszy na desktopie */
     #{{ ROOT }} .anaj-banner{
       padding:0;
       overflow:hidden;
@@ -881,7 +849,7 @@
     }
 
     /* Font + globalny reset w sekcji */
-    #{{ ROOT }} ,
+    #{{ ROOT }},
     #{{ ROOT }} * {
       font-family: var(--font-body-family), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Helvetica Neue", Arial, sans-serif !important;
       font-feature-settings: "kern" 1, "liga" 1;
@@ -924,7 +892,7 @@
       list-style:none;
     }
 
-    /* [PDP-TITLE] – główny tytuł produktu */
+    /* [PDP-TITLE] – desktop */
     #{{ ROOT }} .anaj-title{
       margin:6px 0 0 0;
       text-align:center;
@@ -965,6 +933,8 @@
       backdrop-filter: blur(3px);
       box-shadow: 0 8px 22px rgba(0,0,0,0.15);
       margin:6px auto 0 auto;
+      max-width:100%;
+      box-sizing:border-box;
     }
 
     #{{ ROOT }} .anaj-title::after{
@@ -978,7 +948,7 @@
       box-shadow:0 10px 22px rgba(0,0,0,.25);
     }
 
-    /* MOBILE – wygląd jak w nowym kodzie */
+    /* MOBILE – jak w nowym kodzie */
     @media (max-width: 750px){
       #{{ ROOT }} .anaj-title{
         font-size:clamp(24px, 7vw, 32px) !important;
@@ -1000,7 +970,6 @@
       }
     }
 
-    /* XS – awaryjne łamanie bardzo długich słów */
     @media (max-width: 480px){
       #{{ ROOT }} .anaj-title{
         word-break:break-word;
@@ -1049,18 +1018,15 @@
       transform:translateY(0);
     }
 
-    /* Przywracamy pogrubienia w treści */
     #{{ ROOT }} strong,
     #{{ ROOT }} b{
       font-weight:700;
     }
 
-    /* Usunięcie przypadkowego bordera nad sekcją ceny */
     #{{ ROOT }} [style*="border-top"],
     #{{ ROOT }} .anaj-price{
       border-top:0 !important;
     }
-
   </style>
 
   <script>
