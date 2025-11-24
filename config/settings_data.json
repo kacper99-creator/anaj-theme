@@ -160,13 +160,20 @@
             "settings": {
               "message": "Szybka wysyłka i dostawa"
             }
+          },
+          "message_BTWezG": {
+            "type": "message",
+            "settings": {
+              "message": "Standardowo wysyłka w 3 dni robocze."
+            }
           }
         },
         "block_order": [
           "message_CDnG7F",
           "message_8qrVGM",
           "message_bWjYXr",
-          "message_RaTgcp"
+          "message_RaTgcp",
+          "message_BTWezG"
         ],
         "settings": {
           "rotation_interval": 4
