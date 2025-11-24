@@ -1091,6 +1091,43 @@
     #{{ ROOT }} .anaj-price{
       border-top:0 !important;
     }
+        /* --- FIX: pełna szerokość i centrowanie na mobile --- */
+    @media (max-width: 768px){
+      /* sam kontener sekcji */
+      #{{ ROOT }}{
+        width: 100%;
+        max-width: 100%;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        padding-left: 16px;
+        padding-right: 16px;
+        overflow-x: visible; /* żadnego ucianania z prawej */
+      }
+
+      /* kolumny w środku */
+      #{{ ROOT }} .anaj-gal,
+      #{{ ROOT }} .anaj-right{
+        width: 100%;
+        max-width: 100%;
+        margin: 0 auto;
+      }
+
+      /* stage slidera + slajdy – zero wystawania poza ekran */
+      #{{ GID }} .anaj-gal__stage,
+      #{{ GID }} .anaj-gal__slide{
+        width: 100%;
+        max-width: 100%;
+      }
+
+      /* przyciski w sliderze trochę mniejsze, żeby na pewno zmieściły się w środku */
+      #{{ GID }} .anaj-gal__nav{
+        width: 36px;
+        height: 36px;
+        left: 8px;
+        right: 8px;
+      }
+    }
+
   </style>
 
   <script>
