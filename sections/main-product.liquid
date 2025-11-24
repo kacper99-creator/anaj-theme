@@ -47,7 +47,6 @@
             {{ section.settings.pill_label | default: 'Rzemieślniczy wypiek' }}
           </span>
         </div>
-        {% comment %} Delikatne tło premium pod tytułem dla lepszej czytelności {% endcomment %}
         <div class="anaj-title-wrapper">
           <h1 class="anaj-title">{{ product.title }}</h1>
         </div>
@@ -291,8 +290,13 @@
           </div>
         </div>
       </div>
+    </div> <!-- /.anaj-right -->
 
-      {%- comment -%} AKORDEONY – domyślnie zamknięte {%- endcomment -%}
+    {%- comment -%}
+      BLOK Z KAFELKAMI / AKORDEONAMI + BANER
+      – NA MOBILE PODRZĘDNIE, NA DESKTOPIE NA OSOBNYM RZĘDZIE POD CAŁĄ SEKCJĄ
+    {%- endcomment -%}
+    <div class="anaj-accWrap" style="grid-area: acc;">
       <details class="anaj-acc__item anaj-card">
         <summary>O produkcie</summary>
         <div class="anaj-acc__content">
@@ -395,8 +399,7 @@
       <div class="anaj-card anaj-banner">
         {% if section.settings.banner_image != blank %}
           <img
-            src="{{ section.settings.banner_image | image_url: width: 800 }}
-"
+            src="{{ section.settings.banner_image | image_url: width: 800 }}"
             alt="{{ section.settings.banner_alt | default: 'Płatności i dostawa' }}"
             loading="lazy"
             width="1600"
@@ -412,7 +415,7 @@
           >
         {% endif %}
       </div>
-    </div>
+    </div> <!-- /.anaj-accWrap -->
   </div>
 
   <script type="application/json" id="{{ ROOT }}-vmap">
@@ -461,7 +464,10 @@
 
       display:grid;
       gap:24px;
-      grid-template-areas:"gal" "info";
+      grid-template-areas:
+        "gal"
+        "info"
+        "acc";
 
       /* klucz do centrowania całej zawartości na mobile */
       justify-items:center;
@@ -478,10 +484,24 @@
       box-sizing:border-box;
     }
 
+    /* nowy pełnoszeroki rząd na kafelki */
+    #{{ ROOT }} .anaj-accWrap{
+      width:100%;
+      max-width:620px;
+      box-sizing:border-box;
+      margin:0 auto;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+
     @media (min-width:1024px){
       #{{ ROOT }}{
-        grid-template-columns:minmax(0, 1.15fr) minmax(0, 0.95fr);
-        grid-template-areas:"gal info";
+        /* mniejsza kolumna ze zdjęciem, większa z treścią */
+        grid-template-columns:minmax(0, 0.9fr) minmax(0, 1.1fr);
+        grid-template-areas:
+          "gal info"
+          "acc acc";
         align-items:start;
         min-height:100vh;
         justify-items:stretch;
@@ -491,9 +511,13 @@
       #{{ ROOT }} .anaj-right{
         max-width:none;
       }
+
+      #{{ ROOT }} .anaj-accWrap{
+        max-width:880px;
+      }
     }
 
-    /* === 2. GALERIA – slider 4:3 === */
+    /* === 2. GALERIA – slider 4:3 (na desktopie zajmuje mniej bo kolumna węższa) === */
     #{{ GID }} .anaj-gal__stage{
       position:relative;
       border-radius:18px;
@@ -651,7 +675,7 @@
       box-shadow:0 6px 14px rgba(0,0,0,.12);
     }
 
-    /* === CTA === */
+    /* === CTA – większe przyciski, na desktopie obok siebie === */
     #{{ ROOT }} .anaj-ctaBar{
       display:flex;
       flex-wrap:wrap;
@@ -685,11 +709,17 @@
 
     @media (min-width:1024px){
       #{{ ROOT }} .anaj-ctaBar{
-        justify-content:center;
+        justify-content:flex-start;
+      }
+      #{{ ROOT }} .anaj-ctaBar .anaj-form{
+        flex:1 1 0;
+        max-width:none;
       }
       #{{ ROOT }} .anaj-ctaBar .anaj-btn{
-        width:auto;
-        min-width:220px;
+        width:100%;
+        min-width:0;
+        min-height:64px;
+        font-size:16px;
       }
     }
 
@@ -827,7 +857,7 @@
       #{{ ROOT }} .anaj-tl__label{font-size:12px}
     }
 
-    /* Baner płatności – mniejszy na desktopie */
+    /* Baner płatności – mniejszy na desktopie (teraz w accWrap) */
     #{{ ROOT }} .anaj-banner{
       padding:0;
       overflow:hidden;
@@ -851,7 +881,7 @@
     }
 
     /* Font + globalny reset w sekcji */
-    #{{ ROOT }},
+    #{{ ROOT }} ,
     #{{ ROOT }} * {
       font-family: var(--font-body-family), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Helvetica Neue", Arial, sans-serif !important;
       font-feature-settings: "kern" 1, "liga" 1;
@@ -894,7 +924,7 @@
       list-style:none;
     }
 
-    /* [PDP-TITLE] – główny tytuł produktu, ładne łamanie (desktop) */
+    /* [PDP-TITLE] – główny tytuł produktu */
     #{{ ROOT }} .anaj-title{
       margin:6px 0 0 0;
       text-align:center;
@@ -910,7 +940,6 @@
       -webkit-text-fill-color: currentColor;
       text-shadow:0 1px 3px rgba(0,0,0,.22);
 
-      /* klucz: dobre łamanie tekstu na desktopie */
       max-width:22ch;
       margin-inline:auto;
       word-break:normal;
@@ -1113,7 +1142,7 @@
 
         const priceBox = document.getElementById('{{ ROOT }}-price');
         const elCurr  = priceBox ? priceBox.querySelector('.anaj-price__current') : null;
-               const elComp  = priceBox ? priceBox.querySelector('.anaj-price__compare') : null;
+        const elComp  = priceBox ? priceBox.querySelector('.anaj-price__compare') : null;
         const elBadge = priceBox ? priceBox.querySelector('.anaj-price__badge') : null;
         const elStock = priceBox ? priceBox.querySelector('.anaj-price__stock') : null;
 
