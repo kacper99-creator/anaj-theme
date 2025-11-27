@@ -6,78 +6,57 @@
   {%- assign variants = product.variants -%}
   {%- assign vSel = product.selected_or_first_available_variant -%}
 
+  <!-- TŁO Z PASKAMI W ŚRODKU (DESKTOP) -->
+  <div class="anaj-pdp-bg"></div>
+
   <div id="{{ ROOT }}" class="anaj-pdp" data-vid="{{ vSel.id }}">
     <div class="anaj-pdp__inner">
-      {% if gallery and gallery.size > 0 %}
-        <div id="{{ GID }}" class="anaj-gal" style="grid-area: gal;">
-          {% assign first = gallery.first %}
+      <!-- LEWA KOLUMNA: GALERIA + BADGE/TYTUŁ (MOBILE) + 4 AKORDEONY POD NIĄ (DESKTOP) -->
+      <div class="anaj-left">
 
-          <div class="anaj-gal__stage">
-            <div class="anaj-gal__track">
-              {% for img in gallery %}
-                <div class="anaj-gal__slide">
-                  <img
-                    src="{{ img | image_url: width: 1600 }}"
-                    alt="{{ img.alt | escape | default: product.title }}"
-                    loading="{% if forloop.first %}eager{% else %}lazy{% endif %}"
-                    {% if forloop.first %}fetchpriority="high"{% endif %}
-                  >
-                </div>
-              {% endfor %}
+        {% if gallery and gallery.size > 0 %}
+          <div id="{{ GID }}" class="anaj-gal">
+            {% assign first = gallery.first %}
+
+            <div class="anaj-gal__stage">
+              <div class="anaj-gal__track">
+                {% for img in gallery %}
+                  <div class="anaj-gal__slide">
+                    <img
+                      src="{{ img | image_url: width: 1600 }}"
+                      alt="{{ img.alt | escape | default: product.title }}"
+                      loading="{% if forloop.first %}eager{% else %}lazy{% endif %}"
+                      {% if forloop.first %}fetchpriority="high"{% endif %}
+                    >
+                  </div>
+                {% endfor %}
+              </div>
+
+              <button class="anaj-gal__nav is-prev" type="button" aria-label="Poprzednie zdjęcie">‹</button>
+              <button class="anaj-gal__nav is-next" type="button" aria-label="Następne zdjęcie">›</button>
             </div>
-
-            <button class="anaj-gal__nav is-prev" aria-label="Poprzednie zdjęcie">‹</button>
-            <button class="anaj-gal__nav is-next" aria-label="Następne zdjęcie">›</button>
           </div>
+        {% endif %}
+
+        <script type="application/json" id="{{ GID }}-images">
+          [
+            {% for img in gallery %}
+              "{{ img | image_url: width: 1600 }}"{% unless forloop.last %},{% endunless %}
+            {% endfor %}
+          ]
+        </script>
+
+        <!-- BADGE + TYTUŁ TYLKO NA MOBILE – POD ZDJĘCIAMI (kolejność: badge → tytuł) -->
+        <div class="anaj-pill-mobile">
+          <span class="anaj-pill anaj-pill--mobile">
+            {{ section.settings.pill_label | default: 'Rzemieślniczy wypiek' }}
+          </span>
         </div>
-      {% endif %}
-
-      <script type="application/json" id="{{ GID }}-images">
-        [
-          {% for img in gallery %}
-            "{{ img | image_url: width: 1600 }}"{% unless forloop.last %},{% endunless %}
-          {% endfor %}
-        ]
-      </script>
-
-      <div class="anaj-right" style="grid-area: info;">
-        {%- comment -%} HERO {%- endcomment -%}
-        <header class="anaj-head">
-          <div class="anaj-head__top">
-            <span class="anaj-pill">
-              {{ section.settings.pill_label | default: 'Rzemieślniczy wypiek' }}
-            </span>
-          </div>
-          <div class="anaj-title-wrapper">
-            <h1 class="anaj-title">{{ product.title }}</h1>
-          </div>
-        </header>
-
-        {%- comment -%} CENA + STAN {%- endcomment -%}
-        <div class="anaj-card anaj-price" id="{{ ROOT }}-price">
-          <div class="anaj-price__left">
-            <span class="anaj-price__current">{{ vSel.price | money }}</span>
-            {% if vSel.compare_at_price > vSel.price %}
-              <span class="anaj-price__compare">{{ vSel.compare_at_price | money }}</span>
-              <span class="anaj-price__badge">
-                -{{ vSel.compare_at_price | minus: vSel.price | times: 100 | divided_by: vSel.compare_at_price }}%
-              </span>
-            {% endif %}
-          </div>
-          <div class="anaj-price__right">
-            <span class="anaj-price__stock">
-              {% if vSel.available %}Wypiek na bieżąco{% else %}Wyprzedane{% endif %}
-            </span>
-          </div>
+        <div class="anaj-title-wrapper anaj-title-wrapper--mobile">
+          <h1 class="anaj-title anaj-title--mobile">{{ product.title }}</h1>
         </div>
 
         {%- assign mf = product.metafields -%}
-        {%- assign cutoff = mf.anaj.cutoff_hour | default: 20 -%}
-        {%- assign free = mf.anaj.free_ship_threshold | default: 199 -%}
-
-        {%- comment -%}
-          Teksty akordeonów z ustawień sekcji z fallbackiem do metafieldów i domyślnych treści
-        {%- endcomment -%}
         {%- assign ingredients = section.settings.acc_ingredients
           | default: mf.anaj.ingredients
           | default: "zgodny z recepturą Cechu Cukierników i Piekarzy w Poznaniu. Mąka pszenna, cukier, tłuszcz roślinny w zmiennych proporcjach palmowy, rzepakowy i kokosowy, jajka świeże, mak biały, drożdże, mleko w proszku pełne, orzechy arachidowe 3%, rodzynki 3%, skórka pomarańczowa, aromat migdałowy."
@@ -100,41 +79,173 @@
 
         {%- assign nutrition = section.settings.acc_nutrition | default: mf.anaj.nutrition -%}
 
-        {%- comment -%} WARIANTY / ILOŚĆ SZTUK {%- endcomment -%}
-        {% unless product.has_only_default_variant %}
-          <form class="anaj-variants anaj-card" onsubmit="return false;">
-            {% for option in product.options_with_values %}
-              <label class="anaj-variants__label" for="{{ ROOT }}-opt-{{ forloop.index0 }}">{{ option.name }}</label>
+        <div class="anaj-extra anaj-extra--left">
+          <details class="anaj-acc__item anaj-card anaj-acc--about">
+            <summary>O produkcie</summary>
+            <div class="anaj-acc__content">
+              {{ product.description | default: 'Brak dodatkowego opisu produktu.' }}
+            </div>
+          </details>
+
+          {% if ingredients or allergens %}
+            <details class="anaj-acc__item anaj-card anaj-acc--ingredients">
+              <summary>Skład i alergeny</summary>
+              <div class="anaj-acc__content">
+                {% if ingredients %}
+                  <p>
+                    <strong>Skład</strong> — {{ ingredients | escape | newline_to_br }}
+                  </p>
+                {% endif %}
+
+                {% if allergens %}
+                  <p>
+                    <strong>Alergeny:</strong>
+                    {% if allergens.value %}
+                      {{ allergens.value | join: ', ' }}
+                    {% else %}
+                      {{ allergens }}
+                    {% endif %}
+                  </p>
+                {% endif %}
+              </div>
+            </details>
+          {% endif %}
+
+          <details class="anaj-acc__item anaj-card anaj-acc--nutrition">
+            <summary>Wartości odżywcze (na 100 g)</summary>
+            <div class="anaj-acc__content">
+              {% if nutrition %}
+                {{ nutrition }}
+              {% else %}
+                <div class="anaj-nutri">
+                  <div class="anaj-nutri__row">
+                    <span>Wartość energetyczna</span><strong>411,31 kcal • 1719,88 kJ</strong>
+                  </div>
+                  <div class="anaj-nutri__row">
+                    <span>Tłuszcz</span><strong>22,5 g</strong>
+                  </div>
+                  <div class="anaj-nutri__sub">
+                    <span>— kwasy tłuszczowe nasycone</span><strong>6,1 g</strong>
+                  </div>
+                  <div class="anaj-nutri__sub">
+                    <span>— kwasy tłuszczowe nienasycone</span><strong>14,22 g</strong>
+                  </div>
+                  <div class="anaj-nutri__row">
+                    <span>Białko</span><strong>7,78 g</strong>
+                  </div>
+                  <div class="anaj-nutri__row">
+                    <span>Woda</span><strong>24,24 g</strong>
+                  </div>
+                  <div class="anaj-nutri__row">
+                    <span>Węglowodany ogółem</span><strong>44,31 g</strong>
+                  </div>
+                  <div class="anaj-nutri__sub">
+                    <span>— w tym cukry</span><strong>21,13 g</strong>
+                  </div>
+                  <div class="anaj-nutri__row">
+                    <span>Chlorek sodu</span><strong>0,16 g</strong>
+                  </div>
+                  <p class="anaj-nutri__foot">
+                    Wartości wg badań laboratorium Nuscana (na 100 g produktu gotowego).
+                  </p>
+                </div>
+              {% endif %}
+            </div>
+          </details>
+
+          <details class="anaj-acc__item anaj-card anaj-acc--storage">
+            <summary>Przechowywanie i świeżość</summary>
+            <div class="anaj-acc__content">
+              <p>{{ storage }}</p>
+              <p><strong>Termin przydatności:</strong> {{ shelf }}</p>
+            </div>
+          </details>
+        </div> <!-- /.anaj-extra--left (DESKTOP) -->
+      </div> <!-- /.anaj-left -->
+
+      {%- comment -%} PRAWY BOK – BADGE + TYTUŁ (DESKTOP), CENA+WARIANTY, CTA, USP, TIMELINE + SZCZEGÓŁY DOSTAWY + BANER {%- endcomment -%}
+      <div class="anaj-right">
+        <!-- NAGŁÓWEK TYLKO NA DESKTOP (kolejność: badge → tytuł) -->
+        <header class="anaj-head anaj-head--desktop">
+          <div class="anaj-head__top">
+            <span class="anaj-pill anaj-pill--desktop">
+              {{ section.settings.pill_label | default: 'Rzemieślniczy wypiek' }}
+            </span>
+          </div>
+          <div class="anaj-title-wrapper anaj-title-wrapper--desktop">
+            <h1 class="anaj-title anaj-title--desktop">{{ product.title }}</h1>
+          </div>
+        </header>
+
+        {%- comment -%} CENA + ILOŚĆ SZTUK + WARIANTY + STAN {%- endcomment -%}
+        <div class="anaj-card anaj-price" id="{{ ROOT }}-price">
+          <div class="anaj-price__top">
+            <div class="anaj-price__left">
+              <span class="anaj-price__current">{{ vSel.price | money }}</span>
+              {% if vSel.compare_at_price > vSel.price %}
+                <span class="anaj-price__compare">{{ vSel.compare_at_price | money }}</span>
+                <span class="anaj-price__badge">
+                  -{{ vSel.compare_at_price | minus: vSel.price | times: 100 | divided_by: vSel.compare_at_price }}%
+                </span>
+              {% endif %}
+            </div>
+
+            <!-- ILOŚĆ SZTUK – PO PRAWEJ OD CENY -->
+            <div class="anaj-price__qty">
+              <label class="anaj-qty__label" for="{{ ROOT }}-qty">Ilość</label>
               <select
-                id="{{ ROOT }}-opt-{{ forloop.index0 }}"
-                class="anaj-variants__select"
-                data-opt="{{ forloop.index0 }}"
+                id="{{ ROOT }}-qty"
+                class="anaj-qty__select"
+                data-anaj-qty-select
               >
-                {% for value in option.values %}
-                  <option
-                    value="{{ value | escape }}"
-                    {% if option.selected_value == value %}selected{% endif %}
-                  >
-                    {{ value }}
-                  </option>
+                {% for i in (1..12) %}
+                  <option value="{{ i }}">{{ i }} szt.</option>
                 {% endfor %}
               </select>
-            {% endfor %}
-          </form>
-        {% endunless %}
+            </div>
+          </div>
 
-        {%- comment -%} USP POD ILOŚCIĄ SZTUK {%- endcomment -%}
-        <ul class="anaj-usp">
-          <li>{{ section.settings.usp_1 | default: 'Świeżo wypiekane na zamówienie' }}</li>
-          <li>{{ section.settings.usp_2 | default: 'Dostawa dzień roboczy po wypieku' }}</li>
-        </ul>
+          {% unless product.has_only_default_variant %}
+            <div class="anaj-price__variants">
+              <form class="anaj-variants anaj-variants--inline" onsubmit="return false;">
+                {% for option in product.options_with_values %}
+                  <div class="anaj-variants__item">
+                    <label class="anaj-variants__label" for="{{ ROOT }}-opt-{{ forloop.index0 }}">{{ option.name }}</label>
+                    <select
+                      id="{{ ROOT }}-opt-{{ forloop.index0 }}"
+                      class="anaj-variants__select"
+                      data-opt="{{ forloop.index0 }}"
+                    >
+                      {% for value in option.values %}
+                        <option
+                          value="{{ value | escape }}"
+                          {% if option.selected_value == value %}selected{% endif %}
+                        >
+                          {{ value }}
+                        </option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                {% endfor %}
+              </form>
+            </div>
+          {% endunless %}
 
-        {%- comment -%} CTA {%- endcomment -%}
+          <div class="anaj-price__meta">
+            <span class="anaj-price__stock">
+              {% if vSel.available %}Wypiek na bieżąco{% else %}Wyprzedane{% endif %}
+            </span>
+          </div>
+        </div>
+
+        {%- assign cutoff = mf.anaj.cutoff_hour | default: 20 -%}
+        {%- assign free = mf.anaj.free_ship_threshold | default: 199 -%}
+
+        <!-- CTA BAR -->
         <div class="anaj-ctaBar">
-          <!-- Dodaj do koszyka -->
           <form class="anaj-form anaj-card--ghost" method="post" action="/cart/add">
             <input type="hidden" name="id" value="{{ vSel.id }}">
-            <input type="hidden" name="quantity" value="1">
+            <input type="hidden" name="quantity" value="1" class="anaj-qty-input">
             <button
               class="anaj-btn anaj-btn--add"
               type="submit"
@@ -152,10 +263,9 @@
             </button>
           </form>
 
-          <!-- Kup teraz -->
           <form class="anaj-form anaj-card--ghost" method="post" action="/cart/add">
             <input type="hidden" name="id" value="{{ vSel.id }}">
-            <input type="hidden" name="quantity" value="1">
+            <input type="hidden" name="quantity" value="1" class="anaj-qty-input">
             <input type="hidden" name="return_to" value="/checkout">
             <button
               class="anaj-btn anaj-btn--buy"
@@ -174,7 +284,12 @@
           </form>
         </div>
 
-        {%- comment -%} OŚ ZAMÓWIENIA – standardowo do 3 dni roboczych {%- endcomment -%}
+        <!-- USP POD PRZYCISKAMI (DESKTOP + MOBILE) -->
+        <ul class="anaj-usp">
+          <li>{{ section.settings.usp_1 | default: 'Świeżo wypiekane na zamówienie' }}</li>
+          <li>{{ section.settings.usp_2 | default: 'Dostawa dzień po wypieku' }}</li>
+        </ul>
+
         {%- assign now_s = 'now' | date: '%s' | plus: 0 -%}
         {%- assign day = 86400 -%}
         {%- assign dow = 'now' | date: '%w' | plus: 0 -%}
@@ -182,27 +297,13 @@
         {%- assign deliv_offset = 3 -%}
 
         {%- case dow -%}
-          {%- when 1 -%}
-            {%- assign ship_offset = 2 -%}
-            {%- assign deliv_offset = 3 -%}
-          {%- when 2 -%}
-            {%- assign ship_offset = 2 -%}
-            {%- assign deliv_offset = 3 -%}
-          {%- when 3 -%}
-            {%- assign ship_offset = 2 -%}
-            {%- assign deliv_offset = 5 -%}
-          {%- when 4 -%}
-            {%- assign ship_offset = 4 -%}
-            {%- assign deliv_offset = 5 -%}
-          {%- when 5 -%}
-            {%- assign ship_offset = 4 -%}
-            {%- assign deliv_offset = 5 -%}
-          {%- when 6 -%}
-            {%- assign ship_offset = 3 -%}
-            {%- assign deliv_offset = 4 -%}
-          {%- when 0 -%}
-            {%- assign ship_offset = 2 -%}
-            {%- assign deliv_offset = 3 -%}
+          {%- when 1 -%}{%- assign ship_offset = 2 -%}{%- assign deliv_offset = 3 -%}
+          {%- when 2 -%}{%- assign ship_offset = 2 -%}{%- assign deliv_offset = 3 -%}
+          {%- when 3 -%}{%- assign ship_offset = 2 -%}{%- assign deliv_offset = 5 -%}
+          {%- when 4 -%}{%- assign ship_offset = 4 -%}{%- assign deliv_offset = 5 -%}
+          {%- when 5 -%}{%- assign ship_offset = 4 -%}{%- assign deliv_offset = 5 -%}
+          {%- when 6 -%}{%- assign ship_offset = 3 -%}{%- assign deliv_offset = 4 -%}
+          {%- when 0 -%}{%- assign ship_offset = 2 -%}{%- assign deliv_offset = 3 -%}
         {%- endcase -%}
 
         {%- assign ship_s = ship_offset | times: day | plus: now_s -%}
@@ -256,7 +357,7 @@
                   stroke-linejoin="round"
                 >
                   <rect x="3" y="6" width="11" height="8" rx="1.5"></rect>
-                  <path d="M14 9h4l3 4v1h-2.5"></path>
+                  <path d="M14 9h4l3 4v1h-1.5"></path>
                   <circle cx="7" cy="18" r="1.6"></circle>
                   <circle cx="17" cy="18" r="1.6"></circle>
                 </svg>
@@ -292,155 +393,201 @@
           </div>
         </div>
 
-        {%- comment -%} AKORDEONY – domyślnie zamknięte {%- endcomment -%}
-        <details class="anaj-acc__item anaj-card">
-          <summary>O produkcie</summary>
-          <div class="anaj-acc__content">
-            {{ product.description | default: 'Brak dodatkowego opisu produktu.' }}
-          </div>
-        </details>
-
-        {% if ingredients or allergens %}
-          <details class="anaj-acc__item anaj-card">
-            <summary>Skład i alergeny</summary>
+        <!-- SZCZEGÓŁY DOSTAWY + BANER -->
+        <div class="anaj-extra anaj-extra--right">
+          <details class="anaj-acc__item anaj-card anaj-acc--shipping">
+            <summary>Szczegóły dostawy</summary>
             <div class="anaj-acc__content">
-              {% if ingredients %}
-                <p>
-                  <strong>Skład</strong> — {{ ingredients | escape | newline_to_br }}
-                </p>
-              {% endif %}
-
-              {% if allergens %}
-                <p>
-                  <strong>Alergeny:</strong>
-                  {% if allergens.value %}
-                    {{ allergens.value | join: ', ' }}
-                  {% else %}
-                    {{ allergens }}
-                  {% endif %}
-                </p>
-              {% endif %}
+              <p>
+                🕒 <strong>Zamówienia złożone do godziny {{ cutoff }}:00</strong><br>
+                są przygotowywane <strong>następnego dnia roboczego</strong>
+                (od poniedziałku do czwartku) i <strong>wysyłane po wypieku oraz schłodzeniu</strong>.<br>
+                <em>Dostawa następuje dzień roboczy po wypieku</em>.
+              </p>
+              <p>
+                📦 <strong>Zamówienia złożone po {{ cutoff }}:00</strong>
+                przechodzą do realizacji w kolejnej turze.
+              </p>
+              <p>🚫 W piątki, weekendy i święta nie wysyłamy paczek.</p>
             </div>
           </details>
-        {% endif %}
 
-        <details class="anaj-acc__item anaj-card">
-          <summary>Wartości odżywcze (na 100 g)</summary>
-          <div class="anaj-acc__content">
-            {% if nutrition %}
-              {{ nutrition }}
+          <div class="anaj-card anaj-banner">
+            {% if section.settings.banner_image != blank %}
+              <img
+                src="{{ section.settings.banner_image | image_url: width: 1200 }}"
+                alt="{{ section.settings.banner_alt | default: 'Płatności i dostawa' }}"
+                loading="lazy"
+              >
             {% else %}
-              <div class="anaj-nutri">
-                <!-- fallback -->
-                <div class="anaj-nutri__row">
-                  <span>Wartość energetyczna</span><strong>411,31 kcal • 1719,88 kJ</strong>
-                </div>
-                <div class="anaj-nutri__row">
-                  <span>Tłuszcz</span><strong>22,5 g</strong>
-                </div>
-                <div class="anaj-nutri__sub">
-                  <span>— kwasy tłuszczowe nasycone</span><strong>6,1 g</strong>
-                </div>
-                <div class="anaj-nutri__sub">
-                  <span>— kwasy tłuszczowe nienasycone</span><strong>14,22 g</strong>
-                </div>
-                <div class="anaj-nutri__row">
-                  <span>Białko</span><strong>7,78 g</strong>
-                </div>
-                <div class="anaj-nutri__row">
-                  <span>Woda</span><strong>24,24 g</strong>
-                </div>
-                <div class="anaj-nutri__row">
-                  <span>Węglowodany ogółem</span><strong>44,31 g</strong>
-                </div>
-                <div class="anaj-nutri__sub">
-                  <span>— w tym cukry</span><strong>21,13 g</strong>
-                </div>
-                <div class="anaj-nutri__row">
-                  <span>Chlorek sodu</span><strong>0,16 g</strong>
-                </div>
-                <p class="anaj-nutri__foot">
-                  Wartości wg badań laboratorium Nuscana (na 100 g produktu gotowego).
-                </p>
+              <div class="anaj-banner__placeholder">
+                Dodaj grafikę płatności (Blik / InPost / Visa / Mastercard) w ustawieniach sekcji.
               </div>
             {% endif %}
           </div>
-        </details>
-
-        <details class="anaj-acc__item anaj-card">
-          <summary>Przechowywanie i świeżość</summary>
-          <div class="anaj-acc__content">
-            <p>{{ storage }}</p>
-            <p><strong>Termin przydatności:</strong> {{ shelf }}</p>
-          </div>
-        </details>
-
-        <details class="anaj-acc__item anaj-card">
-          <summary>Szczegóły dostawy</summary>
-          <div class="anaj-acc__content">
-            <p>
-              🕒 <strong>Zamówienia złożone do godziny {{ cutoff }}:00</strong><br>
-              są przygotowywane <strong>następnego dnia roboczego</strong>
-              (od poniedziałku do czwartku) i <strong>wysyłane po wypieku oraz schłodzeniu</strong>.<br>
-              <em>Dostawa następuje dzień roboczy po wypieku</em>.
-            </p>
-            <p>
-              📦 <strong>Zamówienia złożone po {{ cutoff }}:00</strong>
-              przechodzą do realizacji w kolejnej turze.
-            </p>
-            <p>🚫 W piątki, weekendy i święta nie wysyłamy paczek.</p>
-          </div>
-        </details>
-
-        <div class="anaj-card anaj-banner">
-          {% if section.settings.banner_image != blank %}
-            <img
-              src="{{ section.settings.banner_image | image_url: width: 800 }}"
-              alt="{{ section.settings.banner_alt | default: 'Płatności i dostawa' }}"
-              loading="lazy"
-              width="1600"
-              height="640"
-            >
-          {% else %}
-            <img
-              src="https://cdn.shopify.com/s/files/1/0994/5196/1676/files/xx.webp?v=1762705077"
-              alt="Płatności i dostawa"
-              loading="lazy"
-              width="1600"
-              height="640"
-            >
-          {% endif %}
         </div>
-      </div>
+
+        <!-- KOPIA 4 AKORDEONÓW DLA MOBILE (POD CAŁĄ PRAWĄ KOLUMNĄ) -->
+        <div class="anaj-extra anaj-extra--mobile">
+          <details class="anaj-acc__item anaj-card">
+            <summary>O produkcie</summary>
+            <div class="anaj-acc__content">
+              {{ product.description | default: 'Brak dodatkowego opisu produktu.' }}
+            </div>
+          </details>
+
+          {% if ingredients or allergens %}
+            <details class="anaj-acc__item anaj-card">
+              <summary>Skład i alergeny</summary>
+              <div class="anaj-acc__content">
+                {% if ingredients %}
+                  <p>
+                    <strong>Skład</strong> — {{ ingredients | escape | newline_to_br }}
+                  </p>
+                {% endif %}
+
+                {% if allergens %}
+                  <p>
+                    <strong>Alergeny:</strong>
+                    {% if allergens.value %}
+                      {{ allergens.value | join: ', ' }}
+                    {% else %}
+                      {{ allergens }}
+                    {% endif %}
+                  </p>
+                {% endif %}
+              </div>
+            </details>
+          {% endif %}
+
+          <details class="anaj-acc__item anaj-card">
+            <summary>Wartości odżywcze (na 100 g)</summary>
+            <div class="anaj-acc__content">
+              {% if nutrition %}
+                {{ nutrition }}
+              {% else %}
+                <div class="anaj-nutri">
+                  <div class="anaj-nutri__row">
+                    <span>Wartość energetyczna</span><strong>411,31 kcal • 1719,88 kJ</strong>
+                  </div>
+                  <div class="anaj-nutri__row">
+                    <span>Tłuszcz</span><strong>22,5 g</strong>
+                  </div>
+                  <div class="anaj-nutri__sub">
+                    <span>— kwasy tłuszczowe nasycone</span><strong>6,1 g</strong>
+                  </div>
+                  <div class="anaj-nutri__sub">
+                    <span>— kwasy tłuszczowe nienasycone</span><strong>14,22 g</strong>
+                  </div>
+                  <div class="anaj-nutri__row">
+                    <span>Białko</span><strong>7,78 g</strong>
+                  </div>
+                  <div class="anaj-nutri__row">
+                    <span>Woda</span><strong>24,24 g</strong>
+                  </div>
+                  <div class="anaj-nutri__row">
+                    <span>Węglowodany ogółem</span><strong>44,31 g</strong>
+                  </div>
+                  <div class="anaj-nutri__sub">
+                    <span>— w tym cukry</span><strong>21,13 g</strong>
+                  </div>
+                  <div class="anaj-nutri__row">
+                    <span>Chlorek sodu</span><strong>0,16 g</strong>
+                  </div>
+                  <p class="anaj-nutri__foot">
+                    Wartości wg badań laboratorium Nuscana (na 100 g produktu gotowego).
+                  </p>
+                </div>
+              {% endif %}
+            </div>
+          </details>
+
+          <details class="anaj-acc__item anaj-card">
+            <summary>Przechowywanie i świeżość</summary>
+            <div class="anaj-acc__content">
+              <p>{{ storage }}</p>
+              <p><strong>Termin przydatności:</strong> {{ shelf }}</p>
+            </div>
+          </details>
+        </div> <!-- /.anaj-extra--mobile (MOBILE ONLY) -->
+
+      </div> <!-- /.anaj-right -->
     </div>
   </div>
 
   <script type="application/json" id="{{ ROOT }}-vmap">
-    [
-      {% for v in variants %}
-        {
-          "id": {{ v.id }},
-          "available": {{ v.available | json }},
-          "price_cents": {{ v.price | json }},
-          "compare_cents": {{ v.compare_at_price | default: 0 | json }},
-          "opt1": {{ v.option1 | json }},
-          "opt2": {{ v.option2 | json }},
-          "opt3": {{ v.option3 | json }}
-        }{% unless forloop.last %},{% endunless %}
-      {% endfor %}
-    ]
-  </script>
+  [
+    {% for v in variants %}
+      {
+        "id": {{ v.id }},
+        "available": {{ v.available | json }},
+        "price_cents": {{ v.price | json }},
+        "compare_cents": {{ v.compare_at_price | default: 0 | json }},
+        "opt1": {{ v.option1 | json }},
+        "opt2": {{ v.option2 | json }},
+        "opt3": {{ v.option3 | json }}
+      }{% unless forloop.last %},{% endunless %}
+    {% endfor %}
+  ]
+</script>
 
   <style>
-    /* === 1. GŁÓWNY KONTENER PDP === */
-    #{{ ROOT }}{
-      --ink:#2b2219;
-      --ring:rgba(185,142,85,.45);
-      --border:#B98E55;
-      --surface-top:#F3E1C6;
-      --surface-bot:#E2BE8F;
-      --chip:#EDE0CC;
-      --chip-border:#D9C2A4;
+   .anaj-pdp-section{
+      position: relative;
+      overflow: hidden;
+
+      /* MOBILE: paski na całą szerokość (tak jak było) */
+      background-image: url("https://cdn.shopify.com/s/files/1/0994/5196/1676/files/ChatGPT_Image_25_lis_2025_16_39_08.png?v=1764085161");
+      background-repeat: repeat;
+      background-size: auto;
+      background-position: top center;
+    }
+
+    /* Tło z paskami w środkowym pasie (tylko desktop – domyślnie ukryte) */
+    .anaj-pdp-bg{
+      position:absolute;
+      inset:0;
+      margin-inline:auto;
+      max-width:1440px; /* szerokość pasa z paskami – możesz zmniejszyć/zwiększyć */
+      background-image: url("https://cdn.shopify.com/s/files/1/0994/5196/1676/files/ChatGPT_Image_25_lis_2025_16_39_08.png?v=1764085161");
+      background-repeat: repeat;
+      background-size:auto;
+      background-position: top center;
+      z-index:0;
+      display:none;
+    }
+
+    /* DESKTOP: papier na całej szerokości, paski tylko w środku */
+    @media (min-width:1024px){
+      .anaj-pdp-section{
+        background-image: url("https://cdn.shopify.com/s/files/1/0994/5196/1676/files/Zrzut_ekranu_2025-11-26_024751.png?v=1764121681");
+        background-repeat: repeat;
+        background-size:auto;
+        background-position: top center;
+      }
+
+      .anaj-pdp-bg{
+        display:block;
+      }
+    }
+
+
+    #{{ ROOT }} {
+      /* tekst lekko przyciemniony, pasujący do ciemniejszego karmelu */
+      --ink:#20140c;
+      --ring:rgba(165,118,60,.55);
+
+      /* obramowanie kart */
+      --border:#A87943;
+
+      /* WARIANT B – kafelki: mocniejszy karmel kajmak */
+      --surface-top:#E8C59D;  /* góra gradientu */
+      --surface-bot:#CFA370;  /* dół gradientu */
+
+      /* chipy / „pastylki” (USP) – ciut jaśniejsze od kafelków */
+      --chip:#EED5B5;
+      --chip-border:#C39159;
+
       --padx: clamp(16px,4vw,40px);
       --pady: clamp(14px,3vw,28px);
 
@@ -450,33 +597,26 @@
       box-sizing:border-box;
       width:100%;
       margin:0 auto;
-
-      background:
-        linear-gradient(180deg, rgba(0,0,0,.03), rgba(0,0,0,0)),
-        repeating-linear-gradient(90deg, #f4e6d1 0 24px, #ead6b6 24px 48px);
+      max-width: 1240px;
 
       padding-inline:var(--padx);
       padding-block:var(--pady);
 
-      overflow-x:hidden;
+      position: relative;
+      z-index: 1;
     }
 
     #{{ ROOT }} .anaj-pdp__inner{
       box-sizing:border-box;
-      max-width:1240px;
-      margin:0 auto;
-
-      display:grid;
-      gap:24px;
-      grid-template-areas:"gal" "info";
-
-      justify-items:center;
-      align-items:start;
+      display:flex;
+      flex-direction:column;
+      gap:20px;
+      justify-content:flex-start;
+      align-items:center;
     }
 
-    /* [PDP-FIX-MOBILE-LAYOUT] – centrowanie galerii i prawej kolumny */
-    #{{ ROOT }} .anaj-gal,
-    #{{ ROOT }} .anaj-right {
+    #{{ ROOT }} .anaj-left,
+    #{{ ROOT }} .anaj-right{
       width:100%;
       max-width:480px;
       box-sizing:border-box;
@@ -484,18 +624,23 @@
 
     @media (min-width:1024px){
       #{{ ROOT }} .anaj-pdp__inner{
-        grid-template-columns:minmax(0, 1.15fr) minmax(0, 0.95fr);
-        grid-template-areas:"gal info";
-        justify-items:stretch;
+        flex-direction:row;
+        align-items:flex-start;
+        justify-content:center;
+        gap:32px;
       }
 
-      #{{ ROOT }} .anaj-gal,
+      #{{ ROOT }} .anaj-left{
+        max-width:none;
+        flex:1.15;
+      }
+
       #{{ ROOT }} .anaj-right{
         max-width:none;
+        flex:0.95;
       }
     }
 
-    /* === 2. GALERIA – slider 4:3 === */
     #{{ GID }} .anaj-gal__stage{
       position:relative;
       border-radius:18px;
@@ -503,6 +648,7 @@
       background:transparent;
       box-shadow:0 14px 30px rgba(0,0,0,.12);
       touch-action:pan-y;
+      width:100%;
       aspect-ratio:4 / 3;
     }
 
@@ -515,7 +661,7 @@
 
     #{{ GID }} .anaj-gal__slide{
       min-width:100%;
-      aspect-ratio:4 / 3;
+      height:100%;
     }
 
     #{{ GID }} .anaj-gal__slide img{
@@ -535,42 +681,45 @@
       width:46px;
       height:46px;
       border-radius:999px;
-      background:#fff !important;
+      background:#fff;
       border:1px solid rgba(0,0,0,.10);
       box-shadow:0 14px 28px rgba(0,0,0,.18);
       cursor:pointer;
-      pointer-events:auto;
     }
 
-    #{{ GID }} .anaj-gal__nav.is-prev{
-      left:12px;
-    }
+    #{{ GID }} .anaj-gal__nav.is-prev{ left:12px; }
+    #{{ GID }} .anaj-gal__nav.is-next{ right:12px; }
 
-    #{{ GID }} .anaj-gal__nav.is-next{
-      right:12px;
-    }
-
-    /* === 3. CARD + CENA === */
     #{{ ROOT }} .anaj-card{
-      background:linear-gradient(180deg,var(--surface-top),var(--surface-bot)) !important;
-      border:1px solid var(--border) !important;
+      background:linear-gradient(180deg,var(--surface-top),var(--surface-bot));
+      border:1px solid var(--border);
       border-radius:18px;
       padding:14px;
-      box-shadow:0 18px 34px rgba(93,62,28,.16) !important;
+      box-shadow:0 18px 34px rgba(93,62,28,.16);
     }
 
+    /* Kafelek z ceną – bardziej kompaktowy + kolor jak tło tytułu */
     #{{ ROOT }} .anaj-price{
       display:flex;
-      align-items:center;
+      flex-direction:column;
+      gap:8px;
+      padding:10px 12px;
+      background:rgba(244,229,206,0.9); /* jak tło pod tytułem */
+    }
+
+    #{{ ROOT }} .anaj-price__top{
+      display:flex;
+      align-items:flex-end;
       justify-content:space-between;
-      gap:10px;
-      flex-wrap:wrap;
+      gap:16px;
+      flex-wrap:nowrap;
     }
 
     #{{ ROOT }} .anaj-price__left{
       display:flex;
-      align-items:baseline;
+      align-items:flex-end;
       gap:8px;
+      min-width:0;
     }
 
     #{{ ROOT }} .anaj-price__current{
@@ -590,10 +739,39 @@
       padding:3px 9px;
       font-weight:800;
       font-size:11px;
+      white-space:nowrap;
     }
 
-    #{{ ROOT }} .anaj-price__right{
+    /* ilość sztuk – na poziomie ceny */
+    #{{ ROOT }} .anaj-price__qty{
       margin-left:auto;
+      display:flex;
+      align-items:center;
+      justify-content:flex-end;
+      flex-wrap:nowrap;
+      gap:6px;
+      min-width:0;
+    }
+
+    #{{ ROOT }} .anaj-qty__label{
+      font-size:13px;
+      font-weight:700;
+      white-space:nowrap;
+    }
+
+    #{{ ROOT }} .anaj-qty__select{
+      border-radius:999px;
+      border:1px solid rgba(0,0,0,.12);
+      padding:4px 12px;
+      font-size:14px;
+      font-weight:600;
+      background:#fff;
+      min-width:90px;
+    }
+
+    /* META (stock badge) – ukryte całkowicie na desktop i mobile */
+    #{{ ROOT }} .anaj-price__meta{
+      display:none;
     }
 
     #{{ ROOT }} .anaj-price__stock{
@@ -605,11 +783,51 @@
       border:1px solid rgba(0,0,0,.06);
     }
 
-    /* [PDP-VARIANTS] – wycentrowane pole „ilość sztuk” */
+    /* warianty – blok pod ceną (jeśli istnieją) */
+    #{{ ROOT }} .anaj-price__variants{
+      margin-top:4px;
+    }
+
+    #{{ ROOT }} .anaj-price .anaj-variants{
+      display:flex;
+      align-items:flex-end;
+      justify-content:flex-start;
+      gap:10px;
+      margin-top:0;
+      width:100%;
+      flex-wrap:wrap;
+    }
+
+    #{{ ROOT }} .anaj-price .anaj-variants__item{
+      display:flex;
+      align-items:flex-end;
+      gap:6px;
+    }
+
+    #{{ ROOT }} .anaj-price .anaj-variants__label{
+      font-size:13px;
+      font-weight:600;
+      margin:0;
+      white-space:nowrap;
+    }
+
+    #{{ ROOT }} .anaj-price .anaj-variants__select{
+      max-width:180px;
+      width:100%;
+      border-radius:999px;
+      border:1px solid rgba(0,0,0,.12);
+      padding:6px 14px;
+      font-size:14px;
+      font-weight:600;
+      line-height:1.1;
+      background:#fff;
+    }
+
+    /* domyślne style wariantów – fallback */
     #{{ ROOT }} .anaj-variants{
       display:grid;
       gap:8px;
-      margin-top:8px;
+      margin-top:4px;
       justify-items:center;
     }
 
@@ -629,7 +847,6 @@
       background:#fff;
     }
 
-    /* USP pod ilością */
     #{{ ROOT }} .anaj-usp{
       list-style:none;
       margin:8px 0 10px 0;
@@ -641,10 +858,10 @@
     }
 
     #{{ ROOT }} .anaj-usp li{
-      background:linear-gradient(180deg,#FFF9EF,#F1DFC3) !important;
+      background:linear-gradient(180deg,#FFF9EF,#F1DFC3);
       padding:8px 14px;
       border-radius:999px;
-      border:1px solid var(--chip-border) !important;
+      border:1px solid var(--chip-border);
       font-size:13px;
       font-weight:700;
       display:inline-flex;
@@ -653,65 +870,75 @@
       box-shadow:0 6px 14px rgba(0,0,0,.12);
     }
 
-    /* === CTA === */
+    /* CTA BAR – PRZYCISKI OBOK SIEBIE (MOBILE + DESKTOP) */
     #{{ ROOT }} .anaj-ctaBar{
       display:flex;
-      flex-wrap:wrap;
+      flex-wrap:nowrap;
       justify-content:center;
+      align-items:stretch;
       gap:10px;
       margin-top:8px;
     }
 
+    #{{ ROOT }} .anaj-card--ghost{
+      background:transparent;   /* bez kafelka pod spodem */
+      border-radius:0;
+      padding:0;
+      border:none;
+      box-shadow:none;
+      width:100%;
+      box-sizing:border-box;
+    }
+
     #{{ ROOT }} .anaj-ctaBar .anaj-form{
       margin:0;
-      width:100%;
-      max-width:420px;
+      flex:0 0 calc(50% - 5px);  /* po 1/2 szerokości */
+      max-width:none;
+      box-sizing:border-box;
     }
 
     #{{ ROOT }} .anaj-ctaBar .anaj-btn{
       all:unset;
-      display:inline-flex;
+      display:flex;
       align-items:center;
       justify-content:center;
       gap:10px;
       width:100%;
       min-height:52px;
-      padding:14px 24px;
+      padding:14px 20px;
       border-radius:9999px;
       font:inherit;
       font-weight:900;
       letter-spacing:.02em;
       cursor:pointer;
-      transition:transform .12s ease, box-shadow .12s ease, background .12s ease;
+      box-sizing:border-box;
+      transition:
+        transform .12s ease,
+        box-shadow .12s ease,
+        background .12s ease;
     }
 
-    @media (min-width:1024px){
-      #{{ ROOT }} .anaj-ctaBar{
-        justify-content:center;
-      }
-      #{{ ROOT }} .anaj-ctaBar .anaj-btn{
-        width:auto;
-        min-width:220px;
-      }
+    /* DODAJ DO KOSZYKA – ZŁOTY OCZOJEBNY */
+    #{{ ROOT }} .anaj-ctaBar .anaj-btn--add{
+      background:linear-gradient(180deg,#FFE86A,#FFC700);
+      color:#3a2611;
+      border:1px solid #E2A700;
+      box-shadow:
+        0 0 0 1px rgba(255,230,120,.65),
+        0 14px 30px rgba(220,170,40,.75);
+    }
+
+    /* KUP TERAZ – niebieski jak logo ANAJ */
+    #{{ ROOT }} .anaj-ctaBar .anaj-btn--buy{
+      background:linear-gradient(180deg,#51BFFF,#1D8ADD);
+      color:#ffffff;
+      border:1px solid #0C5FA8;
+      box-shadow:0 10px 24px rgba(12,95,168,.35);
     }
 
     #{{ ROOT }} .anaj-ctaBar .anaj-btn[disabled]{
       opacity:.55;
       cursor:not-allowed;
-    }
-
-    #{{ ROOT }} .anaj-ctaBar .anaj-btn--add{
-      background:linear-gradient(180deg,#F6C97D,#D79B4C) !important;
-      color:#2b2219 !important;
-      border:1px solid #C4873A !important;
-      box-shadow:0 10px 20px rgba(115,79,35,.22) !important;
-    }
-
-    #{{ ROOT }} .anaj-ctaBar .anaj-btn--buy{
-      background:linear-gradient(180deg,#5b3a1c,#2f1c0c) !important;
-      color:#fff !important;
-      border:1px solid rgba(0,0,0,.6) !important;
-      box-shadow:0 10px 24px rgba(0,0,0,.35) !important;
     }
 
     #{{ ROOT }} .anaj-ctaBar .anaj-btn:hover:not([disabled]){
@@ -729,7 +956,12 @@
       outline-offset:2px;
     }
 
-    /* === TIMELINE === */
+    @media (min-width:1024px){
+      #{{ ROOT }} .anaj-ctaBar{
+        justify-content:center;
+      }
+    }
+
     #{{ ROOT }} .anaj-timeline{
       --gold1:#D9A055;
       --gold2:#B98E55;
@@ -820,30 +1052,78 @@
       padding:2px 8px;
     }
 
-    @media (max-width:540px){
-      #{{ ROOT }} .anaj-timeline{padding:12px}
-      #{{ ROOT }} .anaj-tl{gap:12px}
-      #{{ ROOT }} .anaj-tl__line{left:28px; right:28px}
-      #{{ ROOT }} .anaj-tl__dot{width:32px; height:32px; margin-bottom:6px}
-      #{{ ROOT }} .anaj-tl__date{font-size:13.6px}
-      #{{ ROOT }} .anaj-tl__label{font-size:12px}
+    #{{ ROOT }} .anaj-extra{
+      margin-top:10px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
     }
 
-    /* === AKORDEONY / NUTRIA === */
+    /* prawy stack (szczegóły dostawy + baner) – wspólna szerokość z timeline */
+    @media (min-width:1024px){
+      #{{ ROOT }} .anaj-timeline,
+      #{{ ROOT }} .anaj-extra--right{
+        max-width:460px;
+        margin-inline:auto;
+      }
+
+      #{{ ROOT }} .anaj-extra--right .anaj-card{
+        width:100%;
+      }
+    }
+
+    #{{ ROOT }} .anaj-acc__item{
+      border-radius:16px;
+      overflow:hidden;
+    }
+
     #{{ ROOT }} .anaj-acc__item > summary{
+      display:flex;
+      align-items:center;
+      justify-content:center;      /* środkowanie w poziomie */
+      gap:8px;
       padding:12px 14px;
       cursor:pointer;
-      list-style:none;
       font-weight:700;
-      border-radius:12px;
+      position:relative;
+      list-style:none;
+      text-align:center;           /* text faktycznie wyśrodkowany */
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.65),
+        inset 0 -1px 2px rgba(120,80,40,0.18);
     }
 
-    #{{ ROOT }} .anaj-acc__item > summary::-webkit-details-marker{
-      display:none;
+    /* plus po prawej, tekst nadal na środku */
+    #{{ ROOT }} .anaj-acc__item > summary::after{
+      content:'+'; 
+      position:absolute;
+      right:14px;
+      top:50%;
+      transform:translateY(-50%);
+      font-weight:900;
+      font-size:18px;
+      transition:transform .22s ease;
+    }
+
+    #{{ ROOT }} .anaj-acc__item[open] > summary::after{
+      transform:rotate(45deg);
     }
 
     #{{ ROOT }} .anaj-acc__content{
-      padding:0 14px 12px 14px;
+      max-height:0;
+      opacity:0;
+      transform:translateY(-4px);
+      overflow:hidden;
+      padding:0 14px;
+      padding-bottom:0;
+      transition:max-height .3s ease, opacity .22s ease, transform .22s ease, padding-bottom .22s ease;
+    }
+
+    #{{ ROOT }} .anaj-acc__item[open] .anaj-acc__content{
+      max-height:650px;
+      opacity:1;
+      transform:translateY(0);
+      padding-bottom:12px;
     }
 
     #{{ ROOT }} .anaj-nutri{
@@ -874,49 +1154,64 @@
       opacity:.75;
     }
 
-    /* Baner płatności – mniejszy na desktopie */
+    /* baner płatności – elegancki, węższy pasek, szerokość jak akordeon */
     #{{ ROOT }} .anaj-banner{
-      padding:0;
+      padding:6px 10px;
       overflow:hidden;
       margin-top:12px;
       text-align:center;
+      border: 1.6px solid rgba(168,128,74,0.75);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.75),
+        inset 0 -2px 3px rgba(120,80,40,0.18),
+        0 6px 14px rgba(90,60,30,0.18),
+        0 12px 26px rgba(90,60,30,0.12);
     }
 
     #{{ ROOT }} .anaj-banner img{
       display:block;
       width:100%;
       height:auto;
-      object-fit:cover;
+      max-height:70px;
+      object-fit:contain;
+    }
+
+    #{{ ROOT }} .anaj-banner__placeholder{
+      padding:14px 16px;
+      font-size:13px;
     }
 
     @media (min-width:1024px){
-      #{{ ROOT }} .anaj-banner img{
-        width:auto;
-        max-width:360px;
+      #{{ ROOT }} .anaj-banner{
         margin-inline:auto;
       }
     }
 
-    /* Font + globalny reset w sekcji */
-    #{{ ROOT }},
     #{{ ROOT }} * {
-      font-family: var(--font-body-family), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Helvetica Neue", Arial, sans-serif !important;
+      font-family: var(--font-body-family), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Helvetica Neue", Arial, sans-serif;
       font-feature-settings: "kern" 1, "liga" 1;
+      box-sizing:border-box;
     }
 
-    /* === TYTUŁ === */
-    #{{ ROOT }} .anaj-head{
-      margin-bottom: 10px;
-      text-align: center;
+    /* domyślnie: wariant desktopowy nagłówka widoczny, mobile'owe badge/tytuł ukryte */
+    #{{ ROOT }} .anaj-head--desktop{
       display:flex;
       flex-direction:column;
       align-items:center;
+      margin-bottom:10px;
+      text-align:center;
+    }
+
+    #{{ ROOT }} .anaj-pill-mobile,
+    #{{ ROOT }} .anaj-title-wrapper--mobile{
+      display:none;
     }
 
     #{{ ROOT }} .anaj-head__top{
       display:flex;
       justify-content:center;
-      margin-bottom:4px;
+      margin-top:6px;
+      margin-bottom:0;
     }
 
     #{{ ROOT }} .anaj-pill{
@@ -932,31 +1227,17 @@
       border:1px solid rgba(255,255,255,.25);
     }
 
-    #{{ ROOT }} .anaj-head__top,
-    #{{ ROOT }} .anaj-head__top::before,
-    #{{ ROOT }} .anaj-head__top::marker,
-    #{{ ROOT }} .anaj-pill::before,
-    #{{ ROOT }} .anaj-pill::marker{
-      content:none;
-      list-style:none;
-    }
-
-    /* [PDP-TITLE] – główny tytuł produktu */
     #{{ ROOT }} .anaj-title{
       margin:6px 0 0 0;
       text-align:center;
       text-transform:uppercase;
       letter-spacing:.03em;
-      font-weight:900 !important;
-      font-size:clamp(26px, 3.4vw, 42px) !important;
-      line-height:1.08 !important;
+      font-weight:900;
+      font-size:clamp(26px, 3.4vw, 42px);
+      line-height:1.08;
       display:inline-block;
-      color:#4b2a16 !important;
-      background:none !important;
-      -webkit-background-clip: initial !important;
-      -webkit-text-fill-color: currentColor;
+      color:#4b2a16;
       text-shadow:0 1px 3px rgba(0,0,0,.22);
-
       max-width:22ch;
       margin-inline:auto;
       word-break:normal;
@@ -966,12 +1247,9 @@
     }
 
     @supports not (text-wrap: balance){
-      #{{ ROOT }} .anaj-title{
-        text-wrap:wrap;
-      }
+      #{{ ROOT }} .anaj-title{ text-wrap:wrap; }
     }
 
-    /* płyta pod tytułem */
     #{{ ROOT }} .anaj-title-wrapper {
       position: relative;
       display: inline-block;
@@ -994,85 +1272,13 @@
       box-shadow:0 10px 22px rgba(0,0,0,.25);
     }
 
-    /* [PDP-TITLE-MOBILE] */
-    @media (max-width: 750px){
-      #{{ ROOT }} .anaj-title{
-        font-size: clamp(26px, 7.2vw, 40px) !important;
-        letter-spacing: .02em;
-        line-height: 1.08 !important;
-        max-width: 100%;
-        padding-inline: 4px;
-      }
-
-      #{{ ROOT }} .anaj-title-wrapper{
-        padding: 14px 18px;
-        border-radius: 16px;
-        max-width: 100%;
-      }
+    /* Widoczność zestawów akordeonów: desktop vs mobile */
+    #{{ ROOT }} .anaj-extra--mobile{
+      display:none;
     }
 
-    @media (max-width: 480px){
-      #{{ ROOT }} .anaj-title{
-        overflow-wrap: break-word;
-      }
-    }
-
-    /* Animacja accordionów */
-    #{{ ROOT }} .anaj-acc__item{
-      border-radius:16px;
-      overflow:hidden;
-    }
-
-    #{{ ROOT }} .anaj-acc__item > summary{
-      display:flex;
-      align-items:center;
-      gap:8px;
-      padding:12px 14px;
-      cursor:pointer;
-      font-weight:700;
-      position:relative;
-    }
-
-    #{{ ROOT }} .anaj-acc__item > summary::after{
-      content:'+';
-      margin-left:auto;
-      font-weight:900;
-      font-size:18px;
-      transition:transform .22s ease;
-    }
-
-    #{{ ROOT }} .anaj-acc__item[open] > summary::after{
-      transform:rotate(45deg);
-    }
-
-    #{{ ROOT }} .anaj-acc__item .anaj-acc__content{
-      max-height:0;
-      opacity:0;
-      transform:translateY(-4px);
-      overflow:hidden;
-      transition:max-height .3s ease, opacity .22s ease, transform .22s ease;
-    }
-
-    #{{ ROOT }} .anaj-acc__item[open] .anaj-acc__content{
-      max-height:650px;
-      opacity:1;
-      transform:translateY(0);
-    }
-
-    /* Przywracamy pogrubienia w treści */
-    #{{ ROOT }} strong,
-    #{{ ROOT }} b{
-      font-weight:700;
-    }
-
-    /* Usunięcie przypadkowego bordera nad sekcją ceny */
-    #{{ ROOT }} [style*="border-top"],
-    #{{ ROOT }} .anaj-price{
-      border-top:0 !important;
-    }
-
-    /* Bezpiecznik na mobile – nic nie ma prawa wystawać w bok */
-    @media (max-width: 750px){
+    /* MOBILE – przełącz widoczność nagłówków i kolejność elementów w prawej kolumnie */
+    @media (max-width: 1023px){
       #{{ ROOT }}{
         max-width: 100%;
       }
@@ -1083,17 +1289,201 @@
         height: auto;
       }
 
-      #{{ ROOT }} .anaj-price,
+      /* nagłówek desktopowy chowamy, pokazujemy mobile'owy badge + tytuł pod zdjęciami */
+      #{{ ROOT }} .anaj-head--desktop{
+        display:none;
+      }
+
+      #{{ ROOT }} .anaj-pill-mobile{
+        display:flex;
+        justify-content:center;
+        margin-bottom:6px;
+      }
+
+      #{{ ROOT }} .anaj-title-wrapper--mobile{
+        display:flex;
+        justify-content:center;
+        margin-top:10px;
+        margin-bottom:6px;
+      }
+
+      #{{ ROOT }} .anaj-title{
+        font-size: clamp(26px, 7.2vw, 40px);
+        letter-spacing: .02em;
+        line-height: 1.08;
+        max-width: 100%;
+        padding-inline: 4px;
+      }
+
+      #{{ ROOT }} .anaj-title-wrapper{
+        padding: 14px 18px;
+        border-radius: 16px;
+        max-width: 100%;
+      }
+
       #{{ ROOT }} .anaj-usp{
         flex-wrap: wrap;
       }
 
-      #{{ ROOT }} .anaj-usp li,
-      #{{ ROOT }} .anaj-pill,
-      #{{ ROOT }} summary,
-      #{{ ROOT }} .anaj-title-wrapper,
-      #{{ ROOT }} .anaj-title{
-        white-space: normal;
+      #{{ ROOT }} .anaj-price .anaj-variants{
+        justify-content:flex-start;
+      }
+
+      #{{ ROOT }} .anaj-price__qty{
+        justify-content:flex-end;
+      }
+
+      /* desktopowe akordeony pod galerią chowamy na mobile */
+      #{{ ROOT }} .anaj-extra--left{
+        display:none;
+      }
+
+      /* mobilne akordeony – pokazywane na mobile */
+      #{{ ROOT }} .anaj-extra--mobile{
+        display:flex;
+      }
+
+      /* prawy stack – pełna szerokość na mobile */
+      #{{ ROOT }} .anaj-timeline,
+      #{{ ROOT }} .anaj-extra--right{
+        max-width:100%;
+      }
+
+      /* MOBILE: kolejność w prawej kolumnie – przyciski przed USP, reszta pod spodem */
+      #{{ ROOT }} .anaj-right{
+        display:flex;
+        flex-direction:column;
+      }
+
+      #{{ ROOT }} .anaj-price{
+        order:1;
+      }
+
+      #{{ ROOT }} .anaj-ctaBar{
+        order:2;
+      }
+
+      #{{ ROOT }} .anaj-usp{
+        order:3;
+      }
+
+      #{{ ROOT }} .anaj-timeline{
+        order:4;
+      }
+
+      #{{ ROOT }} .anaj-extra--mobile{
+        order:5;
+      }
+
+      #{{ ROOT }} .anaj-extra--right{
+        order:6;
+      }
+    }
+
+    /* --- NOWE: opóźnione wejście tytułu, żeby nie wisiał sam na białym tle --- */
+    #{{ ROOT }} .anaj-title-wrapper,
+    #{{ ROOT }} .anaj-title-wrapper--mobile{
+      opacity: 0;
+      transform: translateY(6px);
+      animation: anajTitleIn .28s ease-out .25s forwards;
+    }
+
+    @keyframes anajTitleIn{
+      to{
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* === KAFELKI INFO (O produkcie / Skład / Wartości / Przechowywanie / Szczegóły dostawy) === */
+    #{{ ROOT }} .anaj-extra--left .anaj-card,
+    #{{ ROOT }} .anaj-extra--right .anaj-card,
+    #{{ ROOT }} .anaj-extra--mobile .anaj-card {
+      background:#FFF6E7;                           /* ten sam beż co panel tytułu */
+      border-radius:16px;
+      /* RAMKA – wyraźna, ale szlachetna */
+      border: 1.6px solid rgba(168,128,74,0.75);
+
+      /* WYPUKŁOŚĆ – efekt „przycisku / kartonika” */
+      box-shadow:
+        /* subtelne światło od góry */
+        inset 0 1px 0 rgba(255,255,255,0.75),
+
+        /* delikatne przyciemnienie dołu */
+        inset 0 -2px 3px rgba(120,80,40,0.18),
+
+        /* cień rzucany – oderwanie od tła */
+        0 6px 14px rgba(90,60,30,0.18),
+        0 12px 26px rgba(90,60,30,0.12);
+
+      /* ważne: NIE ruszamy tła */
+      background-clip: padding-box;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* lekki „docisk” przy otwarciu akordeonu */
+    #{{ ROOT }} details[open].anaj-acc__item {
+      transform: translateY(1px);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.6),
+        inset 0 -1px 2px rgba(120,80,40,0.22),
+        0 4px 10px rgba(90,60,30,0.16);
+    }
+
+    /* PRAWDZIWA TEKSTURA PAPIERU */
+    #{{ ROOT }} .anaj-extra--left .anaj-card::after,
+    #{{ ROOT }} .anaj-extra--right .anaj-card::after,
+    #{{ ROOT }} .anaj-extra--mobile .anaj-card::after,
+    #{{ ROOT }} .anaj-banner::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      opacity:0.22; /* ← TO JEST SUWAK MOCY */
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='0.18'/%3E%3C/svg%3E");
+      background-repeat:repeat;
+      background-size:180px 180px;
+
+      /* WCISK PAPIERU */
+      mix-blend-mode: multiply;
+    }
+
+    /* TWARDY OVERRIDE KOLORÓW CTA – WERSJA ANAJ */
+    #{{ ROOT }} .anaj-ctaBar .anaj-form:first-child .anaj-btn {
+      background: linear-gradient(180deg,#FFE86A,#FFC700) !important; /* złoty oczojebny */
+      color: #3a2611 !important;
+      border: 1px solid #E2A700 !important;
+      box-shadow: 0 0 0 1px rgba(255,230,120,.65), 0 14px 30px rgba(220,170,40,.75) !important;
+    }
+
+    /* drugie CTA – Kup teraz, niebieskie jak logo */
+    #{{ ROOT }} .anaj-ctaBar .anaj-form:last-child .anaj-btn {
+      background: linear-gradient(180deg,#51BFFF,#1D8ADD) !important; /* niebieski */
+      color: #ffffff !important;
+      border: 1px solid #0C5FA8 !important;
+      box-shadow: 0 10px 24px rgba(12,95,168,.35) !important;
+    }
+
+    @media (min-width: 1024px){
+      /* Na desktopie na beton chowamy mobilny badge + tytuł pod zdjęciem */
+      #{{ ROOT }} .anaj-pill-mobile,
+      #{{ ROOT }} .anaj-title-wrapper--mobile{
+        display: none !important;
+      }
+    }
+
+    /* === HARD RESET CIENI NA SZABLONIE PRODUKTU (MOBILE + DESKTOP) === */
+    @media (min-width: 0){
+      /* sama sekcja (ta z class "anaj-pdp-section") + ewentualne pseudo-elementy */
+      .anaj-pdp-section,
+      .anaj-pdp-section::before,
+      .anaj-pdp-section::after,
+      /* cała zawartość środka + pasek z paskami */
+      #{{ ROOT }} *,
+      .anaj-pdp-bg {
+        box-shadow: none !important;
+        filter: none !important;
       }
     }
   </style>
@@ -1104,7 +1494,6 @@
         const root = document.getElementById('{{ ROOT }}');
         if (!root) return;
 
-        /* Galeria – slider z animacją i swipe */
         const gal = document.getElementById('{{ GID }}');
         if (gal) {
           const stage = gal.querySelector('.anaj-gal__stage');
@@ -1161,7 +1550,6 @@
           }
         }
 
-        /* Warianty / cena / synchronizacja formularzy */
         const vmapEl = document.getElementById('{{ ROOT }}-vmap');
         const vmap = vmapEl ? JSON.parse(vmapEl.textContent || '[]') : [];
 
@@ -1187,6 +1575,18 @@
         const buyBtn  = buyForm ? buyForm.querySelector('button') : null;
         const addId   = addForm ? addForm.querySelector('input[name="id"]') : null;
         const buyId   = buyForm ? buyForm.querySelector('input[name="id"]') : null;
+
+        /* ILOŚĆ SZTUK – select + synchronizacja z hidden inputs w formularzach */
+        const qtySelect = root.querySelector('[data-anaj-qty-select]');
+        const qtyInputs = Array.from(root.querySelectorAll('.anaj-qty-input'));
+        if (qtySelect && qtyInputs.length) {
+          const syncQty = () => {
+            const q = parseInt(qtySelect.value, 10) || 1;
+            qtyInputs.forEach(i => { i.value = q; });
+          };
+          qtySelect.addEventListener('change', syncQty);
+          syncQty();
+        }
 
         const norm = s => (s ?? '').toString().trim().toLowerCase();
 
@@ -1254,6 +1654,7 @@
         );
 
         updateUI(resolveVariant());
+
       } catch(e){
         console.error(e);
       }
@@ -1283,7 +1684,7 @@
       "type": "text",
       "id": "usp_2",
       "label": "USP #2 pod ilością sztuk",
-      "default": "Dostawa dzień roboczy po wypieku"
+      "default": "Dostawa dzień po wypieku"
     },
     {
       "type": "image_picker",
